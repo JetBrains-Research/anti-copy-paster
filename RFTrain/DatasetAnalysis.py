@@ -15,7 +15,7 @@ sns.set(color_codes=True)
 def main():
     rf = RandomForestClassifier(n_estimators=1000, random_state=42)
 
-    features = pd.read_csv('res.csv')
+    features = pd.read_csv('false_train.csv')
     labels = np.array(features['label'])
 
     positive_ = features[features.label == 1]
