@@ -1,0 +1,23 @@
+<idea-plugin>
+    <id>ru.hse.kirilenko.ASTPrinter.ASTPrinter</id>
+    <name>AST Printer</name>
+    <vendor email="kirilenko.haa@gmail.com" url="http://www.google.com">HSE</vendor>
+
+    <description><![CDATA[
+    Prints AST of currently highlighted code in editor
+    ]]></description>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <copyPastePreProcessor implementation="MessagePreProcessor"/>
+        <!--<toolWindow id="My Sample Tool Window" anchor="right" factoryClass="MyToolWindowFactory">
+
+        </toolWindow>-->
+    </extensions>
+
+    <actions>
+        <group id="PrintAST.Menu" text="Print AST" description="Prints AST of currently highlighted code in editor">
+            <add-to-group group-id="ToolbarFindGroup" anchor="last"/>
+            <action id="PrintAST" class="UploadLogAction" text="Print AST" description="Prints AST of currently highlighted code in editor"/>
+        </group>
+    </actions>
+</idea-plugin>

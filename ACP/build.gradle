@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.4.10'
+}
+
+group 'ru.hse.kirilenko.ASTPrinter'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'com.google.cloud', name: 'google-cloud-storage', version: '1.101.0'
+    compile group: 'com.google.cloud', name: 'google-cloud-core', version: '1.91.3'
+    compile 'com.google.apis:google-api-services-storage:v1-rev158-1.25.0'
+    compile group: 'com.google.cloud', name: 'google-cloud-datastore', version: '1.2.1'
+    compile 'com.google.auth:google-auth-library-oauth2-http:0.18.0'
+}
+
+intellij {
+    version '2018.3.6'
+}
+
+patchPluginXml {
+    changeNotes """
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>"""
+}
