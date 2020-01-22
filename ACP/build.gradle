@@ -1,6 +1,7 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.10'
+    id 'org.jetbrains.intellij' version '0.4.15'
+    id 'idea'
 }
 
 group 'ru.hse.kirilenko.ASTPrinter'
@@ -19,13 +20,13 @@ dependencies {
     compile 'com.google.apis:google-api-services-storage:v1-rev158-1.25.0'
     compile group: 'com.google.cloud', name: 'google-cloud-datastore', version: '1.2.1'
     compile 'com.google.auth:google-auth-library-oauth2-http:0.18.0'
-}
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    compile group: 'com.google.apis', name: 'google-api-services-discovery', version: 'v1-rev123-1.25.0'
 
-intellij {
-    version '2018.3.6'
 }
-
+project.gradle.startParameter.excludedTaskNames.add('buildSearchableOptions')
 patchPluginXml {
+    sinceBuild '170'
     changeNotes """
       Add change notes here.<br>
       <em>most HTML tags may be used</em>"""

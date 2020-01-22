@@ -2,16 +2,14 @@
     <id>ru.hse.kirilenko.ASTPrinter.ASTPrinter</id>
     <name>AST Printer</name>
     <vendor email="kirilenko.haa@gmail.com" url="http://www.google.com">HSE</vendor>
-
+    <idea-version since-build="3000"/>
     <description><![CDATA[
-    Prints AST of currently highlighted code in editor
+    Logs Copy Paste actions to cloud storage
     ]]></description>
 
     <extensions defaultExtensionNs="com.intellij">
         <copyPastePreProcessor implementation="MessagePreProcessor"/>
-        <!--<toolWindow id="My Sample Tool Window" anchor="right" factoryClass="MyToolWindowFactory">
-
-        </toolWindow>-->
+        <copyPastePreProcessor implementation="ExtractMethodPreProcessor"/>
     </extensions>
 
     <actions>

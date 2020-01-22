@@ -1,58 +1,50 @@
-import com.google.api.gax.paging.Page;
-import com.google.auth.oauth2.AccessToken;
+import builders.LogEventBuilder;
+import builders.LogItem;
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.storage.*;
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RawText;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import credentials.Credentials;
+import loggers.CloudLogger;
+import loggers.LocalLogger;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
-import java.io.*;
+import utils.ZipUtil;
 
-import com.google.cloud.ServiceOptions;
+import java.io.*;
+import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
 /**
  * Class that extend logic on copy-paste actions
  */
 public class MessagePreProcessor implements CopyPastePreProcessor {
-    private static Logger logger;
+    private static LocalLogger logger;
     private static CloudLogger cloudLogger;
-    private static Storage cloudStorage;
-    private static String SERVICE_ACCOUNT_JSON_PATH = System.getProperty("user.home") + "/Anti-Copy-Paster-1c5681e84926.json";
-    private static String LOCAL_LOG_FILE_PATH = System.getProperty("user.home") + "/copy_log.txt";
-
+    private static ThreadPoolExecutor handleQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
     static {
         try {
-            logger = new Logger(LOCAL_LOG_FILE_PATH);
+            logger = new LocalLogger(Credentials.LOCAL_LOG_FILE_PATH);
         } catch (IOException e) {
-            System.err.println("Unable to create log file");
+            System.err.println("Unable to create local log file");
             e.printStackTrace();
         }
 
         try {
-
-            cloudStorage = StorageOptions
-                    .newBuilder()
-                    .setCredentials(
-                            ServiceAccountCredentials
-                            .fromStream(new FileInputStream(SERVICE_ACCOUNT_JSON_PATH))
-                    )
-                    .build()
-                    .getService();
+            cloudLogger = new CloudLogger();
         } catch (Exception e) {
+            System.err.println("Unable to connect google cloud");
             e.printStackTrace();
         }
-
-        cloudLogger = new CloudLogger();
     }
-
 
     /**
      * Nothing to do
@@ -60,18 +52,44 @@ public class MessagePreProcessor implements CopyPastePreProcessor {
     @Nullable
     @Override
     public String preprocessOnCopy(PsiFile file, int[] startOffsets, int[] endOffsets, String text) {
-        int locs = StringUtils.countMatches(text, '\n');
-        boolean lastCharIsNewLine = text.charAt(text.length() - 1) == '\n';
-
-        if (!lastCharIsNewLine) {
-            ++locs;
+        int startOffset = startOffsets[0];
+        int endOffset = endOffsets[0];
+        final VirtualFile vf = file.getVirtualFile();
+        final String path;
+        if (vf != null) {
+            path = vf.getCanonicalPath();
+        } else {
+            path = "";
         }
+        final String fileText = file.getText();
+        handleQueue.execute(() -> {
+            LogEventBuilder builder = new LogEventBuilder();
+            builder.addItem(LogItem.ACTION, "COPY");
+            builder.addItem(LogItem.USER_NAME, System.getProperty("user.name"));
+            builder.addItem(LogItem.BEGIN_OFFSET, String.valueOf(startOffset));
+            builder.addItem(LogItem.END_OFFSET, String.valueOf(endOffset));
+            builder.addItem(LogItem.FILE_PATH, path);
 
-        logger.log("C " + locs, true);
-        logger.log(text, !lastCharIsNewLine);
+            builder.addItem(LogItem.CODE_FRAGMENT, text);
 
-        String fullLog = "C " + locs + '\n' + text;
-        //cloudLogger.log(fullLog, !lastCharIsNewLine);
+            try {
+                String compressed = ZipUtil.compress(fileText);
+                if (compressed.length() < fileText.length()) {
+                    builder.addItem(LogItem.IS_COMPRESSED, "true");
+                    builder.addItem(LogItem.FILE_CONTENT, compressed);
+                } else {
+                    builder.addItem(LogItem.IS_COMPRESSED, "false");
+                    builder.addItem(LogItem.FILE_CONTENT, fileText);
+                }
+            } catch(Exception ex) {
+                System.err.println("Unable to compress file with code");
+                builder.addItem(LogItem.IS_COMPRESSED, "false");
+                builder.addItem(LogItem.FILE_CONTENT, fileText);
+
+            }
+            handleAction(builder.build());
+        });
+
         return null;
     }
 
@@ -81,67 +99,69 @@ public class MessagePreProcessor implements CopyPastePreProcessor {
     @NotNull
     @Override
     public String preprocessOnPaste(Project project, PsiFile file, Editor editor, String text, RawText rawText) {
-        int locs = StringUtils.countMatches(text, '\n');
-        boolean lastCharIsNewLine = text.charAt(text.length() - 1) == '\n';
-
-        if (!lastCharIsNewLine) {
-            ++locs;
+        final Scanner scanner;
+        Scanner scanner1;
+        try {
+            byte[] workspace = project.getWorkspaceFile().contentsToByteArray();
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(workspace);
+            scanner1 = new Scanner(byteArrayInputStream);
+        } catch(IOException ex) {
+            // skip
+            scanner1 = null;
         }
 
-        logger.log("P " + locs, true);
-        logger.log(text, !lastCharIsNewLine);
+        scanner = scanner1;
+        int caretOffset = editor.getCaretModel().getOffset();
+        final VirtualFile vf = file.getVirtualFile();
+        final String path;
+        if (vf != null) {
+            path = vf.getCanonicalPath();
+        } else {
+            path = "";
+        }
+        final String fileText = file.getText();
+        handleQueue.execute(() -> {
+            LogEventBuilder builder = new LogEventBuilder();
+            builder.addItem(LogItem.ACTION, "PASTE");
+            builder.addItem(LogItem.USER_NAME, System.getProperty("user.name"));
+            if (scanner != null) {
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine();
+                    if (line.contains("ProjectId")) {
+                        builder.addItem(LogItem.PROJECT_ID, line);
+                        break;
+                    }
+                }
+            }
+            builder.addItem(LogItem.BEGIN_OFFSET, String.valueOf(caretOffset));
 
-        String fullLog = "P " + locs + '\n' + text;
-        new Thread(() -> cloudLogger.log(fullLog, !lastCharIsNewLine)).start();
+            builder.addItem(LogItem.FILE_PATH, path);
+
+            builder.addItem(LogItem.CODE_FRAGMENT, text);
+
+            try {
+                String compressed = ZipUtil.compress(fileText);
+                if (compressed.length() < fileText.length()) {
+                    builder.addItem(LogItem.IS_COMPRESSED, "true");
+                    builder.addItem(LogItem.FILE_CONTENT, compressed);
+                } else {
+                    builder.addItem(LogItem.IS_COMPRESSED, "false");
+                    builder.addItem(LogItem.FILE_CONTENT, fileText);
+                }
+            } catch(Exception ex) {
+                System.err.println("Unable to compress file with code");
+                builder.addItem(LogItem.IS_COMPRESSED, "false");
+                builder.addItem(LogItem.FILE_CONTENT, fileText);
+
+            }
+            handleAction(builder.build());
+        });
 
         return text;
     }
 
-    private static class Logger {
-        private PrintWriter pw;
-
-        public Logger(String fileName) throws IOException {
-            FileWriter fileWriter = new FileWriter(fileName, true);
-            final PrintWriter printWriter = new PrintWriter(fileWriter, true);
-            this.pw = printWriter;
-        }
-
-        private void log(final String text, boolean addNewLine) {
-            if (addNewLine) {
-                pw.println(text);
-            } else {
-                pw.print(text);
-            }
-
-            pw.flush();
-        }
-    }
-
-    private static class CloudLogger {
-        public CloudLogger() {}
-
-        private static void upload(final String text) throws UnsupportedEncodingException {
-            String bucketName = "acp-bucket-" + System.currentTimeMillis();
-            Bucket bucket = cloudStorage.create(BucketInfo.of(bucketName));
-
-            String blobName = "-copy-log.txt";
-            BlobId blobId = BlobId.of(bucketName, blobName);
-            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("text/plain").build();
-            Blob blob = bucket.create(String.valueOf(blobInfo), text.getBytes("UTF-8"));
-        }
-
-        private void log(final String text, boolean addNewLine) {
-            String fullText = text;
-
-            if (addNewLine) {
-                fullText += '\n';
-            }
-
-            try {
-                upload(fullText);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
+    private void handleAction(final String text) {
+        logger.log(text, false);
+        cloudLogger.log(text, false);
     }
 }
