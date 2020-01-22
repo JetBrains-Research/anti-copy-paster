@@ -14,6 +14,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import ru.hse.kirilenko.refactorings.csv.SparseCSVBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -122,13 +123,9 @@ public class UIApplication extends Application {
 
         try(BufferedReader br = new BufferedReader(new FileReader(file))) {
             List<String> repos = new ArrayList<>();
-            br.lines().forEach(new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    repos.add(s);
-                }
-            });
+            br.lines().forEach(s -> repos.add(s));
 
+            SparseCSVBuilder.sharedInstance = new SparseCSVBuilder("true.csv", ExtractionConfig.nFeatures);
             ExtractionRunner runner = new ExtractionRunner(repos);
             new Thread(() -> runner.run(allBar, repoBar, allProg, repoProg, totalRefactoringsCount)).start();
 

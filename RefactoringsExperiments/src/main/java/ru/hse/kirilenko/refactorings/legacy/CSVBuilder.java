@@ -1,4 +1,4 @@
-package ru.hse.kirilenko.refactorings.collectors;
+package ru.hse.kirilenko.refactorings.legacy;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,7 +9,7 @@ public class CSVBuilder {
 
     static {
         try {
-            shared = new CSVBuilder("csvResults_falseDataset.csv");
+            shared = new CSVBuilder("test1.csv");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -17,6 +17,7 @@ public class CSVBuilder {
 
     private PrintWriter pw;
     private boolean isFirst = true;
+    public int locs = 0;
 
     public CSVBuilder(String fileName) throws IOException {
         FileWriter fileWriter = new FileWriter(fileName);
@@ -29,6 +30,7 @@ public class CSVBuilder {
             pw.println(" " + (mark ? "1" : "0"));
         }
 
+        locs++;
         isFirst = false;
     }
 

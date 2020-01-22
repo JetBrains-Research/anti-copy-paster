@@ -1,4 +1,4 @@
-package ru.hse.kirilenko.refactorings.utils;
+package ru.hse.kirilenko.refactorings.utils.calcers;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -8,14 +8,13 @@ import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import ru.hse.kirilenko.refactorings.collectors.CSVBuilder;
+import ru.hse.kirilenko.refactorings.csv.SparseCSVBuilder;
+import ru.hse.kirilenko.refactorings.csv.models.CSVItem;
+import ru.hse.kirilenko.refactorings.csv.models.Feature;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
-import static ru.hse.kirilenko.refactorings.utils.OutputUtils.printLn;
 
 public class GitBlameAnalyzer {
 
@@ -26,13 +25,6 @@ public class GitBlameAnalyzer {
         final BlameResult result = new Git(repo).blame().setFilePath(filePath)
                 .setTextComparator(RawTextComparator.WS_IGNORE_ALL).call();
 
-        if (result == null) {
-            CSVBuilder.shared.addStr(0);
-            CSVBuilder.shared.addStr(0);
-            CSVBuilder.shared.addStr(0);
-            CSVBuilder.shared.addStr(0);
-            return;
-        }
 
         ArrayList<Integer> creationDates = new ArrayList<>();
         Set<String> commits = new HashSet<>();
@@ -48,9 +40,8 @@ public class GitBlameAnalyzer {
             }
         }
 
-        CSVBuilder.shared.addStr(commits.size());
-        CSVBuilder.shared.addStr(authors.size());
-
+        SparseCSVBuilder.sharedInstance.addFeature(new CSVItem(Feature.TotalCommitsInFragment, commits.size()));
+        SparseCSVBuilder.sharedInstance.addFeature(new CSVItem(Feature.TotalAuthorsInFragment, authors.size()));
         int minTime = Integer.MAX_VALUE;
         int maxTime = Integer.MIN_VALUE;
 
@@ -64,16 +55,13 @@ public class GitBlameAnalyzer {
         }
 
         if (minTime != Integer.MAX_VALUE) {
-            CSVBuilder.shared.addStr((maxTime - minTime));
             int totalTime = 0;
             for (Integer time: creationDates) {
                 totalTime += time - minTime;
             }
 
-            CSVBuilder.shared.addStr((double)totalTime / creationDates.size());
-        } else {
-            CSVBuilder.shared.addStr(0);
-            CSVBuilder.shared.addStr(0);
+            SparseCSVBuilder.sharedInstance.addFeature(new CSVItem(Feature.LiveTimeOfFragment, maxTime - minTime));
+            SparseCSVBuilder.sharedInstance.addFeature(new CSVItem(Feature.AverageLiveTimeOfLine, (double)totalTime / creationDates.size()));
         }
     }
 }

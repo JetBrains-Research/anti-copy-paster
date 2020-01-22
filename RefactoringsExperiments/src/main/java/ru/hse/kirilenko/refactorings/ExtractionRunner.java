@@ -3,7 +3,6 @@ package ru.hse.kirilenko.refactorings;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import ru.hse.kirilenko.refactorings.collectors.CSVBuilder;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -11,7 +10,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class ExtractionRunner {
     private List<String> repos = new ArrayList<>();
@@ -51,7 +49,7 @@ public class ExtractionRunner {
                 ex.printStackTrace();
             }
         }
-        CSVBuilder.shared.finish(true);
+        //CSVBuilder.shared.finish(true);
     }
 
     private void tryCreateFile(String name) {

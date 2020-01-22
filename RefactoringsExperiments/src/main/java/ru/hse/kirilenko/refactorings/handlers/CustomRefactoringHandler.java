@@ -1,28 +1,27 @@
 package ru.hse.kirilenko.refactorings.handlers;
 
+import com.github.javaparser.ast.body.MethodDeclaration;
 import gr.uom.java.xmi.LocationInfo;
-import gr.uom.java.xmi.decomposition.AbstractCodeFragment;
 import gr.uom.java.xmi.diff.ExtractOperationRefactoring;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.refactoringminer.api.GitService;
+import org.apache.commons.lang3.StringUtils;
 import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.api.RefactoringType;
-import org.refactoringminer.util.GitServiceImpl;
 import ru.hse.kirilenko.refactorings.ExtractionConfig;
-import ru.hse.kirilenko.refactorings.collectors.CSVBuilder;
 import ru.hse.kirilenko.refactorings.collectors.LocCollector;
-import ru.hse.kirilenko.refactorings.utils.GitBlameAnalyzer;
+import ru.hse.kirilenko.refactorings.csv.SparseCSVBuilder;
+import ru.hse.kirilenko.refactorings.csv.models.CSVItem;
+import ru.hse.kirilenko.refactorings.csv.models.Feature;
+import ru.hse.kirilenko.refactorings.utils.calcers.GitBlameAnalyzer;
 
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Set;
 
-import static ru.hse.kirilenko.refactorings.utils.OutputUtils.printCompositeStatement;
-import static ru.hse.kirilenko.refactorings.utils.OutputUtils.printLn;
+import static ru.hse.kirilenko.refactorings.legacy.OutputUtils.printCompositeStatement;
+import static ru.hse.kirilenko.refactorings.legacy.OutputUtils.printLn;
 
 public class CustomRefactoringHandler extends RefactoringHandler {
     private final PrintWriter out;
@@ -103,20 +102,13 @@ public class CustomRefactoringHandler extends RefactoringHandler {
 
             if (ref.getRefactoringType() == RefactoringType.EXTRACT_OPERATION) {
                 if (!hasEMRefactorings) {
-                    printLn("-----REFACTORINGS_BEGIN-----", pw);
                     hasEMRefactorings = true;
                 }
-                printLn("---REFACTORING_START---", pw);
-                CSVBuilder.shared.completeLine(true);
-                //CSVBuilder.shared.addStr(commitId);
+
+                SparseCSVBuilder.sharedInstance.writeVector(true);
                 printLn("DESCRIPTION: " + ref.toString(), pw);
                 ExtractOperationRefactoring refactoring = (ExtractOperationRefactoring)ref;
                 LocationInfo locInfo = refactoring.getExtractedOperation().getLocationInfo();
-                //CSVBuilder.shared.addStr(locInfo.getFilePath());
-                //CSVBuilder.shared.addStr(locInfo.getStartLine());
-                //CSVBuilder.shared.addStr(locInfo.getStartColumn());
-                //CSVBuilder.shared.addStr(locInfo.getEndLine());
-                //CSVBuilder.shared.addStr(locInfo.getEndColumn());
                 printLn("REFACTORING FILE DIFF URL: " + commonURL + "/" + locInfo.getFilePath(), pw);
                 printLn("REFACTORING URL: " + blobURL + "/" + locInfo.getFilePath() + "#L" + locInfo.getStartLine(), pw);
                 handleRefactoring(commitId, refactoring, pw);
@@ -134,8 +126,9 @@ public class CustomRefactoringHandler extends RefactoringHandler {
         String extractedOperationLocation = locInfo.getFilePath();
         if (ExtractionConfig.extractDirectly) {
             printLn("DIRECTLY EXTRACTED OPERATION:", pw);
+            MethodDeclaration md = null;
             try {
-                metadataExtractor.extractFragment(commitId,
+                md = metadataExtractor.extractFragment(commitId,
                         extractedOperationLocation,
                         locInfo.getStartLine(),
                         locInfo.getEndLine(),
@@ -143,11 +136,18 @@ public class CustomRefactoringHandler extends RefactoringHandler {
                         locInfo.getEndColumn(),
                         false);
 
-                metadataExtractor.extractLineAuthorAndCreationDate(locInfo.getStartLine(),
+                GitBlameAnalyzer.extractLineAuthorAndCreationDate(
+                        metadataExtractor.getRepo(),
+                        locInfo.getStartLine(),
                         locInfo.getEndLine(),
                         extractedOperationLocation);
+
                 printLn("NUMBER OF LINES IN FRAGMENT: " + (locInfo.getEndLine() - locInfo.getStartLine() + 1), pw);
-                CSVBuilder.shared.addStr(locInfo.getEndLine() - locInfo.getStartLine() + 1);
+                SparseCSVBuilder.sharedInstance.addFeature(new CSVItem(Feature.TotalLinesOfCode, locInfo.getEndLine() - locInfo.getStartLine() + 1));
+                if (md != null) {
+                    addMd(md);
+                }
+
             } catch (Exception e) {
                 System.err.println("Cannot extract refactoring in commit: " + commitId);
                 e.printStackTrace();
@@ -168,6 +168,41 @@ public class CustomRefactoringHandler extends RefactoringHandler {
         }
 
         printLn("---REFACTORING_FINISH---", pw);
-        //CSVBuilder.shared.completeLine();
+    }
+
+    private void addMd(MethodDeclaration md) {
+        String fragment = md.toString();
+        String linearFragment = fragment.replace('\n', ' ');
+        int fragLocs = StringUtils.countMatches(fragment, "\n")  + 1;
+
+        SparseCSVBuilder.sharedInstance.addFeature(new CSVItem(Feature.MethodDeclarationSymbols, linearFragment.length()));
+        SparseCSVBuilder.sharedInstance.addFeature(new CSVItem(Feature.MethodDeclarationAverageSymbols, (double)linearFragment.length() / fragLocs));
+
+        analyzeDepth(fragment, fragLocs);
+    }
+
+    void analyzeDepth(String code, int locCount) {
+        int dep = 0;
+        int area = 0;
+        int depInLine = 0;
+        for (Character ch: code.toCharArray()) {
+            if (ch == '{') {
+                dep++;
+                depInLine++;
+            } else if (ch == '}') {
+                dep--;
+                depInLine--;
+            } else if (ch == '\n'){
+                int resDep = dep;
+                if (depInLine > 0) {
+                    resDep--;
+                }
+                depInLine = 0;
+                area += resDep;
+            }
+        }
+
+        SparseCSVBuilder.sharedInstance.addFeature(new CSVItem(Feature.MethodDeclarationDepth, area));
+        SparseCSVBuilder.sharedInstance.addFeature(new CSVItem(Feature.MethodDeclarationDepthPerLine, (double)area / locCount));
     }
 }

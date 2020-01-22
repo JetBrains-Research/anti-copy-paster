@@ -1,4 +1,4 @@
-package ru.hse.kirilenko.refactorings.utils;
+package ru.hse.kirilenko.refactorings.legacy;
 
 import gr.uom.java.xmi.decomposition.AbstractStatement;
 import gr.uom.java.xmi.decomposition.CompositeStatementObject;

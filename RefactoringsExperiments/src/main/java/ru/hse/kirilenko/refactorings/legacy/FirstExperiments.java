@@ -1,4 +1,4 @@
-package ru.hse.kirilenko.refactorings;
+package ru.hse.kirilenko.refactorings.legacy;
 
 import gr.uom.java.xmi.decomposition.*;
 import gr.uom.java.xmi.decomposition.replacement.Replacement;

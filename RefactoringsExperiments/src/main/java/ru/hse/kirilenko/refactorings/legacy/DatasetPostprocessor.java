@@ -1,4 +1,4 @@
-package ru.hse.kirilenko.refactorings.postprocessing;
+package ru.hse.kirilenko.refactorings.legacy;
 
 import org.apache.commons.lang3.StringUtils;
 import ru.hse.kirilenko.refactorings.RefactoringsExtractor;
@@ -11,7 +11,7 @@ import java.util.*;
 
 public class DatasetPostprocessor {
     public static void main(String[] args) throws FileNotFoundException {
-        fixCsv();
+        fixCsv(113);
     }
 
     public static void postprocess() throws FileNotFoundException {
@@ -51,8 +51,8 @@ public class DatasetPostprocessor {
         }
     }
 
-    public static void fixCsv() throws FileNotFoundException {
-        File file = new File("csvResults_falseDataset.csv");
+    public static void fixCsv(int N) throws FileNotFoundException {
+        File file = new File("csvResults_falseDataset2.csv");
         Scanner sc = new Scanner(file);
         HashMap<String, Integer> diffsSet = new HashMap<>();
 
@@ -61,7 +61,7 @@ public class DatasetPostprocessor {
             line = line.replace(";", ",");
 
             int m = StringUtils.countMatches(line, ',');
-            if (m != 113) {
+            if (m != N) {
                 System.out.println(m);
             } else {
                 diffsSet.merge(line, 1, Integer::sum);
@@ -69,29 +69,29 @@ public class DatasetPostprocessor {
 
 
         }
-        int cnt = diffsSet.entrySet().size();
-        Random r = new Random();
-        int targetSize = 1600;
-        double prob = (double)targetSize / cnt;
+        //int cnt = diffsSet.entrySet().size();
+        //Random r = new Random();
+        //int targetSize = 1600;
+        //double prob = (double)targetSize / cnt;
         String head = "";
-        for (int i = 0; i < 114 - 1; i++) {
+        for (int i = 0; i < N; i++) {
             head += i;
-            if (i == 112) {
+            if (i == N - 1) {
                 head += ",label";
             } else {
                 head += ",";
             }
         }
 
-        try(FileWriter fileWriter = new FileWriter("res.csv")) {
+        try(FileWriter fileWriter = new FileWriter("ress.csv")) {
             final PrintWriter printWriter = new PrintWriter(fileWriter);
             printWriter.println(head);
             for (Map.Entry<String, Integer> entry: diffsSet.entrySet()) {
                 String old = entry.getKey();
                 //old += entry.getValue();
-                if (r.nextDouble() < prob) {
+                //if (r.nextDouble() < prob) {
                     printWriter.println(old);
-                }
+                //}
 
             }
         } catch (Exception ex) {

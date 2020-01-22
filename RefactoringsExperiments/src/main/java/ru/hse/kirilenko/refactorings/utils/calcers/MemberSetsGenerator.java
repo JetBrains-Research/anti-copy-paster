@@ -1,4 +1,4 @@
-package ru.hse.kirilenko.refactorings.utils;
+package ru.hse.kirilenko.refactorings.utils.calcers;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;

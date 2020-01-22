@@ -1,4 +1,4 @@
-package ru.hse.kirilenko.refactorings.utils;
+package ru.hse.kirilenko.refactorings.utils.calcers;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.annotations.Nullable;

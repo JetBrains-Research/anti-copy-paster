@@ -1,7 +1,5 @@
 package ru.hse.kirilenko.refactorings;
 
-import gr.uom.java.xmi.decomposition.*;
-import gr.uom.java.xmi.diff.ExtractOperationRefactoring;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -14,13 +12,7 @@ import org.refactoringminer.util.GitServiceImpl;
 import ru.hse.kirilenko.refactorings.handlers.CustomRefactoringHandler;
 import ru.hse.kirilenko.refactorings.handlers.MetadataExtractor;
 
-import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Set;
-
-import static ru.hse.kirilenko.refactorings.utils.OutputUtils.printCompositeStatement;
-import static ru.hse.kirilenko.refactorings.utils.OutputUtils.printLn;
 
 public class RefactoringsExtractor {
     private PrintWriter out;
