@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class ConnectivityExtractor {
 
-    public static void calculate(FileASTNode file, String codeFragment, int linesCount, String methodName, IFeaturesVector featuresVector) {
+    public static void calculate(PsiElement file, String codeFragment, int linesCount, String methodName, IFeaturesVector featuresVector) {
         MemberSets memberSets = findFieldsDeclarations(file);
 
         int fieldMatches = 0;
@@ -37,11 +37,9 @@ public class ConnectivityExtractor {
         featuresVector.addFeature(new FeatureItem(Feature.MethodConnectivityPerLine, (double)methodMatches / linesCount));
     }
 
-    private static MemberSets findFieldsDeclarations(FileASTNode root) {
-        PsiElement psiRoot = root.getPsi();
-
+    private static MemberSets findFieldsDeclarations(PsiElement root) {
         final MemberSets result = new MemberSets();
-        psiRoot.accept(new PsiRecursiveElementVisitor() {
+        root.accept(new PsiRecursiveElementVisitor() {
             @Override
             public void visitElement(PsiElement element) {
                 super.visitElement(element);

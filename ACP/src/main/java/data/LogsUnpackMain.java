@@ -3,16 +3,58 @@ package data;
 import builders.LogFileUnpacker;
 import builders.LogItem;
 import builders.LogPair;
+import org.apache.commons.lang3.StringUtils;
 import utils.Gzip;
 import utils.ZipUtil;
 
+import java.io.File;
 import java.io.IOException;
 
 public class LogsUnpackMain {
     public static void main(String[] args) throws IOException {
-        LogFileUnpacker unpacker = new LogFileUnpacker("logs/acp-bucket-1575290261234.txt");
+        int[] counts = new int[31];
+        File dir = new File("logs/");
+        File[] directoryListing = dir.listFiles();
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+                LogFileUnpacker unpacker = new LogFileUnpacker("logs/" + child.getName());
 
-        String tmp = "package builders;\n" +
+
+                LogPair lp;
+                boolean should_decompress = false;
+                do {
+                    lp = unpacker.next();
+                    if (lp.type == LogItem.IS_COMPRESSED) {
+                        if (lp.value.equals("true")) {
+                            should_decompress = true;
+                        }
+                    }
+
+
+                    if (lp.type == LogItem.CODE_FRAGMENT) {
+                        int lc = StringUtils.countMatches(lp.value, "\n");
+                        if (lc > 30) lc = 30;
+                        counts[lc]++;
+                        /*if (should_decompress) {
+                            System.out.println(ZipUtil.decompress(lp.value));
+                        } else {
+                            System.out.println(lp.value);
+
+                        }*/
+                    }
+
+                } while (lp.type != LogItem.END);
+            }
+        }
+
+        int sum = 0;
+        for (int i = 0; i < 31; ++i) {
+            sum += counts[i];
+            System.out.println("LoC:" + (i+1) + "; Count: " + counts[i]);
+        }
+        System.out.println(sum);
+
+        /*String tmp = "package builders;\n" +
                 "\n" +
                 "public class LogPair {\n" +
                 "    public LogItem type;\n" +
@@ -25,27 +67,6 @@ public class LogsUnpackMain {
                 "}";
         String r1 = ZipUtil.compress(tmp);
         System.out.println(r1);
-        System.out.println(ZipUtil.decompress(r1));
-        /*LogPair lp;
-        boolean should_decompress = false;
-        do {
-            lp = unpacker.next();
-            if (lp.type == LogItem.IS_COMPRESSED) {
-                if (lp.value.equals("true")) {
-                    should_decompress = true;
-                }
-            }
-
-
-            if (lp.type == LogItem.FILE_CONTENT) {
-                if (should_decompress) {
-                    System.out.println(ZipUtil.decompress(lp.value));
-                } else {
-                    System.out.println(lp.value);
-
-                }
-            }
-
-        }while (lp.type != LogItem.END);*/
+        System.out.println(ZipUtil.decompress(r1));*/
     }
 }

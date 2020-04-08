@@ -28,7 +28,7 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 
 public class RFPredictor {
-    public static void main(String[] args) throws GeneralSecurityException, IOException {
+    public static void main(String[] args) throws Exception {
         IPredictionModel model = new RFModelOnline("anti-copy-paster", "RFBaseline1", "RFBase1");
         List<IFeaturesVector> req = new ArrayList<>();
         Random r = new Random();

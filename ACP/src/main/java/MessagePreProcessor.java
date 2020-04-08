@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.RawText;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.PsiTreeUtil;
 import credentials.Credentials;
 import loggers.CloudLogger;
 import loggers.LocalLogger;
@@ -57,7 +58,7 @@ public class MessagePreProcessor implements CopyPastePreProcessor {
         final VirtualFile vf = file.getVirtualFile();
         final String path;
         if (vf != null) {
-            path = vf.getCanonicalPath();
+            path = vf.getPath();
         } else {
             path = "";
         }
@@ -115,7 +116,7 @@ public class MessagePreProcessor implements CopyPastePreProcessor {
         final VirtualFile vf = file.getVirtualFile();
         final String path;
         if (vf != null) {
-            path = vf.getCanonicalPath();
+            path = vf.getPath();
         } else {
             path = "";
         }

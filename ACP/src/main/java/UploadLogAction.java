@@ -30,11 +30,11 @@ public class UploadLogAction extends AnAction {
     }
 
     public void actionPerformed(@NotNull AnActionEvent e) {
-        final Project project = e.getProject();
-        final Editor editor = e.getData(CommonDataKeys.EDITOR);
-        int code = Messages.showOkCancelDialog(project, "Send log file to server?", "Upload Logs", Messages.getInformationIcon());
+        //final Editor editor = e.getData(CommonDataKeys.PROJECT);
 
-        if (code == Messages.OK) {
+        int code = Messages.showOkCancelDialog("Send log file to server?", "Upload Logs", Messages.getInformationIcon());
+
+        if (code == 0) {
             uploadLog();
         }
 

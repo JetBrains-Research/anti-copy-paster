@@ -8,8 +8,10 @@
     ]]></description>
 
     <extensions defaultExtensionNs="com.intellij">
+        <statistic.eventLog.eventLoggerProvider implementation="ACPEventLoggerProvider"/>
         <copyPastePreProcessor implementation="MessagePreProcessor"/>
         <copyPastePreProcessor implementation="ExtractMethodPreProcessor"/>
+        <inspectionToolProvider implementation="FindDuplicatesInspectionToolProvider"/>
     </extensions>
 
     <actions>

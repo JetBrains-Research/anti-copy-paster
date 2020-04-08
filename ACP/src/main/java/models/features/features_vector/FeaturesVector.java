@@ -1,5 +1,6 @@
 package models.features.features_vector;
 
+import models.features.feature.Feature;
 import models.features.feature.IFeatureItem;
 
 import java.util.ArrayList;
@@ -16,6 +17,17 @@ public class FeaturesVector implements IFeaturesVector {
 
     public void addFeature(final IFeatureItem item) {
         this.features.add(item);
+    }
+
+    @Override
+    public double getFeature(Feature toSearch) {
+        for (IFeatureItem item: features) {
+            if (item.getId() == toSearch.getId()) {
+                return item.getValue();
+            }
+        }
+
+        return 0.0;
     }
 
     public List<Float> buildVector() {

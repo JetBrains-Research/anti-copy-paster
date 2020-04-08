@@ -29,7 +29,10 @@ public class LogFileUnpacker {
             LogItem optionalAction = LogItem.fromRawValue(nextLine);
             if (optionalAction != null) {
                 String value = dataBuilder.toString();
-                value = value.substring(0, value.length() - 1);
+                if (!value.isEmpty()) {
+                    value = value.substring(0, value.length() - 1);
+                }
+
                 LogPair result = new LogPair(this.currentItem, value);
                 this.currentItem = optionalAction;
                 return result;
