@@ -1,0 +1,60 @@
+buildscript {
+    ext.kotlin_version = '1.3.41'
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        maven {
+            url 'https://dl.bintray.com/jetbrains/intellij-plugin-service'
+        }
+
+    }
+
+    dependencies {
+        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.5.0-SNAPSHOT"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    id 'java'
+    id "org.jetbrains.intellij" version "0.4.16"
+    id 'idea'
+}
+
+group 'ru.hse.kirilenko.ASTPrinter'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: "kotlin"
+apply plugin: 'org.jetbrains.intellij'
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile group: 'com.google.cloud', name: 'google-cloud-storage', version: '1.101.0'
+    compile group: 'com.google.cloud', name: 'google-cloud-core', version: '1.91.3'
+    compile 'com.google.apis:google-api-services-storage:v1-rev158-1.25.0'
+    compile group: 'com.google.cloud', name: 'google-cloud-datastore', version: '1.2.1'
+    compile 'com.google.auth:google-auth-library-oauth2-http:0.18.0'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    compile group: 'com.google.apis', name: 'google-api-services-discovery', version: 'v1-rev123-1.25.0'
+    compile group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version: '3.8.0'
+    //compile group: 'com.intellij', name: 'openapi', version: '7.0.3'
+}
+
+project.gradle.startParameter.excludedTaskNames.add('buildSearchableOptions')
+
+patchPluginXml {
+    sinceBuild '170'
+    changeNotes """
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>"""
+}

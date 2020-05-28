@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/JetBrains/intellij-community" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Snailclimb/JavaGuide" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/alibaba/arthas" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/alibaba/easyexcel" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/apache/camel-quarkus" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/apache/commons-lang" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/apache/flink" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/apache/incubator-iceberg" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/apache/jena" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/apache/kafka" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/apache/maven-artifact-transfer" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/apache/mnemonic" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/apache/pulsar" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/apache/storm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ctripcorp/apollo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/danilofes/refactoring-toy-example" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/elunez/eladmin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/gyf-dev/ImmersionBar" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ityouknow/spring-boot-examples" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/k0shk0sh/FastHub" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lenve/vhr" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/netty/netty" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/seaswalker/spring-analysis" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/spring-projects/spring-boot" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/tmp/common-lang" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/tmp/refactoring-toy-example" vcs="Git" />
+  </component>
+</project>
