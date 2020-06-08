@@ -14,3 +14,5 @@
 
 Демо: https://drive.google.com/file/d/1LXZn6s3S1ldNY-m3Yh-0QuEWc0Hj-vVv/view?usp=sharing
 
+GIF демо:
+![](demo.gif)
