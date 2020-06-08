@@ -1,5 +1,9 @@
 # Автоматическая рекомендация рефакторинга "Выделение метода" при копировании кода в IDE.
 
+
+![](demo.gif)
+
+
 Данный репозиторий содержит реализацию расширения для IntelliJ IDEA, который анализирует действия копирования и вставки пользователя, и автоматически предлагает совершить рефакторинг "Выделение метода" при копировании.
 
 Структура репозитория:
@@ -12,7 +16,5 @@
 Ссылка на собранный плагин: https://drive.google.com/file/d/1LXZn6s3S1ldNY-m3Yh-0QuEWc0Hj-vVv/view?usp=sharing
 Для установки требуется IntelliJ IDEA 2019.2 и выше, необходимо в списке плагинов выбрать Install Plugin From Disk
 
-Демо: https://drive.google.com/file/d/1LXZn6s3S1ldNY-m3Yh-0QuEWc0Hj-vVv/view?usp=sharing
+Демо-видео: https://drive.google.com/file/d/1LXZn6s3S1ldNY-m3Yh-0QuEWc0Hj-vVv/view?usp=sharing
 
-GIF демо:
-![](demo.gif)
