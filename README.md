@@ -13,7 +13,7 @@
 * `RFTrain` содержит python-скрипты для тестирования различных моделей и построения графиков. Для запуска необходимо установить `python >=3.6`, `skipy`, `numpy`, `pandas`
 
 * `ACP` содержит реализацию плагина. Сборка осуществляется посредством команды `./gradle buildPlugin`
-Ссылка на собранный плагин: https://drive.google.com/file/d/1LXZn6s3S1ldNY-m3Yh-0QuEWc0Hj-vVv/view?usp=sharing
+Ссылка на собранный плагин: https://drive.google.com/file/d/18UCvZP3gnVkMhk97B0BZAp2rkunVJ8gs/view?usp=sharing
 Для установки требуется IntelliJ IDEA 2020.3 и выше, необходимо в списке плагинов выбрать Install Plugin From Disk
 
 Демо-видео: https://drive.google.com/file/d/1LXZn6s3S1ldNY-m3Yh-0QuEWc0Hj-vVv/view?usp=sharing
