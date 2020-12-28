@@ -14,7 +14,7 @@
 
 * `ACP` содержит реализацию плагина. Сборка осуществляется посредством команды `./gradle buildPlugin`
 Ссылка на собранный плагин: https://drive.google.com/file/d/1LXZn6s3S1ldNY-m3Yh-0QuEWc0Hj-vVv/view?usp=sharing
-Для установки требуется IntelliJ IDEA 2019.2 и выше, необходимо в списке плагинов выбрать Install Plugin From Disk
+Для установки требуется IntelliJ IDEA 2020.3 и выше, необходимо в списке плагинов выбрать Install Plugin From Disk
 
 Демо-видео: https://drive.google.com/file/d/1LXZn6s3S1ldNY-m3Yh-0QuEWc0Hj-vVv/view?usp=sharing
 
