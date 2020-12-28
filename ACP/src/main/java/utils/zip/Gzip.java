@@ -1,4 +1,4 @@
-package utils;
+package utils.zip;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

@@ -5,7 +5,7 @@ import models.features.features_vector.IFeaturesVector;
 import weka.classifiers.trees.RandomForest;
 import weka.core.*;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -15,7 +15,10 @@ public class WekaBasedModel implements IPredictionModel {
     private ArrayList<Attribute> attributes;
 
     public WekaBasedModel() throws Exception {
-        this(System.getProperty("user.home") + "/RF-ACP-SH.model");
+        RandomForest forest = (RandomForest) SerializationHelper.read(getClass().getClassLoader().getResourceAsStream("RF-ACP-SH.model"));
+
+        this.model = forest;
+        this.attributes = buildAttributes();
     }
 
     public WekaBasedModel(String modelPath) throws Exception {
@@ -52,10 +55,10 @@ public class WekaBasedModel implements IPredictionModel {
             double pred = model.classifyInstance(item);
             boolean predicted = pred > 0.8;
             results.add(predicted ? 1 : 0);
-            System.out.print("PREDICTION ");
-            System.out.print(predicted);
-            System.out.print(" ");
-            System.out.println(pred);
+            //System.out.print("PREDICTION ");
+            //System.out.print(predicted);
+            //System.out.print(" ");
+            //System.out.println(pred);
         }
 
 
@@ -182,6 +185,7 @@ public class WekaBasedModel implements IPredictionModel {
         attributes.add(new Attribute("MethodDeclarationDepth"));
         attributes.add(new Attribute("MethodDeclarationDepthPerLine"));
         attributes.add(new Attribute("label"));
+
         return attributes;
     }
 }

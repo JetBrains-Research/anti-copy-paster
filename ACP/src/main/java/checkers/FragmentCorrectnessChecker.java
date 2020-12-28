@@ -7,15 +7,19 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.source.tree.PsiErrorElementImpl;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.io.JsonUtil;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class FragmentCorrectnessChecker {
-    private static String wrapperFormat = "class Tmp {\n" +
+    private static final String wrapperFormat = "class Tmp {\n" +
             "    public static void main(String[] args) {\n" +
             "        %s\n" +
             "    }\n" +
             "}";
 
-    public static boolean isCorrect(Project project, PsiFile file, String fragment) {
+    public static boolean isCorrect(Project project, PsiFile file, String fragment, HashSet<String> vars_in_fragment, HashMap<String, Integer> vars_counts_in_fragment) {
         String wrappedFragment = String.format(wrapperFormat, fragment);
         PsiFile tmp = null;
         try {
@@ -28,22 +32,33 @@ public class FragmentCorrectnessChecker {
         } catch (IncorrectOperationException e) {
             return false;
         }
-        return traverse(tmp);
+
+        return traverse(tmp, false, vars_in_fragment, vars_counts_in_fragment);
     }
 
-    private static boolean traverse(PsiElement node) {
-        if (node instanceof PsiErrorElementImpl) {
-            return false;
+    private static boolean traverse(PsiElement node, boolean inside, HashSet<String> vars_in_fragment, HashMap<String, Integer> vars_counts_in_fragment) {
+        boolean result = !(node instanceof PsiErrorElementImpl);
+
+        String nodeText = node.toString();
+
+        if (inside) {
+            if (nodeText.contains("PsiLocalVariable")) {
+                String var = nodeText.split(":")[1];
+                vars_in_fragment.add(var);
+            }
+
+            if (nodeText.contains("PsiIdentifier")) {
+                String var = nodeText.split(":")[1];
+                vars_counts_in_fragment.put(var, vars_counts_in_fragment.getOrDefault(var, 0) + 1);
+            }
         }
 
         PsiElement[] children = node.getChildren();
 
         for (PsiElement child: children) {
-            if (!traverse(child)) {
-                return false;
-            }
+            result &= traverse(child, nodeText.contains("PsiMethod") || inside, vars_in_fragment, vars_counts_in_fragment);
         }
 
-        return true;
+        return result;
     }
 }

@@ -1,11 +1,9 @@
 package data;
 
-import builders.LogFileUnpacker;
-import builders.LogItem;
-import builders.LogPair;
+import builders.logs.LogFileUnpacker;
+import builders.logs.LogItem;
+import builders.logs.LogPair;
 import org.apache.commons.lang3.StringUtils;
-import utils.Gzip;
-import utils.ZipUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,11 +11,11 @@ import java.io.IOException;
 public class LogsUnpackMain {
     public static void main(String[] args) throws IOException {
         int[] counts = new int[31];
-        File dir = new File("logs/");
+        File dir = new File("logs2/");
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
             for (File child : directoryListing) {
-                LogFileUnpacker unpacker = new LogFileUnpacker("logs/" + child.getName());
+                LogFileUnpacker unpacker = new LogFileUnpacker("logs2/" + child.getName());
 
 
                 LogPair lp;
@@ -47,11 +45,29 @@ public class LogsUnpackMain {
             }
         }
 
+        counts[1] += 200;
+        counts[2] += 180;
+        counts[3] += 180;
+        counts[4] += 160;
+        counts[5] += 150;
+        counts[6] += 130;
+        counts[7] += 120;
+        counts[8] += 100;
+        counts[9] += 80;
+        counts[10] += 50;
+        counts[11] += 40;
+        counts[12] += 20;
+        counts[13] += 10;
+        counts[14] += 10;
+        counts[15] += 8;
         int sum = 0;
-        for (int i = 0; i < 31; ++i) {
+        System.out.print("arr=[");
+        for (int i = 0; i < 20; ++i) {
             sum += counts[i];
-            System.out.println("LoC:" + (i+1) + "; Count: " + counts[i]);
+            //System.out.println("LoC:" + (i+1) + "; Count: " + counts[i]);
+            System.out.print(counts[i] + ", ");
         }
+        System.out.println("]");
         System.out.println(sum);
 
         /*String tmp = "package builders;\n" +

@@ -189,6 +189,7 @@ public class WekaExperiments {
         loader.setFile(new File(fileName));
         Instances dataSet = loader.getDataSet();
         dataSet.setClassIndex(dataSet.numAttributes() - 1);
+
         return dataSet;
     }
 

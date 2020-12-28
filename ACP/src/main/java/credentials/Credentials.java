@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 public final class Credentials {
     public static final String LOCAL_LOG_FILE_PATH = System.getProperty("user.home") + "/copy_log.txt";
-    public static final String GOOGLE_CLOUD_CREDENTIALS = "{\n" +
+    private static final String GOOGLE_CLOUD_CREDENTIALS = "{\n" +
             "  \"type\": \"service_account\",\n" +
             "  \"project_id\": \"anti-copy-paster\",\n" +
             "  \"private_key_id\": \"1c5681e8492606d9363e6aa5143937241e437f16\",\n" +

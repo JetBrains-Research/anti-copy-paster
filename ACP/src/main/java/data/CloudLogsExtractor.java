@@ -49,7 +49,7 @@ public class CloudLogsExtractor {
 
             Page<Blob> blobs = bucket.list();
             for (Blob blob: blobs.iterateAll()) {
-                Path destPath = Paths.get("logs/" + bucketName + ".txt");
+                Path destPath = Paths.get("logs2/" + bucketName + ".txt");
                 blob.downloadTo(destPath);
             }
         }

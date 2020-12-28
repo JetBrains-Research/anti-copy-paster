@@ -1,4 +1,4 @@
-package builders;
+package builders.logs;
 
 public enum LogItem {
     ACTION("ACTION"),

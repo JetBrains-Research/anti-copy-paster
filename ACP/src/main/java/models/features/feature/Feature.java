@@ -128,6 +128,51 @@ public enum Feature {
         return name;
     }
 
+    public String getCyrName() {
+        if (name.startsWith("Keyword") && name.endsWith("TotalCount")) {
+            return "ключевых слов " + name.substring(7, 7 + name.length() - "Keyword".length() - "TotalCount".length());
+        }
+
+        if (name.startsWith("Keyword") && name.endsWith("CountPerLine")) {
+            return "ключевых слов " + name.substring(7, 7 + name.length() - "Keyword".length() - "CountPerLine".length()) + " в среднем";
+        }
+
+        switch (this) {
+            case MethodDeclarationSymbols:
+                return "общий размер метода";
+            case MethodDeclarationAverageSymbols:
+                return "средний размер метода";
+            case MethodDeclarationDepth:
+                return "общая вложенность метода";
+            case MethodDeclarationDepthPerLine:
+                return "средняя вложенность метода";
+            case TotalSymbolsInCodeFragment:
+                return "размер фрагмента";
+            case AverageSymbolsInCodeLine:
+                return "средний размер фрагмента";
+            case TotalLinesDepth:
+                return "общая вложенность фрагмента";
+            case AverageLinesDepth:
+                return "средняя вложенность фрагмента";
+            case TotalLinesOfCode:
+                return "число строк кода";
+            case TotalConnectivity:
+                return "общая связность с классом";
+            case TotalConnectivityPerLine:
+                return "средняя связность с классом";
+            case FieldConnectivity:
+                return "общая связность с классом по полям";
+            case FieldConnectivityPerLine:
+                return "средняя связность с классом по полям";
+            case MethodConnectivity:
+                return "общая связность с классом по методам";
+            case MethodConnectivityPerLine:
+                return "средняя связность с классом по методам";
+            default:
+                return "";
+        }
+    }
+
     public int getId() {
         return id;
     }

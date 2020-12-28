@@ -9,8 +9,6 @@ import models.features.feature.FeatureItem;
 import models.features.features_vector.IFeaturesVector;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-
 public class ConnectivityExtractor {
 
     public static void calculate(PsiElement file, String codeFragment, int linesCount, String methodName, IFeaturesVector featuresVector) {

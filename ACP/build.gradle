@@ -20,12 +20,12 @@ buildscript {
 
 plugins {
     id 'java'
-    id "org.jetbrains.intellij" version "0.4.16"
+    id "org.jetbrains.intellij" version "0.6.5"
     id 'idea'
 }
 
 group 'ru.hse.kirilenko.ASTPrinter'
-version '1.0-SNAPSHOT'
+version '3.3'
 
 sourceCompatibility = 1.8
 
@@ -47,13 +47,15 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
     compile group: 'com.google.apis', name: 'google-api-services-discovery', version: 'v1-rev123-1.25.0'
     compile group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version: '3.8.0'
-    //compile group: 'com.intellij', name: 'openapi', version: '7.0.3'
 }
 
 project.gradle.startParameter.excludedTaskNames.add('buildSearchableOptions')
 
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    version '2020.3'
+}
 patchPluginXml {
-    sinceBuild '170'
     changeNotes """
       Add change notes here.<br>
       <em>most HTML tags may be used</em>"""

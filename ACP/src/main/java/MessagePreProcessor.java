@@ -1,23 +1,17 @@
-import builders.LogEventBuilder;
-import builders.LogItem;
-import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.cloud.storage.*;
+import builders.logs.LogEventBuilder;
+import builders.logs.LogItem;
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RawText;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiTreeUtil;
 import credentials.Credentials;
 import loggers.CloudLogger;
 import loggers.LocalLogger;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
-import utils.ZipUtil;
+import utils.zip.ZipUtil;
 
 import java.io.*;
 import java.util.Scanner;
@@ -107,7 +101,6 @@ public class MessagePreProcessor implements CopyPastePreProcessor {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(workspace);
             scanner1 = new Scanner(byteArrayInputStream);
         } catch(IOException ex) {
-            // skip
             scanner1 = null;
         }
 

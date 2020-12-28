@@ -1,4 +1,6 @@
-package builders;
+package builders.logs;
+
+import builders.logs.LogItem;
 
 public class LogPair {
     public LogItem type;

@@ -1,4 +1,4 @@
-package builders;
+package builders.logs;
 
 public class LogEventBuilder {
     private StringBuilder builder;

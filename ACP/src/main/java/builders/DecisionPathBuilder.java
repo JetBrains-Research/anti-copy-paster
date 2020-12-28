@@ -18,12 +18,15 @@ public class DecisionPathBuilder {
 
         StringBuilder resBuilder = new StringBuilder();
         for (PathItem pi: path) {
+            if (pi.rawAttribute.isEmpty()) {
+                continue;
+            }
             resBuilder.append(pi.rawAttribute);
              if (pi.value < pi.split) {
-                 resBuilder.append(" is less than ");
+                 resBuilder.append(" менее, чем ");
                  resBuilder.append(pi.split);
              } else {
-                 resBuilder.append(" is greater than or equal than ");
+                 resBuilder.append(" как минимум ");
                  resBuilder.append(pi.split);
              }
 
@@ -64,7 +67,7 @@ public class DecisionPathBuilder {
         Feature feature = Feature.valueOf(p0[0]);
         double value = vec.getFeature(feature);
 
-        res.add(new PathItem(feature.getName(), (float)split, (float)value));
+        res.add(new PathItem(feature.getCyrName(), (float)split, (float)value));
 
         if (value < split) {
             for (int i = 1; i < secondIndex; i++) {
