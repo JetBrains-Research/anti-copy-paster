@@ -16,5 +16,5 @@
 Ссылка на собранный плагин: https://drive.google.com/file/d/18UCvZP3gnVkMhk97B0BZAp2rkunVJ8gs/view?usp=sharing
 Для установки требуется IntelliJ IDEA 2020.3 и выше, необходимо в списке плагинов выбрать Install Plugin From Disk
 
-Демо-видео: https://drive.google.com/file/d/1LXZn6s3S1ldNY-m3Yh-0QuEWc0Hj-vVv/view?usp=sharing
+Демо-видео: https://drive.google.com/file/d/1fFXx2qPCalrKQL22YJ6McJKevm-1chqz/view?usp=sharing
 
