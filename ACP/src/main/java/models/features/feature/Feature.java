@@ -130,44 +130,44 @@ public enum Feature {
 
     public String getCyrName() {
         if (name.startsWith("Keyword") && name.endsWith("TotalCount")) {
-            return "ключевых слов " + name.substring(7, 7 + name.length() - "Keyword".length() - "TotalCount".length());
+            return name.substring(7, 7 + name.length() - "Keyword".length() - "TotalCount".length()) + " keywords";
         }
 
         if (name.startsWith("Keyword") && name.endsWith("CountPerLine")) {
-            return "ключевых слов " + name.substring(7, 7 + name.length() - "Keyword".length() - "CountPerLine".length()) + " в среднем";
+            return name.substring(7, 7 + name.length() - "Keyword".length() - "CountPerLine".length()) + " keywords on average";
         }
 
         switch (this) {
             case MethodDeclarationSymbols:
-                return "total method size";
+                return "total size of the method";
             case MethodDeclarationAverageSymbols:
-                return "average method size";
+                return "average size of the method";
             case MethodDeclarationDepth:
-                return "total method depth factor";
+                return "total depth factor of the method";
             case MethodDeclarationDepthPerLine:
-                return "average method depth factor";
+                return "average depth factor of the method";
             case TotalSymbolsInCodeFragment:
-                return "code fragment size";
+                return "total size of the code fragment";
             case AverageSymbolsInCodeLine:
-                return "average code fragment size";
+                return "average size of the code fragment";
             case TotalLinesDepth:
-                return "total nested depth of method";
+                return "total nested depth of the method";
             case AverageLinesDepth:
-                return "average nested depth of method";
+                return "average nested depth of the method";
             case TotalLinesOfCode:
                 return "total lines of code";
             case TotalConnectivity:
-                return "total connectivity with class";
+                return "total cohesion with the class";
             case TotalConnectivityPerLine:
-                return "average connectivity with class";
+                return "average cohesion with the class";
             case FieldConnectivity:
-                return "total connectivity with class by fields";
+                return "total cohesion with the class by fields";
             case FieldConnectivityPerLine:
-                return "average connectivity with class by fields";
+                return "average cohesion with the class by fields";
             case MethodConnectivity:
-                return "total connectivity with class by methods";
+                return "total cohesion with the class by methods";
             case MethodConnectivityPerLine:
-                return "average connectivity with class by methods";
+                return "average cohesion with the class by methods";
             default:
                 return "";
         }

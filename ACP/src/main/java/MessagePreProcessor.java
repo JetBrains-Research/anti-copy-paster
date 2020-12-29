@@ -29,14 +29,14 @@ public class MessagePreProcessor implements CopyPastePreProcessor {
         try {
             logger = new LocalLogger(Credentials.LOCAL_LOG_FILE_PATH);
         } catch (IOException e) {
-            System.err.println("Unable to create local log file");
+            System.err.println("Unable to create a local log file");
             e.printStackTrace();
         }
 
         try {
             cloudLogger = new CloudLogger();
         } catch (Exception e) {
-            System.err.println("Unable to connect google cloud");
+            System.err.println("Unable to connect to google cloud");
             e.printStackTrace();
         }
     }
@@ -77,7 +77,7 @@ public class MessagePreProcessor implements CopyPastePreProcessor {
                     builder.addItem(LogItem.FILE_CONTENT, fileText);
                 }
             } catch(Exception ex) {
-                System.err.println("Unable to compress file with code");
+                System.err.println("Unable to compress the file with the code");
                 builder.addItem(LogItem.IS_COMPRESSED, "false");
                 builder.addItem(LogItem.FILE_CONTENT, fileText);
 
@@ -143,7 +143,7 @@ public class MessagePreProcessor implements CopyPastePreProcessor {
                     builder.addItem(LogItem.FILE_CONTENT, fileText);
                 }
             } catch(Exception ex) {
-                System.err.println("Unable to compress file with code");
+                System.err.println("Unable to compress the file with the code");
                 builder.addItem(LogItem.IS_COMPRESSED, "false");
                 builder.addItem(LogItem.FILE_CONTENT, fileText);
 

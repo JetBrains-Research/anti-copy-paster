@@ -10,7 +10,7 @@ import javax.swing.event.HyperlinkEvent;
 import java.util.concurrent.Callable;
 
 public class ExtractMethodNotifier {
-    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Extract Method suggest",
+    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Extract Method suggestion",
             NotificationDisplayType.BALLOON,
             true);
 

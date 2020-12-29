@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  * Class that extend logic on copy-paste actions
  */
 public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
-    private static final String PROOF_PREFIX = "This code fragment can be possibly extracted into a separate method because it ";
+    private static final String PROOF_PREFIX = "This code fragment can be extracted into a separate method because it ";
     private static IPredictionModel model;
     private static RandomTree tree;
     private static String treeString;
@@ -112,14 +112,14 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
                                 int pred = prediction.get(0);
 
                                 if (event.forceExtraction || (pred == 1 && event.linesOfCode > 3) || (event.linesOfCode <= 3 && new Random().nextDouble() < event.pred_boost)) {
-                                    new ExtractMethodNotifier().notify(event.project, "<a href>Доступен рефакторинг \"Выделение метода\"</a>", new Runnable() {
+                                    new ExtractMethodNotifier().notify(event.project, "<a href>Extract Method refactoring is available</a>", new Runnable() {
                                         @Override
                                         public void run() {
                                             String message = event.textProof;
                                             if (message.isEmpty()) {
                                                 message = buildMessage(event.vec);
                                             }
-                                            int result = Messages.showOkCancelDialog(message, "Рекомендация антикопипастера", Messages.getWarningIcon());
+                                            int result = Messages.showOkCancelDialog(message, "Anti-Copy-Paster Recommendation", Messages.getWarningIcon());
 
                                             if (result == 0) {
                                                 scheduleExtraction(event.project, event.file, event.editor, event.text);
@@ -214,12 +214,12 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
 
         if (linesOfCode >= 4 && scores.out == 1 && scores.in >= 1) {
             forceExtraction = true;
-            proof = PROOF_PREFIX + "is too difficult separate part of logic.";
+            proof = PROOF_PREFIX + "is too difficult to separate the logic.";
         }
 
         if (linesOfCode == 1) {
             if ((featuresVector.getFeature(Feature.KeywordNewTotalCount) > 0.0 || text.contains(".")) && StringUtils.countMatches(text, ",") > 1 && scores.in <= 1) {
-                proof = PROOF_PREFIX + "can remove duplicated constructor call or fabric method.";
+                proof = PROOF_PREFIX + "can remove a duplicated constructor call or a factory method.";
                 forceExtraction = true;
             } else {
                 return text;
@@ -242,12 +242,12 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         double score_overall = size_score + params_score + score_area + score_max_dep;
 
         if (score_overall >= 4.99) {
-            proof = PROOF_PREFIX + "strongly simplifies parent method.";
+            proof = PROOF_PREFIX + "strongly simplifies the parent method.";
             forceExtraction = true;
         }
 
         if ((score_overall >= 4.5 && result.count >= 4) && (result.count >= 5 && score_overall >= 3.0)) {
-            proof = PROOF_PREFIX + "simplifies parent method and fixes some duplicates (" + result.count + ").";
+            proof = PROOF_PREFIX + "simplifies the parent method and removes some duplicates (" + result.count + ").";
             forceExtraction = true;
         }
 
