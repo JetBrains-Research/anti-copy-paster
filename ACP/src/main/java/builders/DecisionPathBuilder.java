@@ -23,10 +23,10 @@ public class DecisionPathBuilder {
             }
             resBuilder.append(pi.rawAttribute);
              if (pi.value < pi.split) {
-                 resBuilder.append(" менее, чем ");
+                 resBuilder.append(" is less than ");
                  resBuilder.append(pi.split);
              } else {
-                 resBuilder.append(" как минимум ");
+                 resBuilder.append(" is greater than or equal ");
                  resBuilder.append(pi.split);
              }
 

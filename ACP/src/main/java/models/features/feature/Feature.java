@@ -139,35 +139,35 @@ public enum Feature {
 
         switch (this) {
             case MethodDeclarationSymbols:
-                return "общий размер метода";
+                return "total method size";
             case MethodDeclarationAverageSymbols:
-                return "средний размер метода";
+                return "average method size";
             case MethodDeclarationDepth:
-                return "общая вложенность метода";
+                return "total method depth factor";
             case MethodDeclarationDepthPerLine:
-                return "средняя вложенность метода";
+                return "average method depth factor";
             case TotalSymbolsInCodeFragment:
-                return "размер фрагмента";
+                return "code fragment size";
             case AverageSymbolsInCodeLine:
-                return "средний размер фрагмента";
+                return "average code fragment size";
             case TotalLinesDepth:
-                return "общая вложенность фрагмента";
+                return "total nested depth of method";
             case AverageLinesDepth:
-                return "средняя вложенность фрагмента";
+                return "average nested depth of method";
             case TotalLinesOfCode:
-                return "число строк кода";
+                return "total lines of code";
             case TotalConnectivity:
-                return "общая связность с классом";
+                return "total connectivity with class";
             case TotalConnectivityPerLine:
-                return "средняя связность с классом";
+                return "average connectivity with class";
             case FieldConnectivity:
-                return "общая связность с классом по полям";
+                return "total connectivity with class by fields";
             case FieldConnectivityPerLine:
-                return "средняя связность с классом по полям";
+                return "average connectivity with class by fields";
             case MethodConnectivity:
-                return "общая связность с классом по методам";
+                return "total connectivity with class by methods";
             case MethodConnectivityPerLine:
-                return "средняя связность с классом по методам";
+                return "average connectivity with class by methods";
             default:
                 return "";
         }
