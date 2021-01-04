@@ -157,17 +157,17 @@ public enum Feature {
             case TotalLinesOfCode:
                 return "total lines of code";
             case TotalConnectivity:
-                return "total cohesion with the class";
+                return "total coupling with the class";
             case TotalConnectivityPerLine:
-                return "average cohesion with the class";
+                return "average coupling with the class";
             case FieldConnectivity:
-                return "total cohesion with the class by fields";
+                return "total coupling with the class by fields";
             case FieldConnectivityPerLine:
-                return "average cohesion with the class by fields";
+                return "average coupling with the class by fields";
             case MethodConnectivity:
-                return "total cohesion with the class by methods";
+                return "total coupling with the class by methods";
             case MethodConnectivityPerLine:
-                return "average cohesion with the class by methods";
+                return "average coupling with the class by methods";
             default:
                 return "";
         }
