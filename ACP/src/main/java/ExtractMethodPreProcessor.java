@@ -135,7 +135,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
                 }
             };
 
-            timer.schedule(delayedRefactoringsTask, 2000, 5000);
+            timer.schedule(delayedRefactoringsTask, 15000, 15000);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -214,7 +214,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
 
         if (linesOfCode >= 4 && scores.out == 1 && scores.in >= 1) {
             forceExtraction = true;
-            proof = PROOF_PREFIX + "is too difficult to separate the logic.";
+            proof = PROOF_PREFIX + "simplifies the logic of the parent method.";
         }
 
         if (linesOfCode == 1) {

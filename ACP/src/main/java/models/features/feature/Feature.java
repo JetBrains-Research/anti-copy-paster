@@ -130,44 +130,44 @@ public enum Feature {
 
     public String getCyrName() {
         if (name.startsWith("Keyword") && name.endsWith("TotalCount")) {
-            return name.substring(7, 7 + name.length() - "Keyword".length() - "TotalCount".length()) + " keywords";
+            return "the total count of the " + name.substring(7, 7 + name.length() - "Keyword".length() - "TotalCount".length()) + " keyword";
         }
 
         if (name.startsWith("Keyword") && name.endsWith("CountPerLine")) {
-            return name.substring(7, 7 + name.length() - "Keyword".length() - "CountPerLine".length()) + " keywords on average";
+            return "the average count of the " + name.substring(7, 7 + name.length() - "Keyword".length() - "CountPerLine".length()) + " keyword";
         }
 
         switch (this) {
             case MethodDeclarationSymbols:
-                return "total size of the method";
+                return "the total size of the method";
             case MethodDeclarationAverageSymbols:
-                return "average size of the method";
+                return "the average size of the method";
             case MethodDeclarationDepth:
-                return "total depth factor of the method";
+                return "the total nested depth of the method";
             case MethodDeclarationDepthPerLine:
-                return "average depth factor of the method";
+                return "the average nested depth of the method";
             case TotalSymbolsInCodeFragment:
-                return "total size of the code fragment";
+                return "the total size of the code fragment";
             case AverageSymbolsInCodeLine:
-                return "average size of the code fragment";
+                return "the average size of the code fragment";
             case TotalLinesDepth:
-                return "total nested depth of the method";
+                return "the total nested depth of the method";
             case AverageLinesDepth:
-                return "average nested depth of the method";
+                return "the average nested depth of the method";
             case TotalLinesOfCode:
-                return "total lines of code";
+                return "the total number of lines of code";
             case TotalConnectivity:
-                return "total coupling with the class";
+                return "the total coupling with the class";
             case TotalConnectivityPerLine:
-                return "average coupling with the class";
+                return "the average coupling with the class";
             case FieldConnectivity:
-                return "total coupling with the class by fields";
+                return "the total coupling with the class by fields";
             case FieldConnectivityPerLine:
-                return "average coupling with the class by fields";
+                return "the average coupling with the class by fields";
             case MethodConnectivity:
-                return "total coupling with the class by methods";
+                return "the total coupling with the class by methods";
             case MethodConnectivityPerLine:
-                return "average coupling with the class by methods";
+                return "the average coupling with the class by methods";
             default:
                 return "";
         }
