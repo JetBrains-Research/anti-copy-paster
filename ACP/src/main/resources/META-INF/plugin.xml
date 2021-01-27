@@ -1,6 +1,6 @@
 <idea-plugin>
-    <id>ru.hse.kirilenko.ASTPrinter.ASTPrinter</id>
-    <name>Anti Copy-Paster</name>
+    <id>ru.hse.kirilenko.AntiCopyPaster.AntiCopyPaster</id>
+    <name>AntiCopyPaster</name>
     <vendor email="kirilenko.haa@gmail.com" url="http://www.google.com">HSE</vendor>
     <idea-version since-build="3000"/>
     <description><![CDATA[

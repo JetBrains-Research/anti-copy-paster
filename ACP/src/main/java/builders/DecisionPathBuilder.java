@@ -26,7 +26,7 @@ public class DecisionPathBuilder {
                  resBuilder.append(" is less than ");
                  resBuilder.append(pi.split);
              } else {
-                 resBuilder.append(" is greater than or equal ");
+                 resBuilder.append(" is greater than or equal to ");
                  resBuilder.append(pi.split);
              }
 

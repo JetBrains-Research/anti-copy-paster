@@ -119,7 +119,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
                                             if (message.isEmpty()) {
                                                 message = buildMessage(event.vec);
                                             }
-                                            int result = Messages.showOkCancelDialog(message, "Anti-Copy-Paster Recommendation", Messages.getWarningIcon());
+                                            int result = Messages.showOkCancelDialog(message, "AntiCopyPaster Recommendation", Messages.getWarningIcon());
 
                                             if (result == 0) {
                                                 scheduleExtraction(event.project, event.file, event.editor, event.text);
@@ -214,7 +214,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
 
         if (linesOfCode >= 4 && scores.out == 1 && scores.in >= 1) {
             forceExtraction = true;
-            proof = PROOF_PREFIX + "simplifies the logic of the parent method.";
+            proof = PROOF_PREFIX + "simplifies the logic of the enclosing method.";
         }
 
         if (linesOfCode == 1) {
@@ -242,12 +242,12 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         double score_overall = size_score + params_score + score_area + score_max_dep;
 
         if (score_overall >= 4.99) {
-            proof = PROOF_PREFIX + "strongly simplifies the parent method.";
+            proof = PROOF_PREFIX + "strongly simplifies the enclosing method.";
             forceExtraction = true;
         }
 
         if ((score_overall >= 4.5 && result.count >= 4) && (result.count >= 5 && score_overall >= 3.0)) {
-            proof = PROOF_PREFIX + "simplifies the parent method and removes some duplicates (" + result.count + ").";
+            proof = PROOF_PREFIX + "simplifies the enclosing method and removes some duplicates (" + result.count + ").";
             forceExtraction = true;
         }
 

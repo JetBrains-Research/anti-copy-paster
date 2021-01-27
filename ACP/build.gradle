@@ -24,7 +24,7 @@ plugins {
     id 'idea'
 }
 
-group 'ru.hse.kirilenko.ASTPrinter'
+group 'ru.hse.kirilenko.AntiCopyPaster'
 version '3.3'
 
 sourceCompatibility = 1.8

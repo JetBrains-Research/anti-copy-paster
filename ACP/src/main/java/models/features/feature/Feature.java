@@ -139,35 +139,35 @@ public enum Feature {
 
         switch (this) {
             case MethodDeclarationSymbols:
-                return "the total size of the method";
+                return "the total size of the enclosing method";
             case MethodDeclarationAverageSymbols:
-                return "the average size of the method";
+                return "the average size of the enclosing method";
             case MethodDeclarationDepth:
-                return "the total nested depth of the method";
+                return "the total nested depth of the enclosing method";
             case MethodDeclarationDepthPerLine:
-                return "the average nested depth of the method";
+                return "the average nested depth of the enclosing method";
             case TotalSymbolsInCodeFragment:
                 return "the total size of the code fragment";
             case AverageSymbolsInCodeLine:
                 return "the average size of the code fragment";
             case TotalLinesDepth:
-                return "the total nested depth of the method";
+                return "the total nested depth of the code fragment";
             case AverageLinesDepth:
-                return "the average nested depth of the method";
+                return "the average nested depth of the code fragment";
             case TotalLinesOfCode:
                 return "the total number of lines of code";
             case TotalConnectivity:
-                return "the total coupling with the class";
+                return "the total coupling with the enclosing class";
             case TotalConnectivityPerLine:
-                return "the average coupling with the class";
+                return "the average coupling with the enclosing class";
             case FieldConnectivity:
-                return "the total coupling with the class by fields";
+                return "the total coupling with the enclosing class by fields";
             case FieldConnectivityPerLine:
-                return "the average coupling with the class by fields";
+                return "the average coupling with the enclosing class by fields";
             case MethodConnectivity:
-                return "the total coupling with the class by methods";
+                return "the total coupling with the enclosing class by methods";
             case MethodConnectivityPerLine:
-                return "the average coupling with the class by methods";
+                return "the average coupling with the enclosing class by methods";
             default:
                 return "";
         }
