@@ -1,20 +1,38 @@
-# Автоматическая рекомендация рефакторинга "Выделение метода" при копировании кода в IDE.
+# AntiCopyPaster
 
+AntiCopyPaster is a plugin for IntelliJ IDEA that tracks the copying and pasting carried out by the developer and suggests extracting duplicates into a new method as soon as they are introduced in the code.
 
-![](demo.gif)
+## Plugin
 
+The source code of the plugin itself is located in the `ACP` directory.
 
-Данный репозиторий содержит реализацию расширения для IntelliJ IDEA, который анализирует действия копирования и вставки пользователя, и автоматически предлагает совершить рефакторинг "Выделение метода" при копировании.
+### How to install
 
-Структура репозитория:
-* `Refactoring Experiments` содержит инструменты, необходимые для сбора данных, а также извлечения пользовательских логов операций копирования.
-Для запуска сбора данных необходимо собрать проект в IntelliJ IDEA и запустить один из трех основных классов: `FalseDatasetCreator` для запуска генерации синтетических данных. `UIApplication` для запуска сбора данных посредством Refactoring Miner, `CopyLogsExtractor` для сбора логов.
+AntiCopyPaster requires IntelliJ IDEA of version 2020.3 or higher to work. To install the plugin:
 
-* `RFTrain` содержит python-скрипты для тестирования различных моделей и построения графиков. Для запуска необходимо установить `python >=3.6`, `skipy`, `numpy`, `pandas`
+1. Download the pre-built version of the plugin from [here](https://drive.google.com/file/d/1nmIt3XG3acsogS5iXvGxdD6Hp76dQ5V9/view?usp=sharing); 
+2. Go to `File`/`Settings`/`Plugins`;
+3. Select the gear icon, and choose `Install Plugin from Disk...`;
+4. Choose the downloaded ZIP archive;
+5. Click `Apply`;
+6. Restart the IDE.
 
-* `ACP` содержит реализацию плагина. Сборка осуществляется посредством команды `./gradle buildPlugin`
-Ссылка на собранный плагин: https://drive.google.com/file/d/18UCvZP3gnVkMhk97B0BZAp2rkunVJ8gs/view?usp=sharing
-Для установки требуется IntelliJ IDEA 2020.3 и выше, необходимо в списке плагинов выбрать Install Plugin From Disk
+### How it works
 
-Демо-видео: https://drive.google.com/file/d/1fFXx2qPCalrKQL22YJ6McJKevm-1chqz/view?usp=sharing
+The plugin monitors the copying and pasting that takes place inside the IDE. As soon as a code fragment is pasted, the plugin calculates a set of code metrics for it, and a pre-installed Random Forest model makes a decision whether this piece of code is suitable for `Extract Method` refactoring. If it is, the suggestion is placed in a queue, and if the duplicates are still present after a delay, the plugin suggests the developer to perform the `Extract Method` refactoring and applies the refactoring if necessary.
 
+### Demonstration video
+
+We have a [demonstration video](https://youtu.be/SmPbq1BJqxE) that describes how the Random Forest model was built and how the plugin operates in the IDE.
+
+## Data gathering
+
+The `Refactoring Experiments` directory contains the tools that were used to gather the data that was used to train the machine learning models.
+
+## Trainig the model
+
+The `RFTrain` directory contains Python scripts for evaluating different machine learning models on the collected dataset. The requirements are `python >=3.6`, `skipy`, `numpy`, and `pandas`.
+
+## Contacts
+
+If you have any questions or propositions, do not hesitate to contact Yaroslav Goluev at yaroslav.golubev@jetbrains.com.
