@@ -22,9 +22,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.refactoringminer</groupId>
-            <artifactId>RefactoringMiner</artifactId>
-            <version>1.0</version>
+            <groupId>com.github.tsantalis</groupId>
+            <artifactId>refactoring-miner</artifactId>
+            <version>2.0</version>
         </dependency>
 
         <dependency>
