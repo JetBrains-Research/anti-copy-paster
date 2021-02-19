@@ -1,4 +1,4 @@
-package fus
+package ide.fus
 
 import com.intellij.concurrency.JobScheduler
 import com.intellij.internal.statistic.eventLog.EventLogGroup
