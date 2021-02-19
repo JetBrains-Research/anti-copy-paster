@@ -1,3 +1,5 @@
+package fus
+
 import com.intellij.concurrency.JobScheduler
 import com.intellij.internal.statistic.eventLog.EventLogGroup
 import com.intellij.internal.statistic.eventLog.FeatureUsageData

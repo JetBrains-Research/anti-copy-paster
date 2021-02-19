@@ -1,3 +1,5 @@
+package fus
+
 import com.intellij.internal.statistic.eventLog.*
 
 object ACPEventLogger {

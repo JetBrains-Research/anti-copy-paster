@@ -1,3 +1,5 @@
+package fus
+
 import com.intellij.ide.plugins.*
 import com.intellij.internal.statistic.utils.*
 import com.intellij.openapi.application.ApplicationManager

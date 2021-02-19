@@ -1,3 +1,5 @@
+package ide;
+
 import com.intellij.AbstractBundle;
 import com.intellij.reference.SoftReference;
 import java.lang.ref.Reference;

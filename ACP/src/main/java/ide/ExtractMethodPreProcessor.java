@@ -1,3 +1,5 @@
+package ide;
+
 import builders.DecisionPathBuilder;
 import checkers.FragmentCorrectnessChecker;
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor;
@@ -24,7 +26,7 @@ import models.features.feature.FeatureItem;
 import models.features.features_vector.FeaturesVector;
 import models.features.features_vector.IFeaturesVector;
 import models.offline.WekaBasedModel;
-import notifications.ExtractMethodNotifier;
+import ide.notifications.ExtractMethodNotifier;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -250,7 +252,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
 
         if ((score_overall >= 4.5 && result.count >= 4) && (result.count >= 5 && score_overall >= 3.0)) {
             reasonToExtractMethod = AntiCopyPasterBundle.message("code.fragment.simplifies.and.removes.duplicates",
-                                                               String.valueOf(result.count));
+                                                                 String.valueOf(result.count));
             forceExtraction = true;
         }
 
@@ -299,7 +301,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         try {
             DecisionPathBuilder dpb = new DecisionPathBuilder(treeString);
             reasonToExtractMethod = AntiCopyPasterBundle.message("code.fragment.could.be.extracted.reason",
-                                                          dpb.collect(dpb.buildPath(featuresVector)));
+                                                                 dpb.collect(dpb.buildPath(featuresVector)));
         } catch (Exception e) {
             //skip
         }
