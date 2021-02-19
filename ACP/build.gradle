@@ -39,13 +39,7 @@ apply plugin: 'org.jetbrains.intellij'
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile group: 'com.google.cloud', name: 'google-cloud-storage', version: '1.101.0'
-    compile group: 'com.google.cloud', name: 'google-cloud-core', version: '1.91.3'
-    compile 'com.google.apis:google-api-services-storage:v1-rev158-1.25.0'
-    compile group: 'com.google.cloud', name: 'google-cloud-datastore', version: '1.2.1'
-    compile 'com.google.auth:google-auth-library-oauth2-http:0.18.0'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
-    compile group: 'com.google.apis', name: 'google-api-services-discovery', version: 'v1-rev123-1.25.0'
     compile group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version: '3.8.0'
 }
 
