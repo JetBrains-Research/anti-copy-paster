@@ -7,6 +7,10 @@
     Informs about possible refactorings on paste actions
     ]]></description>
 
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.lang</depends>
+
     <extensions defaultExtensionNs="com.intellij">
         <copyPastePreProcessor implementation="ExtractMethodPreProcessor"/>
     </extensions>
