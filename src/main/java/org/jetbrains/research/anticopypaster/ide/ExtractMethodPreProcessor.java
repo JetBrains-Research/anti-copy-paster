@@ -16,7 +16,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.refactoring.RefactoringActionHandler;
-import org.jetbrains.research.anticopypaster.metrics.extractors.ConnectivityExtractor;
+import org.jetbrains.research.anticopypaster.metrics.extractors.CouplingCalculator;
 import org.jetbrains.research.anticopypaster.metrics.extractors.KeywordMetricsExtractor;
 import org.jetbrains.research.anticopypaster.metrics.extractors.MethodDeclarationMetricsExtractor;
 import org.jetbrains.research.anticopypaster.models.IPredictionModel;
@@ -268,7 +268,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         IFeaturesVector featuresVector = new FeaturesVector(117);
 
         KeywordMetricsExtractor.calculate(text, linesCount, featuresVector);
-        ConnectivityExtractor.calculate(file, text, linesCount, "", featuresVector);
+        CouplingCalculator.calculate(file, text, linesCount, featuresVector);
         featuresVector.addFeature(new FeatureItem(Feature.TotalSymbolsInCodeFragment, text.length()));
         featuresVector.addFeature(new FeatureItem(Feature.AverageSymbolsInCodeLine, (double)text.length() / linesCount));
 

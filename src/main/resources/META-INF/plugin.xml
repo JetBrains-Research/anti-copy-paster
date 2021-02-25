@@ -9,6 +9,10 @@
     Tracks the copying and pasting actions and suggests extracting duplicates into a new method.
     ]]></description>
 
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.lang</depends>
+
     <extensions defaultExtensionNs="com.intellij">
         <copyPastePreProcessor implementation="org.jetbrains.research.anticopypaster.ide.ExtractMethodPreProcessor"/>
     </extensions>
