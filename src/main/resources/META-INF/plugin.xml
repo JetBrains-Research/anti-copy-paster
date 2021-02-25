@@ -1,0 +1,15 @@
+<idea-plugin url="https://github.com/JetBrains-Research/anti-copy-paster">
+    <id>org.jetbrains.research.anticopypaster</id>
+    <name>AntiCopyPaster</name>
+    <vendor>JetBrains</vendor>
+    <version>1.0</version>
+
+    <idea-version since-build="3000"/>
+    <description><![CDATA[
+    Tracks the copying and pasting actions and suggests extracting duplicates into a new method.
+    ]]></description>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <copyPastePreProcessor implementation="org.jetbrains.research.anticopypaster.ide.ExtractMethodPreProcessor"/>
+    </extensions>
+</idea-plugin>
