@@ -1,18 +1,18 @@
 package org.jetbrains.research.anticopypaster.metrics.extractors;
 
+import com.felixgrund.codeshovel.execution.ShovelExecution;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.openapi.diagnostic.Logger;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 
 /**
  * Extracts the historical features from the method:
@@ -33,26 +33,11 @@ public class HistoricalFeaturesExtractor {
      * @return method history.
      */
     public static MethodHistory run(String repoPath, String filePath, String methodName, int lineCount) {
-        String command = String.format(
-            "java -jar lib/codeshovel-1.0.0-SNAPSHOT.jar -repopath %s -filepath %s -methodname %s -startline %s",
-            repoPath, filePath, methodName, lineCount
-        );
         ArrayList<String> commitsInfo = new ArrayList<>();
-        BufferedReader stdInput;
-        try {
-            Process exec = Runtime.getRuntime().exec(command);
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(exec.getErrorStream()));
-            stdInput = new BufferedReader(new InputStreamReader(exec.getInputStream()));
-            // Read the output from the command
-            String inputString;
-            while ((inputString = stdInput.readLine()) != null) {
-                commitsInfo.add(inputString);
-            }
 
-            if ((inputString = stdError.readLine()) != null) {
-                LOG.error("[ACP] Failed to retrieve the historical features.", inputString);
-            }
-        } catch (IOException e) {
+        try {
+            commitsInfo = ShovelExecution.getCommitHistoryForMethod(repoPath, filePath, methodName, lineCount);
+        } catch (Exception e) {
             LOG.error("[ACP] Failed to retrieve the historical features.", e.getMessage());
         }
 
@@ -61,13 +46,11 @@ public class HistoricalFeaturesExtractor {
 
         //Extract all authors that modified the method and all dates the method was modified in.
         for (String commitEntry : commitsInfo) {
-            String[] parts = commitEntry.split(": ");
-            if (parts.length > 1) {
-                JsonElement commitDetails = new JsonParser().parse(parts[1].substring(1, parts[1].length() - 2));
-                JsonObject jsonObject = commitDetails.getAsJsonObject();
-                authorNames.add(jsonObject.get("commitAuthor").getAsString());
-                commitDates.add(jsonObject.get("commitDate").getAsString());
-            }
+            String[] parts = commitEntry.split(" : ");
+            JsonElement commitDetails = new JsonParser().parse(parts[1]);
+            JsonObject jsonObject = commitDetails.getAsJsonObject();
+            authorNames.add(jsonObject.get("commitAuthor").getAsString());
+            commitDates.add(jsonObject.get("commitDate").getAsString());
         }
 
         return new MethodHistory(commitsInfo.size(),
