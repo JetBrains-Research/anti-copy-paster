@@ -50,10 +50,10 @@ public class HistoricalFeaturesExtractor {
             }
 
             if ((inputString = stdError.readLine()) != null) {
-                LOG.error("[ACP] Failed to retrieve the historical features. See details: %s", inputString);
+                LOG.error("[ACP] Failed to retrieve the historical features.", inputString);
             }
         } catch (IOException e) {
-            LOG.error("[ACP] Failed to retrieve the historical features. See details: %s", e.getMessage());
+            LOG.error("[ACP] Failed to retrieve the historical features.", e.getMessage());
         }
 
         HashSet<String> authorNames = new HashSet<>();

@@ -103,7 +103,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
             treeString = resBuilder.toString();
             treeString = treeString.substring(0, treeString.length() - 1);
         } catch (Exception e) {
-            LOG.error("[ACP] Failed to load RTree-ACP-SH model. See details: %s", e.getMessage());
+            LOG.error("[ACP] Failed to load RTree-ACP-SH model.", e.getMessage());
         }
 
         try {
@@ -154,7 +154,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
                                                                        });
                                 }
                             } catch (Exception e) {
-                                LOG.error("[ACP] Failed to make a prediction. See details: %s", e.getMessage());
+                                LOG.error("[ACP] Failed to make a prediction.", e.getMessage());
                             }
                         });
                     }
