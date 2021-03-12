@@ -1,5 +1,12 @@
 package org.jetbrains.research.anticopypaster.ide;
 
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.Document;
+import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiMethod;
 import org.jetbrains.research.anticopypaster.builders.DecisionPathBuilder;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor;
@@ -17,8 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.refactoring.RefactoringActionHandler;
 import org.jetbrains.research.anticopypaster.metrics.extractors.CouplingCalculator;
+import org.jetbrains.research.anticopypaster.metrics.extractors.HistoricalFeaturesExtractor;
 import org.jetbrains.research.anticopypaster.metrics.extractors.KeywordMetricsExtractor;
 import org.jetbrains.research.anticopypaster.metrics.extractors.MethodDeclarationMetricsExtractor;
+import org.jetbrains.research.anticopypaster.metrics.extractors.MethodHistory;
 import org.jetbrains.research.anticopypaster.models.IPredictionModel;
 import org.jetbrains.research.anticopypaster.models.VectorValidator;
 import org.jetbrains.research.anticopypaster.models.features.feature.Feature;
@@ -39,14 +48,20 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Pattern;
 
 /**
- * Handles any copy-paste action and check if the pasted code fragment could be extracted into a separate method.
+ * Handles any copy-paste action and checks if the pasted code fragment could be extracted into a separate method.
  */
+//TODO: Refactoring: split this class into several classes to simplify its understanding.
 public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
+    private PsiFile srcFile;
+    private PsiMethod sourceMethod;
+    private PsiMethod destinationMethod;
     private static IPredictionModel model;
     private static RandomTree tree;
     private static String treeString;
     private static DuplicatesInspection inspection = new DuplicatesInspection();
-    private static ConcurrentLinkedQueue<Event> events_queue = new ConcurrentLinkedQueue();
+    private static ConcurrentLinkedQueue<Event> eventsQueue = new ConcurrentLinkedQueue<>();
+    private static final Logger LOG = Logger.getInstance(ExtractMethodPreProcessor.class);
+
     private static class Event {
         PsiFile file;
         String text;
@@ -60,7 +75,8 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         boolean forceExtraction;
         String textProof;
 
-        public Event(PsiFile file, String text, int matches, IFeaturesVector vec, Project project, Editor editor, String content, double pred_boost, int linesOfCode, boolean forceExtraction, String textProof) {
+        public Event(PsiFile file, String text, int matches, IFeaturesVector vec, Project project, Editor editor,
+                     String content, double pred_boost, int linesOfCode, boolean forceExtraction, String textProof) {
             this.file = file;
             this.text = text;
             this.matches = matches;
@@ -78,17 +94,16 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
     static {
         try {
             model = new WekaBasedModel();
-            tree = (RandomTree) SerializationHelper.read(ExtractMethodPreProcessor.class.getClassLoader().getResourceAsStream("RTree-ACP-SH.model"));
+            tree = (RandomTree) SerializationHelper.read(
+                ExtractMethodPreProcessor.class.getClassLoader().getResourceAsStream("RTree-ACP-SH.model"));
             treeString = tree.toString();
-            String[] split = treeString.split("\n");
+            String[] treeParts = treeString.split("\n");
             StringBuilder resBuilder = new StringBuilder();
-            foo(split, resBuilder);
-            foo(split, resBuilder);
+            processTreeParts(treeParts, resBuilder);
             treeString = resBuilder.toString();
             treeString = treeString.substring(0, treeString.length() - 1);
-
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("[ACP] Failed to load RTree-ACP-SH model. See details: %s", e.getMessage());
         }
 
         try {
@@ -98,11 +113,14 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
                 //analyze queue and suggest refactoring
                 public void run() {
 
-                    while (!events_queue.isEmpty()) {
-                        final Event event = events_queue.poll();
+                    while (!eventsQueue.isEmpty()) {
+                        final Event event = eventsQueue.poll();
 
                         ApplicationManager.getApplication().runReadAction(() -> {
-                            DuplicatesInspection.InspectionResult result = inspection.resolve(event.project, event.text.replace('\n', ' ').replace('\t', ' ').replace('\r', ' ').replaceAll("\\s+",""));
+                            DuplicatesInspection.InspectionResult result =
+                                inspection.resolve(event.project, event.text.replace('\n', ' ')
+                                    .replace('\t', ' ').replace('\r', ' ')
+                                    .replaceAll("\\s+",""));
                             int matchesAfterEvent = event.matches + 1;
                             if (result.count <= 1 && result.count < matchesAfterEvent) {
                                 return;
@@ -114,26 +132,29 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
 
                                 if (event.forceExtraction || (pred == 1 && event.linesOfCode > 3) || (event.linesOfCode <= 3 && new Random().nextDouble() < event.pred_boost)) {
                                     new ExtractMethodNotifier().notify(event.project,
-                                                                       AntiCopyPasterBundle.message("extract.method.refactoring.is.available"),
-                                                                       new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            String message = event.textProof;
-                                            if (message.isEmpty()) {
-                                                message = buildMessage(event.vec);
-                                            }
-                                            int result = Messages.showOkCancelDialog(message,
-                                                                                     AntiCopyPasterBundle.message("anticopypaster.recommendation.dialog.name"),
-                                                                                     Messages.getWarningIcon());
+                                                                       AntiCopyPasterBundle.message(
+                                                                           "extract.method.refactoring.is.available"),
+                                                                       () -> {
+                                                                           String message = event.textProof;
+                                                                           if (message.isEmpty()) {
+                                                                               message = buildMessage(event.vec);
+                                                                           }
+                                                                           int result1 =
+                                                                               Messages.showOkCancelDialog(message,
+                                                                                                           AntiCopyPasterBundle.message(
+                                                                                                               "anticopypaster.recommendation.dialog.name"),
+                                                                                                           Messages.getWarningIcon());
 
-                                            if (result == 0) {
-                                                scheduleExtraction(event.project, event.file, event.editor, event.text);
-                                            }
-                                        }
-                                    });
+                                                                           if (result1 == 0) {
+                                                                               scheduleExtraction(event.project,
+                                                                                                  event.file,
+                                                                                                  event.editor,
+                                                                                                  event.text);
+                                                                           }
+                                                                       });
                                 }
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                LOG.error("[ACP] Failed to make a prediction. See details: %s", e.getMessage());
                             }
                         });
                     }
@@ -146,20 +167,18 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         }
     }
 
-    private static void foo(String[] split, StringBuilder resBuilder) {
+    private static void processTreeParts(String[] split, StringBuilder resBuilder) {
         for (int i = 4; i < split.length - 2; ++i) {
             resBuilder.append(split[i]);
             resBuilder.append("\n");
         }
     }
 
-    private PsiFile srcFile = null;
-
     @Nullable
     @Override
     public String preprocessOnCopy(PsiFile file, int[] startOffsets, int[] endOffsets, String text) {
         srcFile = file;
-
+        sourceMethod = findMethodByOffset(file, startOffsets[0]);
         return null;
     }
 
@@ -169,13 +188,22 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         HashSet<String> vars_in_fragment = new HashSet<>();
         HashMap<String, Integer> vars_counts_in_fragment = new HashMap<>();
 
-
-        if (project == null || editor == null || file == null || !FragmentCorrectnessChecker.isCorrect(project, file, text, vars_in_fragment, vars_counts_in_fragment)) {
+        if (project == null || editor == null || file == null ||
+            !FragmentCorrectnessChecker.isCorrect(project, file,
+                                                  text,
+                                                  vars_in_fragment,
+                                                  vars_counts_in_fragment)) {
             return text;
         }
 
+        @Nullable Caret caret = CommonDataKeys.CARET.getData(DataManager.getInstance().getDataContext());
+        int offset = caret == null ? 0: caret.getOffset();
+        destinationMethod = findMethodByOffset(file, offset);
+
         // find number of code fragments considered as duplicated
-        DuplicatesInspection.InspectionResult result = inspection.resolve(project, text.replace('\n', ' ').replace('\t', ' ').replace('\r', ' ').replaceAll("\\s+",""));
+        DuplicatesInspection.InspectionResult result =
+            inspection.resolve(project, text.replace('\n', ' ').replace('\t', ' ')
+                .replace('\r', ' ').replaceAll("\\s+",""));
 
         if (result.count == 0) {
             return text;
@@ -184,17 +212,20 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         //number of lines in fragment
         int linesOfCode = StringUtils.countMatches(text,"\n") + 1;
 
-
         MethodDeclarationMetricsExtractor.ParamsScores scores = new MethodDeclarationMetricsExtractor.ParamsScores();
 
         IFeaturesVector featuresVector;
 
         if (result.files.contains(file)) {
-            featuresVector = calculateFeatures(file, text, vars_in_fragment, vars_counts_in_fragment, scores, linesOfCode);
+            featuresVector =
+                calculateFeatures(file, text, vars_in_fragment, vars_counts_in_fragment, scores, linesOfCode);
         } else if (srcFile != null && result.files.contains(srcFile)) {
-            featuresVector = calculateFeatures(srcFile, text, vars_in_fragment, vars_counts_in_fragment, scores, linesOfCode);
+            featuresVector =
+                calculateFeatures(srcFile, text, vars_in_fragment, vars_counts_in_fragment, scores, linesOfCode);
         } else if (!result.files.isEmpty()) {
-            featuresVector = calculateFeatures(result.files.iterator().next(), text, vars_in_fragment, vars_counts_in_fragment, scores, linesOfCode);
+            featuresVector =
+                calculateFeatures(result.files.iterator().next(), text, vars_in_fragment, vars_counts_in_fragment,
+                                  scores, linesOfCode);
         } else {
             return text;
         }
@@ -222,8 +253,10 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         }
 
         if (linesOfCode == 1) {
-            if ((featuresVector.getFeature(Feature.KeywordNewTotalCount) > 0.0 || text.contains(".")) && StringUtils.countMatches(text, ",") > 1 && scores.in <= 1) {
-                reasonToExtractMethod = AntiCopyPasterBundle.message("code.fragment.could.remove.duplicated.constructor.call.or.factory.method");
+            if ((featuresVector.getFeature(Feature.KeywordNewTotalCount) > 0.0 ||
+                text.contains(".")) && StringUtils.countMatches(text, ",") > 1 && scores.in <= 1) {
+                reasonToExtractMethod =
+                    AntiCopyPasterBundle.message("code.fragment.could.remove.duplicated.constructor.call.or.factory.method");
                 forceExtraction = true;
             } else {
                 return text;
@@ -231,22 +264,24 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         }
 
 
-        double size_score = Math.min(3.0, 0.3*Math.min(scores.method_lines - linesOfCode, linesOfCode ));
+        double size_score = Math.min(3.0, 0.3 * Math.min(scores.method_lines - linesOfCode, linesOfCode));
         double params_score = 2.0 - scores.out + Math.min(0, 2 - scores.in);
-
 
         double total_dep_fragment = featuresVector.getFeature(Feature.TotalLinesDepth);
         double total_dep_method = scores.all_dep;
         double max_dep_fragment = MethodDeclarationMetricsExtractor.maxDepth(text);
         double max_dep_method = scores.max_dep;
 
-        double score_area = 2.0 * max_dep_method / Math.max(1.0, total_dep_method) * Math.min(total_dep_method - total_dep_fragment, total_dep_method - scores.all_rest);
+        double score_area =
+            2.0 * max_dep_method / Math.max(1.0, total_dep_method) * Math.min(total_dep_method - total_dep_fragment,
+                                                                              total_dep_method - scores.all_rest);
         double score_max_dep = Math.min(max_dep_method - max_dep_fragment, max_dep_method - scores.max_rest);
 
         double score_overall = size_score + params_score + score_area + score_max_dep;
 
         if (score_overall >= 4.99) {
-            reasonToExtractMethod = AntiCopyPasterBundle.message("code.fragment.strongly.simplifies.logic.of.enclosing.method");
+            reasonToExtractMethod =
+                AntiCopyPasterBundle.message("code.fragment.strongly.simplifies.logic.of.enclosing.method");
             forceExtraction = true;
         }
 
@@ -259,31 +294,34 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         int muchMatches = Math.max(0, result.count - 2);
         double pred_boost = Math.min(1, 0.33 * muchMatches);
 
-        events_queue.add(new Event(file, text, result.count, featuresVector, project, editor, file.getText(), pred_boost, linesOfCode, forceExtraction, reasonToExtractMethod));
+        eventsQueue.add(new Event(file, text, result.count, featuresVector, project, editor, file.getText(), pred_boost,
+                                  linesOfCode, forceExtraction, reasonToExtractMethod));
 
         return text;
     }
 
-    private IFeaturesVector calculateFeatures(PsiFile file, String text, HashSet<String> vars_in_fragment, HashMap<String, Integer> vars_counts_in_fragment, MethodDeclarationMetricsExtractor.ParamsScores paramsScores, int linesCount) {
+    private IFeaturesVector calculateFeatures(PsiFile file,
+                                              String text,
+                                              HashSet<String> vars_in_fragment,
+                                              HashMap<String, Integer> vars_counts_in_fragment,
+                                              MethodDeclarationMetricsExtractor.ParamsScores paramsScores,
+                                              int linesCount) {
         IFeaturesVector featuresVector = new FeaturesVector(117);
 
         KeywordMetricsExtractor.calculate(text, linesCount, featuresVector);
         CouplingCalculator.calculate(file, text, linesCount, featuresVector);
         featuresVector.addFeature(new FeatureItem(Feature.TotalSymbolsInCodeFragment, text.length()));
-        featuresVector.addFeature(new FeatureItem(Feature.AverageSymbolsInCodeLine, (double)text.length() / linesCount));
+        featuresVector.addFeature(
+            new FeatureItem(Feature.AverageSymbolsInCodeLine, (double) text.length() / linesCount));
 
         int depthTotal = MethodDeclarationMetricsExtractor.totalDepth(text);
 
         featuresVector.addFeature(new FeatureItem(Feature.TotalLinesDepth, depthTotal));
-        featuresVector.addFeature(new FeatureItem(Feature.AverageLinesDepth, (double)depthTotal / linesCount));
-        featuresVector.addFeature(new FeatureItem(Feature.TotalCommitsInFragment, 1));
-        featuresVector.addFeature(new FeatureItem(Feature.TotalAuthorsInFragment, 1));
-        featuresVector.addFeature(new FeatureItem(Feature.LiveTimeOfFragment, 1e6));
-        featuresVector.addFeature(new FeatureItem(Feature.AverageLiveTimeOfLine, 1e6));
+        featuresVector.addFeature(new FeatureItem(Feature.AverageLinesDepth, (double) depthTotal / linesCount));
 
-        featuresVector.addFeature(new FeatureItem(Feature.TotalLinesOfCode, linesCount));
-
-        MethodDeclarationMetricsExtractor.ParamsScores scores = MethodDeclarationMetricsExtractor.calculate(file, text, featuresVector, vars_in_fragment, vars_counts_in_fragment);
+        MethodDeclarationMetricsExtractor.ParamsScores scores =
+            MethodDeclarationMetricsExtractor.calculate(file, text, featuresVector, vars_in_fragment,
+                                                        vars_counts_in_fragment);
         paramsScores.in = scores.in;
         paramsScores.out = scores.out;
         paramsScores.max_rest = scores.max_rest;
@@ -293,7 +331,42 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         paramsScores.method_lines = scores.method_lines;
         paramsScores.isSet = scores.isSet;
 
+        //TODO: Retrain the model to take into account historical features for the destination method too.
+        String virtualFilePath = file.getVirtualFile().getCanonicalPath();
+        MethodHistory sourceMethodHistory =
+            HistoricalFeaturesExtractor.run(file.getProject().getBasePath(),
+                                            virtualFilePath == null ? "" :
+                                                virtualFilePath.substring(virtualFilePath.lastIndexOf("src")),
+                                            sourceMethod.getName(),
+                                            getNumberOfMethodStartLine(sourceMethod.getTextOffset()));
+        featuresVector.addFeature(
+            new FeatureItem(Feature.TotalCommitsInFragment, sourceMethodHistory.getTotalCommitCount()));
+        featuresVector.addFeature(
+            new FeatureItem(Feature.TotalAuthorsInFragment, sourceMethodHistory.getTotalAuthorCount()));
+        featuresVector.addFeature(new FeatureItem(Feature.LiveTimeOfFragment, sourceMethodHistory.getAgeInDays()));
+        //TODO: Figure out the way to calculate this feature.
+        featuresVector.addFeature(new FeatureItem(Feature.AverageLiveTimeOfLine, 1e6));
+
+        featuresVector.addFeature(new FeatureItem(Feature.TotalLinesOfCode, linesCount));
+
         return featuresVector;
+    }
+
+    private PsiMethod findMethodByOffset(PsiFile psiFile, int offset) {
+        PsiMethod method = null;
+        PsiElement element = psiFile.findElementAt(offset);
+        if (element != null) {
+            PsiElement elementContext = element.getContext();
+            if (elementContext != null && elementContext.getParent() instanceof PsiMethod)
+                method = (PsiMethod) element.getContext().getParent();
+        }
+        return method;
+    }
+
+    private int getNumberOfMethodStartLine(int offset) {
+        FileViewProvider fileViewProvider = srcFile.getViewProvider();
+        Document document = fileViewProvider.getDocument();
+        return document != null ? document.getLineNumber(offset) + 1 : 0;
     }
 
     private static String buildMessage(final IFeaturesVector featuresVector) {
