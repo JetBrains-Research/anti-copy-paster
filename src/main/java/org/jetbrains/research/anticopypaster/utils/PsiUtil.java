@@ -1,7 +1,14 @@
 package org.jetbrains.research.anticopypaster.utils;
 
 import com.intellij.openapi.editor.Document;
-import com.intellij.psi.*;
+import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiParameterList;
+import com.intellij.psi.PsiType;
 
 import java.util.Objects;
 
@@ -43,5 +50,16 @@ public class PsiUtil {
         }
         out.append(')');
         return out.toString();
+    }
+
+    public static PsiMethod findMethodByOffset(PsiFile psiFile, int offset) {
+        PsiMethod method = null;
+        PsiElement element = psiFile.findElementAt(offset);
+        if (element != null) {
+            PsiElement elementContext = element.getContext();
+            if (elementContext != null && elementContext.getParent() instanceof PsiMethod)
+                method = (PsiMethod) element.getContext().getParent();
+        }
+        return method;
     }
 }

@@ -48,15 +48,14 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Pattern;
 
-import static org.jetbrains.research.anticopypaster.utils.PsiUtil.equalSignatures;
-import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getNumberOfMethodStartLine;
+import static org.jetbrains.research.anticopypaster.utils.PsiUtil.*;
 
 /**
  * Handles any copy-paste action and checks if the pasted code fragment could be extracted into a separate method.
  */
 //TODO: Refactoring: split this class into several classes to simplify its understanding.
 public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
-    private PsiFile srcFile;
+    private PsiFile sourceFile;
     private PsiMethod sourceMethod;
     private PsiMethod destinationMethod;
     private static IPredictionModel model;
@@ -181,7 +180,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
     @Nullable
     @Override
     public String preprocessOnCopy(PsiFile file, int[] startOffsets, int[] endOffsets, String text) {
-        srcFile = file;
+        sourceFile = file;
         sourceMethod = findMethodByOffset(file, startOffsets[0]);
         return null;
     }
@@ -223,9 +222,9 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         if (result.files.contains(file)) {
             featuresVector =
                 calculateFeatures(file, text, vars_in_fragment, vars_counts_in_fragment, scores, linesOfCode);
-        } else if (srcFile != null && result.files.contains(srcFile)) {
+        } else if (sourceFile != null && result.files.contains(sourceFile)) {
             featuresVector =
-                calculateFeatures(srcFile, text, vars_in_fragment, vars_counts_in_fragment, scores, linesOfCode);
+                calculateFeatures(sourceFile, text, vars_in_fragment, vars_counts_in_fragment, scores, linesOfCode);
         } else if (!result.files.isEmpty()) {
             featuresVector =
                 calculateFeatures(result.files.iterator().next(), text, vars_in_fragment, vars_counts_in_fragment,
@@ -396,17 +395,6 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
             }
         }
         return 0;
-    }
-
-    private PsiMethod findMethodByOffset(PsiFile psiFile, int offset) {
-        PsiMethod method = null;
-        PsiElement element = psiFile.findElementAt(offset);
-        if (element != null) {
-            PsiElement elementContext = element.getContext();
-            if (elementContext != null && elementContext.getParent() instanceof PsiMethod)
-                method = (PsiMethod) element.getContext().getParent();
-        }
-        return method;
     }
 
     private static String buildMessage(final IFeaturesVector featuresVector) {
