@@ -1,33 +1,38 @@
 package org.jetbrains.research.anticopypaster.ide;
 
-import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.Document;
-import com.intellij.psi.FileViewProvider;
-import com.intellij.psi.PsiMethod;
-import org.jetbrains.research.anticopypaster.builders.DecisionPathBuilder;
-import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor;
+import com.intellij.ide.DataManager;
+import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.lang.Language;
 import com.intellij.lang.LanguageRefactoringSupport;
 import com.intellij.lang.refactoring.RefactoringSupportProvider;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RawText;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vcs.VcsException;
+import com.intellij.openapi.vcs.changes.Change;
+import com.intellij.openapi.vcs.changes.ChangeListManager;
+import com.intellij.openapi.vcs.changes.ContentRevision;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiMethod;
 import com.intellij.refactoring.RefactoringActionHandler;
-import org.jetbrains.research.anticopypaster.metrics.extractors.CouplingCalculator;
-import org.jetbrains.research.anticopypaster.metrics.extractors.HistoricalFeaturesExtractor;
-import org.jetbrains.research.anticopypaster.metrics.extractors.KeywordMetricsExtractor;
-import org.jetbrains.research.anticopypaster.metrics.extractors.MethodDeclarationMetricsExtractor;
-import org.jetbrains.research.anticopypaster.metrics.extractors.MethodHistory;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.research.anticopypaster.builders.DecisionPathBuilder;
+import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
+import org.jetbrains.research.anticopypaster.ide.notifications.ExtractMethodNotifier;
+import org.jetbrains.research.anticopypaster.metrics.extractors.*;
 import org.jetbrains.research.anticopypaster.models.IPredictionModel;
 import org.jetbrains.research.anticopypaster.models.VectorValidator;
 import org.jetbrains.research.anticopypaster.models.features.feature.Feature;
@@ -35,10 +40,6 @@ import org.jetbrains.research.anticopypaster.models.features.feature.FeatureItem
 import org.jetbrains.research.anticopypaster.models.features.features_vector.FeaturesVector;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
 import org.jetbrains.research.anticopypaster.models.offline.WekaBasedModel;
-import org.jetbrains.research.anticopypaster.ide.notifications.ExtractMethodNotifier;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.research.anticopypaster.utils.DuplicatesInspection;
 import weka.classifiers.trees.RandomTree;
 import weka.core.SerializationHelper;
@@ -46,6 +47,9 @@ import weka.core.SerializationHelper;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Pattern;
+
+import static org.jetbrains.research.anticopypaster.utils.PsiUtil.equalSignatures;
+import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getNumberOfMethodStartLine;
 
 /**
  * Handles any copy-paste action and checks if the pasted code fragment could be extracted into a separate method.
@@ -338,7 +342,7 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
                                             virtualFilePath == null ? "" :
                                                 virtualFilePath.substring(virtualFilePath.lastIndexOf("src")),
                                             sourceMethod.getName(),
-                                            getNumberOfMethodStartLine(sourceMethod.getTextOffset()));
+                                            getMethodStartLineInBeforeRevision(file, sourceMethod));
         featuresVector.addFeature(
             new FeatureItem(Feature.TotalCommitsInFragment, sourceMethodHistory.getTotalCommitCount()));
         featuresVector.addFeature(
@@ -352,6 +356,48 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         return featuresVector;
     }
 
+    /**
+     * Check the before revision of the file (without local changes) to find the method's start line.
+     *
+     * @param fileWithLocalChanges file that contains the local changes;
+     * @param method               method to search for;
+     * @return number of the method's start line in the file from the last revision.
+     */
+    private int getMethodStartLineInBeforeRevision(PsiFile fileWithLocalChanges, PsiMethod method) {
+        ChangeListManager changeListManager = ChangeListManager.getInstance(fileWithLocalChanges.getProject());
+        Change change = changeListManager.getChange(fileWithLocalChanges.getVirtualFile());
+        if (change != null) {
+            ContentRevision beforeRevision = change.getBeforeRevision();
+            if (beforeRevision != null) {
+                try {
+                    String content = beforeRevision.getContent();
+                    if (content != null) {
+                        PsiFile psiFileBeforeRevision =
+                            PsiFileFactory.getInstance(fileWithLocalChanges.getProject()).createFileFromText("tmp",
+                                                                                                             JavaFileType.INSTANCE,
+                                                                                                             content);
+                        PsiElement[] children = psiFileBeforeRevision.getChildren();
+                        for (PsiElement element : children) {
+                            if (element instanceof PsiClass) {
+                                PsiClass psiClass = (PsiClass) element;
+                                PsiMethod[] methods = psiClass.getMethods();
+                                for (PsiMethod psiMethod : methods) {
+                                    if (equalSignatures(method, psiMethod)) {
+                                        return getNumberOfMethodStartLine(psiFileBeforeRevision,
+                                                                          psiMethod.getTextOffset());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (VcsException e) {
+                    LOG.error("[ACP] Failed to get a file's content from the last revision.");
+                }
+            }
+        }
+        return 0;
+    }
+
     private PsiMethod findMethodByOffset(PsiFile psiFile, int offset) {
         PsiMethod method = null;
         PsiElement element = psiFile.findElementAt(offset);
@@ -361,12 +407,6 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
                 method = (PsiMethod) element.getContext().getParent();
         }
         return method;
-    }
-
-    private int getNumberOfMethodStartLine(int offset) {
-        FileViewProvider fileViewProvider = srcFile.getViewProvider();
-        Document document = fileViewProvider.getDocument();
-        return document != null ? document.getLineNumber(offset) + 1 : 0;
     }
 
     private static String buildMessage(final IFeaturesVector featuresVector) {
