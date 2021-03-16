@@ -6,13 +6,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.openapi.diagnostic.Logger;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
  * Extracts the historical features from the method:
@@ -71,7 +72,7 @@ public class HistoricalFeaturesExtractor {
 
         LocalDate dayTheMethodWasIntroduced = LocalDate.parse(dates.get(0), formatter);
         LocalDate currentDate = LocalDate.parse(LocalDateTime.now().format(formatter), formatter);
-        return Duration.between(dayTheMethodWasIntroduced, currentDate).toDays();
+        return DAYS.between(dayTheMethodWasIntroduced, currentDate);
     }
 
 }

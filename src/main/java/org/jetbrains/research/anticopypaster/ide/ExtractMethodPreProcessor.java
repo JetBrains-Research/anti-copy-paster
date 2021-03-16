@@ -334,19 +334,19 @@ public class ExtractMethodPreProcessor implements CopyPastePreProcessor {
         paramsScores.method_lines = scores.method_lines;
         paramsScores.isSet = scores.isSet;
 
-        //TODO: Retrain the model to take into account historical features for the destination method too.
+        //TODO: Retrain the model to take into account historical features for the source method too.
         String virtualFilePath = file.getVirtualFile().getCanonicalPath();
-        MethodHistory sourceMethodHistory =
+        MethodHistory destinationMethodHistory =
             HistoricalFeaturesExtractor.run(file.getProject().getBasePath(),
                                             virtualFilePath == null ? "" :
                                                 virtualFilePath.substring(virtualFilePath.lastIndexOf("src")),
-                                            sourceMethod.getName(),
-                                            getMethodStartLineInBeforeRevision(file, sourceMethod));
+                                            destinationMethod.getName(),
+                                            getMethodStartLineInBeforeRevision(file, destinationMethod));
         featuresVector.addFeature(
-            new FeatureItem(Feature.TotalCommitsInFragment, sourceMethodHistory.getTotalCommitCount()));
+            new FeatureItem(Feature.TotalCommitsInFragment, destinationMethodHistory.getTotalCommitCount()));
         featuresVector.addFeature(
-            new FeatureItem(Feature.TotalAuthorsInFragment, sourceMethodHistory.getTotalAuthorCount()));
-        featuresVector.addFeature(new FeatureItem(Feature.LiveTimeOfFragment, sourceMethodHistory.getAgeInDays()));
+            new FeatureItem(Feature.TotalAuthorsInFragment, destinationMethodHistory.getTotalAuthorCount()));
+        featuresVector.addFeature(new FeatureItem(Feature.LiveTimeOfFragment, destinationMethodHistory.getAgeInDays()));
         //TODO: Figure out the way to calculate this feature.
         featuresVector.addFeature(new FeatureItem(Feature.AverageLiveTimeOfLine, 1e6));
 
