@@ -1,18 +1,62 @@
 package org.jetbrains.research.anticopypaster.utils;
 
+import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
-import com.intellij.psi.FileViewProvider;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiParameter;
-import com.intellij.psi.PsiParameterList;
-import com.intellij.psi.PsiType;
+import com.intellij.openapi.vcs.VcsException;
+import com.intellij.openapi.vcs.changes.Change;
+import com.intellij.openapi.vcs.changes.ChangeListManager;
+import com.intellij.openapi.vcs.changes.ContentRevision;
+import com.intellij.psi.*;
+import com.intellij.psi.util.PsiTreeUtil;
 
 import java.util.Objects;
 
 public class PsiUtil {
+
+    private static final Logger LOG = Logger.getInstance(PsiUtil.class);
+
+    /**
+     * Check the before revision of the file (without local changes) to find the method's start line.
+     *
+     * @param fileWithLocalChanges file that contains the local changes;
+     * @param method               method to search for;
+     * @return number of the method's start line in the file from the last revision.
+     */
+    public static int getMethodStartLineInBeforeRevision(PsiFile fileWithLocalChanges, PsiMethod method) {
+        ChangeListManager changeListManager = ChangeListManager.getInstance(fileWithLocalChanges.getProject());
+        Change change = changeListManager.getChange(fileWithLocalChanges.getVirtualFile());
+        if (change != null) {
+            ContentRevision beforeRevision = change.getBeforeRevision();
+            if (beforeRevision != null) {
+                try {
+                    String content = beforeRevision.getContent();
+                    if (content != null) {
+                        PsiFile psiFileBeforeRevision =
+                            PsiFileFactory.getInstance(fileWithLocalChanges.getProject()).createFileFromText("tmp",
+                                                                                                             JavaFileType.INSTANCE,
+                                                                                                             content);
+                        PsiElement[] children = psiFileBeforeRevision.getChildren();
+                        for (PsiElement element : children) {
+                            if (element instanceof PsiClass) {
+                                PsiClass psiClass = (PsiClass) element;
+                                PsiMethod[] methods = psiClass.getMethods();
+                                for (PsiMethod psiMethod : methods) {
+                                    if (equalSignatures(method, psiMethod)) {
+                                        return getNumberOfMethodStartLine(psiFileBeforeRevision,
+                                                                          psiMethod.getTextOffset());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (VcsException e) {
+                    LOG.error("[ACP] Failed to get a file's content from the last revision.", e.getMessage());
+                }
+            }
+        }
+        return 0;
+    }
 
     public static int getNumberOfMethodStartLine(PsiFile file, int offset) {
         FileViewProvider fileViewProvider = file.getViewProvider();
@@ -53,13 +97,7 @@ public class PsiUtil {
     }
 
     public static PsiMethod findMethodByOffset(PsiFile psiFile, int offset) {
-        PsiMethod method = null;
         PsiElement element = psiFile.findElementAt(offset);
-        if (element != null) {
-            PsiElement elementContext = element.getContext();
-            if (elementContext != null && elementContext.getParent() instanceof PsiMethod)
-                method = (PsiMethod) element.getContext().getParent();
-        }
-        return method;
+        return (PsiMethod) PsiTreeUtil.findFirstParent(element, p -> p instanceof PsiMethod);
     }
 }
