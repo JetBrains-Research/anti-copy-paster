@@ -13,22 +13,33 @@ import java.util.stream.Collectors;
 
 public class MethodDeclarationMetricsExtractor {
     public static class ParamsScores {
-        public int in, out;
-        public int method_lines;
-        public int max_dep, all_dep, max_rest, all_rest;
+        public int in;
+        public int out;
+        public int methodLines;
+        public int maxDep;
+        public int allDep;
+        public int maxRest;
+        public int allRest;
         public boolean isSet = false;
     }
 
-    public static ParamsScores calculate(PsiFile file, String fragment, IFeaturesVector vec, HashSet<String> vars_in_fragment, HashMap<String, Integer> vars_counts_in_fragment) {
+    public static ParamsScores calculate(PsiFile file,
+                                         String fragment,
+                                         IFeaturesVector vec,
+                                         HashSet<String> vars_in_fragment,
+                                         HashMap<String, Integer> vars_counts_in_fragment) {
         ParamsScores scores = new ParamsScores();
-
         traverse(file, fragment, vec, vars_in_fragment, vars_counts_in_fragment, scores);
-
         return scores;
 
     }
 
-    private static boolean traverse(PsiElement node, String text, IFeaturesVector vec, HashSet<String> vars_in_fragment, HashMap<String, Integer> vars_counts_in_fragment, ParamsScores scores) {
+    private static boolean traverse(PsiElement node,
+                                    String text,
+                                    IFeaturesVector vec,
+                                    HashSet<String> vars_in_fragment,
+                                    HashMap<String, Integer> vars_counts_in_fragment,
+                                    ParamsScores scores) {
         String nodeType = node.toString();
 
         if (!(nodeType.contains("PsiJavaFile") || nodeType.contains("PsiClass"))) {
@@ -42,17 +53,19 @@ public class MethodDeclarationMetricsExtractor {
                     int cleanedLocs = cleanedLocs(nodeText, rawLocs);
 
                     PsiElement[] children = node.getChildren();
-                    for (PsiElement el: children) {
+                    for (PsiElement el : children) {
                         if (el.toString().contains("PsiParameterList")) {
 
                             try {
-                                params = Arrays.stream(el.toString().split("\\(")[1].split("\\)")[0].split(",")).map(s -> s.split(" ")[s.split(" ").length - 1]).collect(Collectors.toList());
+                                params = Arrays.stream(el.toString().split("\\(")[1].split("\\)")[0].split(",")).map(
+                                    s -> s.split(" ")[s.split(" ").length - 1]).collect(Collectors.toList());
                             } catch (Exception e) {
                                 // skip
                             }
 
                             try {
-                                params = Arrays.stream(el.toString().split("\\(")[1].split("\\)")[0].split(",")).map(s -> s.split(" ")[s.split(" ").length - 1]).collect(Collectors.toList());
+                                params = Arrays.stream(el.toString().split("\\(")[1].split("\\)")[0].split(",")).map(
+                                    s -> s.split(" ")[s.split(" ").length - 1]).collect(Collectors.toList());
                             } catch (Exception e) {
                                 // skip
                             }
@@ -73,15 +86,15 @@ public class MethodDeclarationMetricsExtractor {
                         }
                     }
 
-                    for (String k: to_remove) {
+                    for (String k : to_remove) {
                         vars_counts_in_method.remove(k);
                     }
 
-                    for (String decl: vars_in_fragment) {
+                    for (String decl : vars_in_fragment) {
                         vars_counts_in_fragment.put(decl, vars_counts_in_fragment.getOrDefault(decl, 1) - 1);
                     }
 
-                    for (String decl: vars_in_method) {
+                    for (String decl : vars_in_method) {
                         vars_counts_in_method.put(decl, vars_counts_in_method.getOrDefault(decl, 1) - 1);
                     }
 
@@ -89,10 +102,15 @@ public class MethodDeclarationMetricsExtractor {
                     HashSet<String> vars_in_method_not_fragment = new HashSet<>(vars_in_method); // copy
                     vars_in_method_not_fragment.removeAll(vars_in_fragment);
 
-                    HashMap<String, Integer> vars_counts_in_method_not_fragment = new HashMap<>(vars_counts_in_method); // copy
+                    HashMap<String, Integer> vars_counts_in_method_not_fragment =
+                        new HashMap<>(vars_counts_in_method); // copy
 
-                    for (Map.Entry<String, Integer> entry:  vars_counts_in_method_not_fragment.entrySet()) {
-                        vars_counts_in_method_not_fragment.replace(entry.getKey(), vars_counts_in_method_not_fragment.getOrDefault(entry.getKey(), 0) - vars_counts_in_fragment.getOrDefault(entry.getKey(), 0));
+                    for (Map.Entry<String, Integer> entry : vars_counts_in_method_not_fragment.entrySet()) {
+                        vars_counts_in_method_not_fragment.replace(entry.getKey(),
+                                                                   vars_counts_in_method_not_fragment.getOrDefault(
+                                                                       entry.getKey(),
+                                                                       0) - vars_counts_in_fragment.getOrDefault(
+                                                                       entry.getKey(), 0));
 
                     }
 
@@ -106,13 +124,13 @@ public class MethodDeclarationMetricsExtractor {
 
                     HashSet<String> method_args = new HashSet<>(params);
 
-                    for (String key: vars_counts_in_fragment.keySet()) {
+                    for (String key : vars_counts_in_fragment.keySet()) {
                         if (vars_in_method_not_fragment.contains(key) || method_args.contains(key)) {
                             input_params_count++;
                         }
                     }
 
-                    for (String key: vars_counts_in_method_not_fragment.keySet()) {
+                    for (String key : vars_counts_in_method_not_fragment.keySet()) {
                         if (vars_in_fragment.contains(key)) {
                             output_params_count++;
                         }
@@ -120,22 +138,23 @@ public class MethodDeclarationMetricsExtractor {
 
                     scores.in = input_params_count;
                     scores.out = output_params_count;
-                    scores.method_lines = cleanedLocs;
-                    scores.all_dep = totalDepth(nodeBody);
-                    scores.max_dep = maxDepth(nodeBody);
+                    scores.methodLines = cleanedLocs;
+                    scores.allDep = totalDepth(nodeBody);
+                    scores.maxDep = maxDepth(nodeBody);
                     String rest = nodeBody.replace(text, "");
-                    scores.max_rest = maxDepth(rest);
-                    scores.all_rest = totalDepth(rest);
+                    scores.maxRest = maxDepth(rest);
+                    scores.allRest = totalDepth(rest);
                     scores.isSet = true;
-
 
 
                     int locs = StringUtils.countMatches(nodeText, "\n");
                     int dep = totalDepth(text);
-                    vec.addFeature(new FeatureItem(Feature.MethodDeclarationSymbols, StringUtils.countMatches(nodeText, "\n")));
-                    vec.addFeature(new FeatureItem(Feature.MethodDeclarationAverageSymbols, (double)nodeText.length() / locs));
+                    vec.addFeature(
+                        new FeatureItem(Feature.MethodDeclarationSymbols, StringUtils.countMatches(nodeText, "\n")));
+                    vec.addFeature(
+                        new FeatureItem(Feature.MethodDeclarationAverageSymbols, (double) nodeText.length() / locs));
                     vec.addFeature(new FeatureItem(Feature.MethodDeclarationDepth, dep));
-                    vec.addFeature(new FeatureItem(Feature.MethodDeclarationDepthPerLine, (double)dep / locs));
+                    vec.addFeature(new FeatureItem(Feature.MethodDeclarationDepthPerLine, (double) dep / locs));
 
                     return true;
                 }
@@ -144,7 +163,7 @@ public class MethodDeclarationMetricsExtractor {
             return false;
         } else {
             PsiElement[] children = node.getChildren();
-            for (PsiElement child: children) {
+            for (PsiElement child : children) {
                 if (traverse(child, text, vec, vars_in_fragment, vars_counts_in_fragment, scores)) {
                     return true;
                 }
@@ -154,7 +173,10 @@ public class MethodDeclarationMetricsExtractor {
         return false;
     }
 
-    private static void dfsMethod(PsiElement node, String text, HashSet<String> vars, HashMap<String, Integer> vars_counts) {
+    private static void dfsMethod(PsiElement node,
+                                  String text,
+                                  HashSet<String> vars,
+                                  HashMap<String, Integer> vars_counts) {
         String nodeText = node.toString();
         if (nodeText.contains("PsiLocalVariable")) {
             String var = nodeText.split(":")[1];
@@ -167,7 +189,7 @@ public class MethodDeclarationMetricsExtractor {
         }
 
         PsiElement[] children = node.getChildren();
-        for (PsiElement child: children) {
+        for (PsiElement child : children) {
             dfsMethod(child, text, vars, vars_counts);
         }
     }
@@ -176,14 +198,14 @@ public class MethodDeclarationMetricsExtractor {
         int dep = 0;
         int area = 0;
         int depInLine = 0;
-        for (Character ch: code.toCharArray()) {
+        for (Character ch : code.toCharArray()) {
             if (ch == '{') {
                 dep++;
                 depInLine++;
             } else if (ch == '}') {
                 dep--;
                 depInLine--;
-            } else if (ch == '\n'){
+            } else if (ch == '\n') {
                 int resDep = dep;
                 if (depInLine > 0) {
                     resDep--;
@@ -199,7 +221,7 @@ public class MethodDeclarationMetricsExtractor {
     public static int maxDepth(String code) {
         int dep = 0;
         int res = 0;
-        for (Character ch: code.toCharArray()) {
+        for (Character ch : code.toCharArray()) {
             if (ch == '{') {
                 dep++;
                 res = Math.max(dep, res);
@@ -211,7 +233,7 @@ public class MethodDeclarationMetricsExtractor {
         return res;
     }
 
-    private static  int cleanedLocs(String text, int rawLocs) {
+    private static int cleanedLocs(String text, int rawLocs) {
         Pattern p = Pattern.compile("/\\*[\\s\\S]*?\\*/");
 
         java.util.regex.Matcher m = p.matcher(text);
@@ -224,7 +246,7 @@ public class MethodDeclarationMetricsExtractor {
         }
 
         int total_unused = 0;
-        for (String s: text.split("\n")) {
+        for (String s : text.split("\n")) {
             String tmp = s.trim();
             if (tmp.isEmpty() || tmp.startsWith("//")) {
                 total_unused++;

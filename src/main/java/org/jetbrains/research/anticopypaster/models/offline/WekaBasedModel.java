@@ -1,5 +1,6 @@
 package org.jetbrains.research.anticopypaster.models.offline;
 
+import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.research.anticopypaster.models.IPredictionModel;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
 import weka.classifiers.trees.RandomForest;
@@ -10,33 +11,42 @@ import java.util.Enumeration;
 import java.util.List;
 
 public class WekaBasedModel implements IPredictionModel {
-    private RandomForest model;
-    private ArrayList<Attribute> attributes;
+    private final RandomForest model;
+    private final ArrayList<Attribute> attributes;
+    private static final Logger LOG = Logger.getInstance(WekaBasedModel.class);
 
-    public WekaBasedModel() throws Exception {
-        RandomForest forest = (RandomForest) SerializationHelper.read(getClass().getClassLoader().getResourceAsStream("RF-ACP-SH.model"));
-
-        this.model = forest;
+    public WekaBasedModel() {
+        this.model = readModel();
         this.attributes = buildAttributes();
     }
 
     public WekaBasedModel(String modelPath) throws Exception {
-        RandomForest forest = (RandomForest) SerializationHelper.read(modelPath);
-
-        this.model = forest;
+        this.model = (RandomForest) SerializationHelper.read(modelPath);
         this.attributes = buildAttributes();
+    }
+
+    private RandomForest readModel() {
+        RandomForest model = null;
+        try {
+            model =
+                (RandomForest) SerializationHelper.read(getClass().getClassLoader()
+                                                            .getResourceAsStream("RF-ACP-SH.model"));
+        } catch (Exception e) {
+            LOG.error("[ACP] Failed to load RTree-ACP-SH model.", e.getMessage());
+        }
+        return model;
     }
 
     @Override
     public List<Integer> predict(List<IFeaturesVector> batch) throws Exception {
         Instances dataUnlabeled = new Instances("TestInstances", attributes, batch.size());
 
-        for (IFeaturesVector vec: batch) {
-            Instance item  = new DenseInstance(attributes.size());
+        for (IFeaturesVector vec : batch) {
+            Instance item = new DenseInstance(attributes.size());
             List<Float> values = vec.buildVector();
 
-            for(int i = 0 ; i < values.size() ; i++) {
-                item.setValue(i , (double)values.get(i));
+            for (int i = 0; i < values.size(); i++) {
+                item.setValue(i, (double) values.get(i));
             }
 
             item.setValue(attributes.size() - 1, -1);

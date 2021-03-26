@@ -1,4 +1,4 @@
-package org.jetbrains.research.anticopypaster.ide;
+package org.jetbrains.research.anticopypaster;
 
 import com.intellij.AbstractBundle;
 import com.intellij.reference.SoftReference;
