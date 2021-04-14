@@ -1,6 +1,6 @@
 package org.jetbrains.research.anticopypaster.metrics.extractors;
 
-import com.felixgrund.codeshovel.execution.ShovelExecution;
+//import com.felixgrund.codeshovel.execution.ShovelExecution;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -37,7 +37,7 @@ public class HistoricalFeaturesExtractor {
         ArrayList<String> commitsInfo = new ArrayList<>();
 
         try {
-            commitsInfo = ShovelExecution.getCommitHistoryForMethod(repoPath, filePath, methodName, lineCount);
+            //commitsInfo = ShovelExecution.getCommitHistoryForMethod(repoPath, filePath, methodName, lineCount);
         } catch (Exception e) {
             LOG.error("[ACP] Failed to retrieve the historical features.", e.getMessage());
         }
