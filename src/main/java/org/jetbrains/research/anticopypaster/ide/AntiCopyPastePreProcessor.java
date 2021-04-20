@@ -83,9 +83,7 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         destinationMethod = findMethodByOffset(file, offset);
 
         // find number of code fragments considered as duplicated
-        DuplicatesInspection.InspectionResult result =
-            inspection.resolve(project, text.replace('\n', ' ').replace('\t', ' ')
-                .replace('\r', ' ').replaceAll("\\s+", ""));
+        DuplicatesInspection.InspectionResult result = inspection.resolve(file, text);
 
         if (result.count == 0) {
             return text;
@@ -96,19 +94,10 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         MethodDeclarationMetricsExtractor.ParamsScores scores = new MethodDeclarationMetricsExtractor.ParamsScores();
         IFeaturesVector featuresVector;
 
-        if (result.files.contains(file)) {
-            featuresVector =
-                calculateFeatures(file, text, variablesInCodeFragment, variablesCountsInCodeFragment, scores,
-                                  linesOfCode);
-        } else if (sourceFile != null && result.files.contains(sourceFile)) {
+        if (result.count != 0) {
             featuresVector =
                 calculateFeatures(sourceFile, text, variablesInCodeFragment, variablesCountsInCodeFragment, scores,
                                   linesOfCode);
-        } else if (!result.files.isEmpty()) {
-            featuresVector =
-                calculateFeatures(result.files.iterator().next(), text, variablesInCodeFragment,
-                                  variablesCountsInCodeFragment,
-                                  scores, linesOfCode);
         } else {
             return text;
         }

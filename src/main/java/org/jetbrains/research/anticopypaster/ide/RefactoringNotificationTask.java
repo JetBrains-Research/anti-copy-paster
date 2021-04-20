@@ -60,10 +60,7 @@ public class RefactoringNotificationTask extends TimerTask {
             final RefactoringEvent event = eventsQueue.poll();
 
             ApplicationManager.getApplication().runReadAction(() -> {
-                DuplicatesInspection.InspectionResult result =
-                    inspection.resolve(event.project, event.text.replace('\n', ' ')
-                        .replace('\t', ' ').replace('\r', ' ')
-                        .replaceAll("\\s+", ""));
+                DuplicatesInspection.InspectionResult result = inspection.resolve(event.file, event.text);
                 int matchesAfterEvent = event.matches + 1;
                 if (result.count <= 1 && result.count < matchesAfterEvent) {
                     return;
