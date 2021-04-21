@@ -70,8 +70,7 @@ public class RefactoringNotificationTask extends TimerTask {
                     List<Integer> prediction = model.predict(Collections.singletonList(event.vec));
                     int modelPrediction = prediction.get(0);
 
-                    if (event.forceExtraction || (modelPrediction == 1 && event.linesOfCode > 3) ||
-                        (event.linesOfCode <= 3)) {
+                    if (event.forceExtraction || modelPrediction == 1) {
                         notify(event.project,
                                AntiCopyPasterBundle.message(
                                    "extract.method.refactoring.is.available"),
