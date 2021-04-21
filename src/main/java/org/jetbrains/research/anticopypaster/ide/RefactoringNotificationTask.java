@@ -62,7 +62,7 @@ public class RefactoringNotificationTask extends TimerTask {
             ApplicationManager.getApplication().runReadAction(() -> {
                 DuplicatesInspection.InspectionResult result = inspection.resolve(event.file, event.text);
                 int matchesAfterEvent = event.matches + 1;
-                if (result.count <= 1 && result.count < matchesAfterEvent) {
+                if (result.getDuplicatesCount() <= 1 && result.getDuplicatesCount() < matchesAfterEvent) {
                     return;
                 }
 

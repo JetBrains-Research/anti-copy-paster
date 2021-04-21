@@ -85,7 +85,7 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         // find number of code fragments considered as duplicated
         DuplicatesInspection.InspectionResult result = inspection.resolve(file, text);
 
-        if (result.count == 0) {
+        if (result.getDuplicatesCount() == 0) {
             return text;
         }
 
@@ -94,7 +94,7 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         MethodDeclarationMetricsExtractor.ParamsScores scores = new MethodDeclarationMetricsExtractor.ParamsScores();
         IFeaturesVector featuresVector;
 
-        if (result.count != 0) {
+        if (result.getDuplicatesCount() != 0) {
             featuresVector =
                 calculateFeatures(sourceFile, text, variablesInCodeFragment, variablesCountsInCodeFragment, scores,
                                   linesOfCode);
@@ -144,17 +144,17 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
             forceExtraction = true;
         }
 
-        if ((scoreOverall >= 4.5 && result.count >= 4) && (result.count >= 5 && scoreOverall >= 3.0)) {
+        if ((scoreOverall >= 4.5 && result.getDuplicatesCount() >= 4) && (result.getDuplicatesCount() >= 5 && scoreOverall >= 3.0)) {
             reasonToExtractMethod = AntiCopyPasterBundle.message("code.fragment.simplifies.and.removes.duplicates",
-                                                                 String.valueOf(result.count));
+                                                                 String.valueOf(result.getDuplicatesCount()));
             forceExtraction = true;
         }
 
-        int muchMatches = Math.max(0, result.count - 2);
+        int muchMatches = Math.max(0, result.getDuplicatesCount() - 2);
         double predBoost = Math.min(1, 0.33 * muchMatches);
 
         refactoringNotificationTask.addEvent(
-            new RefactoringEvent(file, text, result.count, featuresVector, project, editor,
+            new RefactoringEvent(file, text, result.getDuplicatesCount(), featuresVector, project, editor,
                                  predBoost, linesOfCode, forceExtraction, reasonToExtractMethod));
 
         return text;
