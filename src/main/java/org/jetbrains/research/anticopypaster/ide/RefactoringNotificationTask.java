@@ -7,7 +7,10 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.refactoring.extractMethod.ExtractMethodProcessor;
+import com.intellij.refactoring.extractMethod.PrepareFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.builders.DecisionPathBuilder;
@@ -23,6 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static com.intellij.refactoring.extractMethod.ExtractMethodHandler.getProcessor;
+import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getElements;
+import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getStartOffset;
 
 /**
  * Shows a notification about discovered Extract Method refactoring opportunity.
@@ -70,7 +77,7 @@ public class RefactoringNotificationTask extends TimerTask {
                     List<Integer> prediction = model.predict(Collections.singletonList(event.vec));
                     int modelPrediction = prediction.get(0);
 
-                    if (event.forceExtraction || modelPrediction == 1) {
+                    if ((event.forceExtraction || modelPrediction == 1) && canBeExtracted(event)) {
                         notify(event.project,
                                AntiCopyPasterBundle.message(
                                    "extract.method.refactoring.is.available"),
@@ -82,6 +89,23 @@ public class RefactoringNotificationTask extends TimerTask {
                 }
             });
         }
+    }
+
+    public boolean canBeExtracted(RefactoringEvent event) {
+        boolean canBeExtracted;
+        int startOffset = getStartOffset(event.editor, event.file, event.text);
+        PsiElement[] elementsInCodeFragment = getElements(event.project, event.file,
+                                            startOffset, startOffset + event.text.length());
+        final ExtractMethodProcessor processor = getProcessor(event.project, elementsInCodeFragment,
+                                                              event.file, false);
+        if (processor == null) return false;
+        try {
+            canBeExtracted = processor.prepare(null);
+        } catch (PrepareFailedException e) {
+            return true;
+        }
+
+        return canBeExtracted;
     }
 
     private Runnable getRunnableToShowSuggestionDialog(RefactoringEvent event) {
