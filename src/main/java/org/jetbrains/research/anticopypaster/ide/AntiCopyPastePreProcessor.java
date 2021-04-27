@@ -22,7 +22,6 @@ import org.jetbrains.research.anticopypaster.models.features.feature.Feature;
 import org.jetbrains.research.anticopypaster.models.features.feature.FeatureItem;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.FeaturesVector;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
-import org.jetbrains.research.anticopypaster.utils.DuplicatesInspection;
 
 import java.util.HashMap;
 import java.util.HashSet;

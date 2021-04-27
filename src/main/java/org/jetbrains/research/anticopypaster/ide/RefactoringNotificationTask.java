@@ -17,7 +17,6 @@ import org.jetbrains.research.anticopypaster.builders.DecisionPathBuilder;
 import org.jetbrains.research.anticopypaster.models.IPredictionModel;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
 import org.jetbrains.research.anticopypaster.models.offline.WekaBasedModel;
-import org.jetbrains.research.anticopypaster.utils.DuplicatesInspection;
 import weka.classifiers.trees.RandomTree;
 import weka.core.SerializationHelper;
 

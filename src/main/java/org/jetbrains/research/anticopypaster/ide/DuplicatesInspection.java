@@ -1,4 +1,4 @@
-package org.jetbrains.research.anticopypaster.utils;
+package org.jetbrains.research.anticopypaster.ide;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -8,8 +8,8 @@ import com.intellij.psi.PsiCodeBlock;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.research.anticopypaster.ide.AntiCopyPastePreProcessor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +23,16 @@ public final class DuplicatesInspection {
 
     private static final Logger LOG = Logger.getInstance(AntiCopyPastePreProcessor.class);
 
+    /**
+     * Searches for duplicates in the the methods extracted from the file.
+     * First, it checks if a method contains the piece of code as a substring,
+     * and if doesn't then it collects the bags of words of a method and a piece of code and calculates their
+     * similarity.
+     *
+     * @param file to search duplicates in.
+     * @param code the piece of code to search for.
+     * @return the result of duplicates' detection.
+     */
     public InspectionResult resolve(PsiFile file, final String code) {
         final ArrayList<Future<DuplicateResult>> tasks = new ArrayList<>();
         final List<String> tokensOfPastedCode = getTokens(code);
@@ -35,14 +45,21 @@ public final class DuplicatesInspection {
                         DuplicateResult duplicateResult = null;
                         PsiCodeBlock methodBody = psiMethod.getBody();
                         if (methodBody != null) {
-                            // Calculate the Jaccard similarity
-                            List<String> tokensOfMethod = getTokens(methodBody.getText());
-                            double maxNumOfTokens = Math.max(tokensOfPastedCode.size(), tokensOfMethod.size());
-                            // Calculates the intersection of tokens
-                            tokensOfMethod.retainAll(tokensOfPastedCode);
-                            double threshold = tokensOfMethod.size() / maxNumOfTokens;
-                            if (threshold > 0.6) {
-                                duplicateResult = new DuplicateResult(psiMethod, threshold);
+                            String text =
+                                file.getText().replace('\n', ' ').replace('\t', ' ')
+                                    .replace('\r', ' ').replaceAll("\\s+", "");
+                            boolean matches = StringUtils.contains(text, psiMethod.getText());
+                            if (matches) {
+                                duplicateResult = new DuplicateResult(psiMethod, 1.0);
+                            } else {
+                                List<String> tokensOfMethod = getTokens(methodBody.getText());
+                                double maxNumOfTokens = Math.max(tokensOfPastedCode.size(), tokensOfMethod.size());
+                                // Calculates the intersection of tokens
+                                tokensOfMethod.retainAll(tokensOfPastedCode);
+                                double threshold = tokensOfMethod.size() / maxNumOfTokens;
+                                if (threshold >= 0.8) {
+                                    duplicateResult = new DuplicateResult(psiMethod, threshold);
+                                }
                             }
                         }
                         return duplicateResult;
