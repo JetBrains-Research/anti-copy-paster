@@ -24,8 +24,8 @@ public final class DuplicatesInspection {
     private static final Logger LOG = Logger.getInstance(AntiCopyPastePreProcessor.class);
 
     /**
-     * Searches for duplicates in the the methods extracted from the file.
-     * First, it checks if a method contains the piece of code as a substring,
+     * Searches for duplicates in methods extracted from the file.
+     * First, it checks if a method contains the copy-pasted piece of code as a substring,
      * and if doesn't then it collects the bags of words of a method and a piece of code and calculates their
      * similarity.
      *
