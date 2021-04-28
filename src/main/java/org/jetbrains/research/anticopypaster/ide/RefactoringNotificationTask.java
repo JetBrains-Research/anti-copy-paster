@@ -101,7 +101,8 @@ public class RefactoringNotificationTask extends TimerTask {
         try {
             canBeExtracted = processor.prepare(null);
         } catch (PrepareFailedException e) {
-            return true;
+            LOG.error("[ACP] Failed to check if a code fragment can be extracted.", e.getMessage());
+            return false;
         }
 
         return canBeExtracted;
