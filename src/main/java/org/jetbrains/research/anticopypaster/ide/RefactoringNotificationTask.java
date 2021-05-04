@@ -7,14 +7,16 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.refactoring.extractMethod.ExtractMethodProcessor;
+import com.intellij.refactoring.extractMethod.PrepareFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.builders.DecisionPathBuilder;
 import org.jetbrains.research.anticopypaster.models.IPredictionModel;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
 import org.jetbrains.research.anticopypaster.models.offline.WekaBasedModel;
-import org.jetbrains.research.anticopypaster.utils.DuplicatesInspection;
 import weka.classifiers.trees.RandomTree;
 import weka.core.SerializationHelper;
 
@@ -23,6 +25,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static com.intellij.refactoring.extractMethod.ExtractMethodHandler.getProcessor;
+import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getElements;
+import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getStartOffset;
 
 /**
  * Shows a notification about discovered Extract Method refactoring opportunity.
@@ -60,12 +66,9 @@ public class RefactoringNotificationTask extends TimerTask {
             final RefactoringEvent event = eventsQueue.poll();
 
             ApplicationManager.getApplication().runReadAction(() -> {
-                DuplicatesInspection.InspectionResult result =
-                    inspection.resolve(event.project, event.text.replace('\n', ' ')
-                        .replace('\t', ' ').replace('\r', ' ')
-                        .replaceAll("\\s+", ""));
+                DuplicatesInspection.InspectionResult result = inspection.resolve(event.file, event.text);
                 int matchesAfterEvent = event.matches + 1;
-                if (result.count <= 1 && result.count < matchesAfterEvent) {
+                if (result.getDuplicatesCount() <= 1 && result.getDuplicatesCount() < matchesAfterEvent) {
                     return;
                 }
 
@@ -73,8 +76,7 @@ public class RefactoringNotificationTask extends TimerTask {
                     List<Integer> prediction = model.predict(Collections.singletonList(event.vec));
                     int modelPrediction = prediction.get(0);
 
-                    if (event.forceExtraction || (modelPrediction == 1 && event.linesOfCode > 3) ||
-                        (event.linesOfCode <= 3)) {
+                    if ((event.forceExtraction || modelPrediction == 1) && canBeExtracted(event)) {
                         notify(event.project,
                                AntiCopyPasterBundle.message(
                                    "extract.method.refactoring.is.available"),
@@ -86,6 +88,24 @@ public class RefactoringNotificationTask extends TimerTask {
                 }
             });
         }
+    }
+
+    public boolean canBeExtracted(RefactoringEvent event) {
+        boolean canBeExtracted;
+        int startOffset = getStartOffset(event.editor, event.file, event.text);
+        PsiElement[] elementsInCodeFragment = getElements(event.project, event.file,
+                                            startOffset, startOffset + event.text.length());
+        final ExtractMethodProcessor processor = getProcessor(event.project, elementsInCodeFragment,
+                                                              event.file, false);
+        if (processor == null) return false;
+        try {
+            canBeExtracted = processor.prepare(null);
+        } catch (PrepareFailedException e) {
+            LOG.error("[ACP] Failed to check if a code fragment can be extracted.", e.getMessage());
+            return false;
+        }
+
+        return canBeExtracted;
     }
 
     private Runnable getRunnableToShowSuggestionDialog(RefactoringEvent event) {

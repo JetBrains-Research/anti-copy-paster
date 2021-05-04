@@ -22,7 +22,6 @@ import org.jetbrains.research.anticopypaster.models.features.feature.Feature;
 import org.jetbrains.research.anticopypaster.models.features.feature.FeatureItem;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.FeaturesVector;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
-import org.jetbrains.research.anticopypaster.utils.DuplicatesInspection;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,11 +82,9 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         destinationMethod = findMethodByOffset(file, offset);
 
         // find number of code fragments considered as duplicated
-        DuplicatesInspection.InspectionResult result =
-            inspection.resolve(project, text.replace('\n', ' ').replace('\t', ' ')
-                .replace('\r', ' ').replaceAll("\\s+", ""));
+        DuplicatesInspection.InspectionResult result = inspection.resolve(file, text);
 
-        if (result.count == 0) {
+        if (result.getDuplicatesCount() == 0) {
             return text;
         }
 
@@ -96,19 +93,10 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         MethodDeclarationMetricsExtractor.ParamsScores scores = new MethodDeclarationMetricsExtractor.ParamsScores();
         IFeaturesVector featuresVector;
 
-        if (result.files.contains(file)) {
-            featuresVector =
-                calculateFeatures(file, text, variablesInCodeFragment, variablesCountsInCodeFragment, scores,
-                                  linesOfCode);
-        } else if (sourceFile != null && result.files.contains(sourceFile)) {
+        if (result.getDuplicatesCount() != 0) {
             featuresVector =
                 calculateFeatures(sourceFile, text, variablesInCodeFragment, variablesCountsInCodeFragment, scores,
                                   linesOfCode);
-        } else if (!result.files.isEmpty()) {
-            featuresVector =
-                calculateFeatures(result.files.iterator().next(), text, variablesInCodeFragment,
-                                  variablesCountsInCodeFragment,
-                                  scores, linesOfCode);
         } else {
             return text;
         }
@@ -155,17 +143,17 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
             forceExtraction = true;
         }
 
-        if ((scoreOverall >= 4.5 && result.count >= 4) && (result.count >= 5 && scoreOverall >= 3.0)) {
+        if ((scoreOverall >= 4.5 && result.getDuplicatesCount() >= 4) && (result.getDuplicatesCount() >= 5 && scoreOverall >= 3.0)) {
             reasonToExtractMethod = AntiCopyPasterBundle.message("code.fragment.simplifies.and.removes.duplicates",
-                                                                 String.valueOf(result.count));
+                                                                 String.valueOf(result.getDuplicatesCount()));
             forceExtraction = true;
         }
 
-        int muchMatches = Math.max(0, result.count - 2);
+        int muchMatches = Math.max(0, result.getDuplicatesCount() - 2);
         double predBoost = Math.min(1, 0.33 * muchMatches);
 
         refactoringNotificationTask.addEvent(
-            new RefactoringEvent(file, text, result.count, featuresVector, project, editor,
+            new RefactoringEvent(file, text, result.getDuplicatesCount(), featuresVector, project, editor,
                                  predBoost, linesOfCode, forceExtraction, reasonToExtractMethod));
 
         return text;
