@@ -3,7 +3,6 @@ package org.jetbrains.research.anticopypaster.ide;
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
@@ -12,24 +11,31 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
-import org.jetbrains.research.anticopypaster.metrics.extractors.*;
+import org.jetbrains.research.anticopypaster.metrics.extractors.CouplingCalculator;
+import org.jetbrains.research.anticopypaster.metrics.extractors.GitBlameAnalyzer;
+import org.jetbrains.research.anticopypaster.metrics.extractors.KeywordMetricsExtractor;
+import org.jetbrains.research.anticopypaster.metrics.extractors.MethodDeclarationMetricsExtractor;
 import org.jetbrains.research.anticopypaster.models.VectorValidator;
 import org.jetbrains.research.anticopypaster.models.features.feature.Feature;
 import org.jetbrains.research.anticopypaster.models.features.feature.FeatureItem;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.FeaturesVector;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.regex.Pattern;
 
-import static org.jetbrains.research.anticopypaster.utils.PsiUtil.findMethodByOffset;
-import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getMethodStartLineInBeforeRevision;
+import static org.jetbrains.research.anticopypaster.utils.PsiUtil.*;
 
 /**
  * Handles any copy-paste action and checks if the pasted code fragment could be extracted into a separate method.
@@ -225,37 +231,44 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         paramsScores.methodLines = scores.methodLines;
         paramsScores.isSet = scores.isSet;
 
-        //TODO: Retrain the model to take into account historical features for the source method too.
+        Repository repository = null;
+        try {
+            repository = openRepository(file.getProject().getBasePath());
+        } catch (Exception e) {
+            LOG.error("[ACP] Failed to open the project repository.");
+        }
 
-        //Execute in this way to not freeze UI.
-        ApplicationManager.getApplication().executeOnPooledThread(() -> new Runnable() {
-            MethodHistory destinationMethodHistory = null;
+        try {
             final String virtualFilePath = file.getVirtualFile().getCanonicalPath();
 
-            @Override
-            public void run() {
-                destinationMethodHistory =
-                    HistoricalFeaturesExtractor.run(file.getProject().getBasePath(),
-                                                    virtualFilePath == null ? "" :
-                                                        virtualFilePath.substring(virtualFilePath.lastIndexOf("src")),
-                                                    destinationMethod.getName(),
-                                                    getMethodStartLineInBeforeRevision(file,
-                                                                                       destinationMethod));
-
-                featuresVector.addFeature(
-                    new FeatureItem(Feature.TotalCommitsInFragment, destinationMethodHistory.getTotalCommitCount()));
-                featuresVector.addFeature(
-                    new FeatureItem(Feature.TotalAuthorsInFragment, destinationMethodHistory.getTotalAuthorCount()));
-                featuresVector.addFeature(
-                    new FeatureItem(Feature.LiveTimeOfFragment, destinationMethodHistory.getAgeInDays()));
-
-                //TODO: Figure out the way to calculate this feature.
-                featuresVector.addFeature(new FeatureItem(Feature.AverageLiveTimeOfLine, 1e6));
-                featuresVector.addFeature(new FeatureItem(Feature.TotalLinesOfCode, linesCount));
-            }
-        });
-
+            @NotNull PsiMethod psiMethodBeforeRevision = getMethodStartLineInBeforeRevision(file, destinationMethod);
+            GitBlameAnalyzer.calculateHistoricalFeatures(repository,
+                                                         getNumberOfLine(file,
+                                                                         psiMethodBeforeRevision.getTextRange().getStartOffset()),
+                                                         getNumberOfLine(file,
+                                                                         psiMethodBeforeRevision.getTextRange().getEndOffset()),
+                                                         virtualFilePath,
+                                                         featuresVector);
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
         return featuresVector;
+    }
+
+    private Repository openRepository(String repositoryPath) throws Exception {
+        File folder = new File(repositoryPath);
+        Repository repository;
+        if (folder.exists()) {
+            RepositoryBuilder builder = new RepositoryBuilder();
+            repository = builder
+                .setGitDir(new File(folder, ".git"))
+                .readEnvironment()
+                .findGitDir()
+                .build();
+        } else {
+            throw new FileNotFoundException(repositoryPath);
+        }
+        return repository;
     }
 
     private int getCountOfCodeLines(String text, int rawLocs) {

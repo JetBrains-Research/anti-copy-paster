@@ -20,10 +20,13 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    implementation files("lib/codeshovel-1.0.0-SNAPSHOT.jar")
+    //implementation files("lib/codeshovel-1.0.0-SNAPSHOT.jar")
     implementation 'com.google.code.gson:gson:2.8.6'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
     compile group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version: '3.8.0'
+    implementation(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.4.3.201909031940-r') {
+        exclude group: "org.slf4j"
+    }
 }
 
 project.gradle.startParameter.excludedTaskNames.add('buildSearchableOptions')

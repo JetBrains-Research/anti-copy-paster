@@ -23,13 +23,13 @@ public class PsiUtil {
     private static final Logger LOG = Logger.getInstance(PsiUtil.class);
 
     /**
-     * Check the before revision of the file (without local changes) to find the method's start line.
+     * Check the before revision of the file (without local changes) to find the original method.
      *
      * @param fileWithLocalChanges file that contains the local changes;
      * @param method               method to search for;
-     * @return number of the method's start line in the file from the last revision.
+     * @return original method.
      */
-    public static int getMethodStartLineInBeforeRevision(PsiFile fileWithLocalChanges, PsiMethod method) {
+    public static PsiMethod getMethodStartLineInBeforeRevision(PsiFile fileWithLocalChanges, PsiMethod method) {
         ChangeListManager changeListManager = ChangeListManager.getInstance(fileWithLocalChanges.getProject());
         Change change = changeListManager.getChange(fileWithLocalChanges.getVirtualFile());
         if (change != null) {
@@ -49,8 +49,7 @@ public class PsiUtil {
                                 PsiMethod[] methods = psiClass.getMethods();
                                 for (PsiMethod psiMethod : methods) {
                                     if (equalSignatures(method, psiMethod)) {
-                                        return getNumberOfMethodStartLine(psiFileBeforeRevision,
-                                                                          psiMethod.getTextOffset());
+                                        return psiMethod;
                                     }
                                 }
                             }
@@ -61,10 +60,10 @@ public class PsiUtil {
                 }
             }
         }
-        return 0;
+        return null;
     }
 
-    public static int getNumberOfMethodStartLine(PsiFile file, int offset) {
+    public static int getNumberOfLine(PsiFile file, int offset) {
         FileViewProvider fileViewProvider = file.getViewProvider();
         Document document = fileViewProvider.getDocument();
         return document != null ? document.getLineNumber(offset) + 1 : 0;
