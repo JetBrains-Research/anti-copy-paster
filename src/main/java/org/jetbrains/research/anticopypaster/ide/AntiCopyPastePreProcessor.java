@@ -12,14 +12,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
 import org.jetbrains.research.anticopypaster.metrics.extractors.CouplingCalculator;
-import org.jetbrains.research.anticopypaster.metrics.extractors.GitBlameAnalyzer;
+import org.jetbrains.research.anticopypaster.metrics.extractors.HistoricalFeaturesExtractor;
 import org.jetbrains.research.anticopypaster.metrics.extractors.KeywordMetricsExtractor;
 import org.jetbrains.research.anticopypaster.metrics.extractors.MethodDeclarationMetricsExtractor;
 import org.jetbrains.research.anticopypaster.models.VectorValidator;
@@ -28,8 +26,6 @@ import org.jetbrains.research.anticopypaster.models.features.feature.FeatureItem
 import org.jetbrains.research.anticopypaster.models.features.features_vector.FeaturesVector;
 import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Timer;
@@ -231,44 +227,21 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         paramsScores.methodLines = scores.methodLines;
         paramsScores.isSet = scores.isSet;
 
-        Repository repository = null;
-        try {
-            repository = openRepository(file.getProject().getBasePath());
-        } catch (Exception e) {
-            LOG.error("[ACP] Failed to open the project repository.");
-        }
-
         try {
             final String virtualFilePath = file.getVirtualFile().getCanonicalPath();
-
-            @NotNull PsiMethod psiMethodBeforeRevision = getMethodStartLineInBeforeRevision(file, destinationMethod);
-            GitBlameAnalyzer.calculateHistoricalFeatures(repository,
-                                                         getNumberOfLine(file,
-                                                                         psiMethodBeforeRevision.getTextRange().getStartOffset()),
-                                                         getNumberOfLine(file,
-                                                                         psiMethodBeforeRevision.getTextRange().getEndOffset()),
-                                                         virtualFilePath,
-                                                         featuresVector);
+            PsiMethod psiMethodBeforeRevision = getMethodStartLineInBeforeRevision(file, destinationMethod);
+            if (virtualFilePath != null && psiMethodBeforeRevision != null)
+                HistoricalFeaturesExtractor.calculateHistoricalFeatures(file.getProject().getBasePath(),
+                                                                        getNumberOfLine(file,
+                                                                                        psiMethodBeforeRevision.getTextRange().getStartOffset()),
+                                                                        getNumberOfLine(file,
+                                                                                        psiMethodBeforeRevision.getTextRange().getEndOffset()),
+                                                                        virtualFilePath,
+                                                                        featuresVector);
         } catch (GitAPIException e) {
-            e.printStackTrace();
+            LOG.error("[ACP] Failed to calculate historical features.");
         }
         return featuresVector;
-    }
-
-    private Repository openRepository(String repositoryPath) throws Exception {
-        File folder = new File(repositoryPath);
-        Repository repository;
-        if (folder.exists()) {
-            RepositoryBuilder builder = new RepositoryBuilder();
-            repository = builder
-                .setGitDir(new File(folder, ".git"))
-                .readEnvironment()
-                .findGitDir()
-                .build();
-        } else {
-            throw new FileNotFoundException(repositoryPath);
-        }
-        return repository;
     }
 
     private int getCountOfCodeLines(String text, int rawLocs) {
