@@ -12,21 +12,25 @@ import java.util.HashSet;
 
 public class FragmentCorrectnessChecker {
     private static final String wrapperFormat = "class Tmp {\n" +
-            "    public static void main(String[] args) {\n" +
-            "        %s\n" +
-            "    }\n" +
-            "}";
+        "    public static void main(String[] args) {\n" +
+        "        %s\n" +
+        "    }\n" +
+        "}";
 
-    public static boolean isCorrect(Project project, PsiFile file, String fragment, HashSet<String> vars_in_fragment, HashMap<String, Integer> vars_counts_in_fragment) {
+    public static boolean isCorrect(Project project,
+                                    PsiFile file,
+                                    String fragment,
+                                    HashSet<String> vars_in_fragment,
+                                    HashMap<String, Integer> vars_counts_in_fragment) {
         String wrappedFragment = String.format(wrapperFormat, fragment);
-        PsiFile tmp = null;
+        PsiFile tmp;
         try {
             tmp = PsiFileFactory.getInstance(project)
-                    .createFileFromText(file.getFileType(),
-                            "tmp.txt",
-                            wrappedFragment,
-                            0,
-                            wrappedFragment.length());
+                .createFileFromText(file.getFileType(),
+                                    "tmp.txt",
+                                    wrappedFragment,
+                                    0,
+                                    wrappedFragment.length());
         } catch (IncorrectOperationException e) {
             return false;
         }
@@ -34,7 +38,10 @@ public class FragmentCorrectnessChecker {
         return traverse(tmp, false, vars_in_fragment, vars_counts_in_fragment);
     }
 
-    private static boolean traverse(PsiElement node, boolean inside, HashSet<String> vars_in_fragment, HashMap<String, Integer> vars_counts_in_fragment) {
+    private static boolean traverse(PsiElement node,
+                                    boolean inside,
+                                    HashSet<String> vars_in_fragment,
+                                    HashMap<String, Integer> vars_counts_in_fragment) {
         boolean result = !(node instanceof PsiErrorElementImpl);
 
         String nodeText = node.toString();
@@ -53,8 +60,9 @@ public class FragmentCorrectnessChecker {
 
         PsiElement[] children = node.getChildren();
 
-        for (PsiElement child: children) {
-            result &= traverse(child, nodeText.contains("PsiMethod") || inside, vars_in_fragment, vars_counts_in_fragment);
+        for (PsiElement child : children) {
+            result &=
+                traverse(child, nodeText.contains("PsiMethod") || inside, vars_in_fragment, vars_counts_in_fragment);
         }
 
         return result;

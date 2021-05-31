@@ -122,7 +122,7 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
 
         if (linesOfCode >= 4 && scores.out == 1 && scores.in >= 1) {
             forceExtraction = true;
-            reasonToExtractMethod = AntiCopyPasterBundle.message("code.fragment.simplifies.logic.of.enclosing.method");
+            reasonToExtractMethod = AntiCopyPasterBundle.message("extract.method.to.simplify.logic.of.enclosing.method");
         }
 
         if (linesOfCode == 1) {
@@ -130,7 +130,7 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
                 text.contains(".")) && StringUtils.countMatches(text, ",") > 1 && scores.in <= 1) {
                 reasonToExtractMethod =
                     AntiCopyPasterBundle.message(
-                        "code.fragment.could.remove.duplicated.constructor.call.or.factory.method");
+                        "extract.method.to.remove.duplicated.constructor.call.or.factory.method");
                 forceExtraction = true;
             } else {
                 return text;
@@ -146,7 +146,7 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         }
 
         if ((scoreOverall >= 4.5 && result.getDuplicatesCount() >= 4) && (result.getDuplicatesCount() >= 5 && scoreOverall >= 3.0)) {
-            reasonToExtractMethod = AntiCopyPasterBundle.message("code.fragment.simplifies.and.removes.duplicates",
+            reasonToExtractMethod = AntiCopyPasterBundle.message("extract.method.to.simplify.enclosing.method.and.remove.duplicates",
                                                                  String.valueOf(result.getDuplicatesCount()));
             forceExtraction = true;
         }

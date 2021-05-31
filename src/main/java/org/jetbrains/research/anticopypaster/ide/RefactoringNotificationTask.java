@@ -13,12 +13,8 @@ import com.intellij.refactoring.extractMethod.ExtractMethodProcessor;
 import com.intellij.refactoring.extractMethod.PrepareFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
-import org.jetbrains.research.anticopypaster.builders.DecisionPathBuilder;
 import org.jetbrains.research.anticopypaster.models.IPredictionModel;
-import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
 import org.jetbrains.research.anticopypaster.models.offline.WekaBasedModel;
-import weka.classifiers.trees.RandomTree;
-import weka.core.SerializationHelper;
 
 import javax.swing.event.HyperlinkEvent;
 import java.util.Collections;
@@ -35,8 +31,6 @@ import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getStartOffset
  */
 public class RefactoringNotificationTask extends TimerTask {
     private static IPredictionModel model;
-    private static RandomTree tree;
-    private static String treeString;
     private ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
     private static DuplicatesInspection inspection = new DuplicatesInspection();
     private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Extract Method suggestion",
@@ -47,17 +41,6 @@ public class RefactoringNotificationTask extends TimerTask {
 
     public RefactoringNotificationTask() {
         model = new WekaBasedModel();
-        readModel();
-        treeString = getTreeAsString(tree.toString().split("\n"));
-    }
-
-    private void readModel() {
-        try {
-            tree = (RandomTree) SerializationHelper.read(
-                AntiCopyPastePreProcessor.class.getClassLoader().getResourceAsStream("RTree-ACP-SH.model"));
-        } catch (Exception e) {
-            LOG.error("[ACP] Failed to read a tree from RTree-ACP-SH model.", e.getMessage());
-        }
     }
 
     @Override
@@ -111,7 +94,7 @@ public class RefactoringNotificationTask extends TimerTask {
         return () -> {
             String message = event.reasonToExtract;
             if (message.isEmpty()) {
-                message = buildMessage(event.vec);
+                message = AntiCopyPasterBundle.message("extract.method.to.simplify.logic.of.enclosing.method");
             }
             int result =
                 Messages.showOkCancelDialog(message,
@@ -152,24 +135,4 @@ public class RefactoringNotificationTask extends TimerTask {
         this.eventsQueue.add(event);
     }
 
-    private String getTreeAsString(String[] split) {
-        StringBuilder resBuilder = new StringBuilder();
-        for (int i = 4; i < split.length - 2; ++i) {
-            resBuilder.append(split[i]);
-            resBuilder.append("\n");
-        }
-        return resBuilder.substring(0, resBuilder.toString().length() - 1);
-    }
-
-    private static String buildMessage(final IFeaturesVector featuresVector) {
-        String reasonToExtractMethod = "";
-        try {
-            DecisionPathBuilder dpb = new DecisionPathBuilder(treeString);
-            reasonToExtractMethod = AntiCopyPasterBundle.message("code.fragment.could.be.extracted.reason",
-                                                                 dpb.collect(dpb.buildPath(featuresVector)));
-        } catch (Exception e) {
-            //skip
-        }
-        return reasonToExtractMethod;
-    }
 }
