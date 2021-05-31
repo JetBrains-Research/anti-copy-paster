@@ -14,9 +14,11 @@ import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.refactoring.introduceVariable.IntroduceVariableBase;
 import com.intellij.refactoring.util.RefactoringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class PsiUtil {
 
@@ -150,5 +152,26 @@ public class PsiUtil {
             }
         }
         return startOffset;
+    }
+
+    public static int getCountOfCodeLines(String text) {
+        Pattern p = Pattern.compile("/\\*[\\s\\S]*?\\*/");
+        java.util.regex.Matcher m = p.matcher(text);
+        int totalCountWithComment = 0;
+        int rawLocs = StringUtils.countMatches(text, "\n") + 1;
+        while (m.find()) {
+            String[] lines = m.group(0).split("\n");
+            totalCountWithComment += lines.length;
+        }
+
+        int totalUnused = 0;
+        for (String s : text.split("\n")) {
+            String tmp = s.trim();
+            if (tmp.isEmpty() || tmp.startsWith("//")) {
+                totalUnused++;
+            }
+        }
+
+        return Math.max(0, rawLocs - totalUnused - totalCountWithComment);
     }
 }

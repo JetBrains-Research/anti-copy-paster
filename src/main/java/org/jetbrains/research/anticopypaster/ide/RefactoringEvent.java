@@ -3,34 +3,89 @@ package org.jetbrains.research.anticopypaster.ide;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
+import com.intellij.psi.PsiMethod;
+import org.jetbrains.research.anticopypaster.metrics.extractors.MethodDeclarationMetricsExtractor;
 
 /**
  * Contains information about the code fragment that is recommended for extraction into a separate method.
  */
 public class RefactoringEvent {
-    public PsiFile file;
-    public String text;
-    public int matches;
-    public IFeaturesVector vec;
-    public Project project;
-    public Editor editor;
-    public double predBoost;
-    public int linesOfCode;
-    public boolean forceExtraction;
-    public String reasonToExtract;
+    private final PsiFile file;
+    private final PsiMethod destinationMethod;
+    private final String text;
+    private final int matches;
+    private final Project project;
+    private final Editor editor;
+    private final int linesOfCode;
+    private MethodDeclarationMetricsExtractor.ParamsScores scores;
+    private boolean forceExtraction = false;
+    private String reasonToExtract;
 
-    public RefactoringEvent(PsiFile file, String text, int matches, IFeaturesVector vec, Project project, Editor editor,
-                             double predBoost, int linesOfCode, boolean forceExtraction, String reasonToExtract) {
+    public RefactoringEvent(PsiFile file, PsiMethod destinationMethod, String text, int matches,
+                            Project project,
+                            Editor editor,
+                            int linesOfCode,
+                            MethodDeclarationMetricsExtractor.ParamsScores paramsScores
+    ) {
         this.file = file;
+        this.destinationMethod = destinationMethod;
         this.text = text;
         this.matches = matches;
-        this.vec = vec;
         this.project = project;
         this.editor = editor;
-        this.predBoost = predBoost;
         this.linesOfCode = linesOfCode;
+        this.scores = paramsScores;
+    }
+
+    public void setForceExtraction(boolean forceExtraction) {
         this.forceExtraction = forceExtraction;
-        this.reasonToExtract = reasonToExtract;
+    }
+
+    public void setReasonToExtract(String message) {
+        this.reasonToExtract = message;
+    }
+
+    public boolean isForceExtraction() {
+        return forceExtraction;
+    }
+
+    public String getReasonToExtract() {
+        return reasonToExtract;
+    }
+
+    public PsiFile getFile() {
+        return file;
+    }
+
+    public PsiMethod getDestinationMethod() {
+        return destinationMethod;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public int getMatches() {
+        return matches;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public Editor getEditor() {
+        return editor;
+    }
+
+    public int getLinesOfCode() {
+        return linesOfCode;
+    }
+
+    public MethodDeclarationMetricsExtractor.ParamsScores getScores() {
+        return scores;
+    }
+
+    public void setScores(MethodDeclarationMetricsExtractor.ParamsScores scores) {
+        this.scores = scores;
     }
 }
