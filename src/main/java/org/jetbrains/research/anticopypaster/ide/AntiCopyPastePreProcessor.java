@@ -13,7 +13,6 @@ import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
-import org.jetbrains.research.anticopypaster.metrics.extractors.MethodDeclarationMetricsExtractor;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,19 +74,10 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
 
         //number of lines in fragment
         int linesOfCode = getCountOfCodeLines(text);
-        MethodDeclarationMetricsExtractor.ParamsScores scores = new MethodDeclarationMetricsExtractor.ParamsScores();
-
-        if (result.getDuplicatesCount() == 0) {
-            return text;
-        }
-
-        if (scores.out > 1 || scores.in > 3 || linesOfCode <= 0) {
-            return text;
-        }
 
         refactoringNotificationTask.addEvent(
             new RefactoringEvent(file, destinationMethod, text, result.getDuplicatesCount(),
-                                 project, editor, linesOfCode, scores));
+                                 project, editor, linesOfCode));
 
         return text;
     }

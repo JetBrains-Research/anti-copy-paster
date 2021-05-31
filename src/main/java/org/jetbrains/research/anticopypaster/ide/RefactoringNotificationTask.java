@@ -75,6 +75,11 @@ public class RefactoringNotificationTask extends TimerTask {
                     }
                     FeaturesVector featuresVector =
                         calculateFeatures(event, variablesInCodeFragment, variablesCountsInCodeFragment);
+
+                    if (event.getScores().out > 1 || event.getScores().in > 3 || event.getLinesOfCode() == 0) {
+                        return;
+                    }
+
                     List<Integer> prediction = model.predict(Collections.singletonList(featuresVector));
                     int modelPrediction = prediction.get(0);
                     calculateMessageToShow(event, featuresVector, result.getDuplicatesCount());

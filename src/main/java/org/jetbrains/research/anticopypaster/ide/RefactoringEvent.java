@@ -24,8 +24,7 @@ public class RefactoringEvent {
     public RefactoringEvent(PsiFile file, PsiMethod destinationMethod, String text, int matches,
                             Project project,
                             Editor editor,
-                            int linesOfCode,
-                            MethodDeclarationMetricsExtractor.ParamsScores paramsScores
+                            int linesOfCode
     ) {
         this.file = file;
         this.destinationMethod = destinationMethod;
@@ -34,7 +33,6 @@ public class RefactoringEvent {
         this.project = project;
         this.editor = editor;
         this.linesOfCode = linesOfCode;
-        this.scores = paramsScores;
     }
 
     public void setForceExtraction(boolean forceExtraction) {
