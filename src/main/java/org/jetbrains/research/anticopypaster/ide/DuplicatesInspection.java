@@ -45,10 +45,12 @@ public final class DuplicatesInspection {
                         DuplicateResult duplicateResult = null;
                         PsiCodeBlock methodBody = psiMethod.getBody();
                         if (methodBody != null) {
-                            String text =
-                                file.getText().replace('\n', ' ').replace('\t', ' ')
+                            String rawCode =
+                                code.replace('\n', ' ').replace('\t', ' ')
                                     .replace('\r', ' ').replaceAll("\\s+", "");
-                            boolean matches = StringUtils.contains(text, psiMethod.getText());
+                            String rawMethodBody = psiMethod.getText().replace('\n', ' ').replace('\t', ' ')
+                                .replace('\r', ' ').replaceAll("\\s+", "");
+                            boolean matches = StringUtils.contains(rawMethodBody, rawCode);
                             if (matches) {
                                 duplicateResult = new DuplicateResult(psiMethod, 1.0);
                             } else {
