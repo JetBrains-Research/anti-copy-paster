@@ -38,7 +38,7 @@ public class WekaBasedModel implements IPredictionModel {
     }
 
     @Override
-    public List<Integer> predict(List<IFeaturesVector> batch) throws Exception {
+    public List<Integer> predict(List<IFeaturesVector> batch) {
         Instances dataUnlabeled = new Instances("TestInstances", attributes, batch.size());
 
         for (IFeaturesVector vec : batch) {
@@ -61,13 +61,14 @@ public class WekaBasedModel implements IPredictionModel {
 
         while (iterable.hasMoreElements()) {
             Instance item = iterable.nextElement();
-            double pred = model.classifyInstance(item);
-            boolean predicted = pred > 0.8;
+            double prediction = 0;
+            try {
+                prediction = model.classifyInstance(item);
+            } catch (Exception e) {
+                LOG.error("[ACP] Failed to classify prediction.", e.getMessage());
+            }
+            boolean predicted = prediction > 0.8;
             results.add(predicted ? 1 : 0);
-            //System.out.print("PREDICTION ");
-            //System.out.print(predicted);
-            //System.out.print(" ");
-            //System.out.println(pred);
         }
 
 

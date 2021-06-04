@@ -59,14 +59,16 @@ public class HistoricalFeaturesExtractor {
         ArrayList<Integer> creationDates = new ArrayList<>();
         Set<String> commits = new HashSet<>();
         Set<String> authors = new HashSet<>();
-        final RawText rawText = result.getResultContents();
-        for (int i = firstLine; i < Math.min(rawText.size(), lastLine + 1); i++) {
-            final PersonIdent sourceAuthor = result.getSourceAuthor(i);
-            final RevCommit sourceCommit = result.getSourceCommit(i);
-            if (sourceCommit != null) {
-                creationDates.add(sourceCommit.getCommitTime());
-                commits.add(sourceCommit.getName());
-                authors.add(sourceAuthor.getName());
+        if (result != null) {
+            final RawText rawText = result.getResultContents();
+            for (int i = firstLine; i < Math.min(rawText.size(), lastLine + 1); i++) {
+                final PersonIdent sourceAuthor = result.getSourceAuthor(i);
+                final RevCommit sourceCommit = result.getSourceCommit(i);
+                if (sourceCommit != null) {
+                    creationDates.add(sourceCommit.getCommitTime());
+                    commits.add(sourceCommit.getName());
+                    authors.add(sourceAuthor.getName());
+                }
             }
         }
 

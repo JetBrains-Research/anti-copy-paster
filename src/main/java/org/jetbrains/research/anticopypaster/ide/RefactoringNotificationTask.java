@@ -63,37 +63,34 @@ public class RefactoringNotificationTask extends TimerTask {
                     return;
                 }
 
-                try {
-                    HashSet<String> variablesInCodeFragment = new HashSet<>();
-                    HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
+                HashSet<String> variablesInCodeFragment = new HashSet<>();
+                HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
 
-                    if (!FragmentCorrectnessChecker.isCorrect(event.getProject(), event.getFile(),
-                                                              event.getText(),
-                                                              variablesInCodeFragment,
-                                                              variablesCountsInCodeFragment)) {
-                        return;
-                    }
-                    FeaturesVector featuresVector =
-                        calculateFeatures(event, variablesInCodeFragment, variablesCountsInCodeFragment);
+                if (!FragmentCorrectnessChecker.isCorrect(event.getProject(), event.getFile(),
+                                                          event.getText(),
+                                                          variablesInCodeFragment,
+                                                          variablesCountsInCodeFragment)) {
+                    return;
+                }
 
-                    if (event.getScores().out > 1 || event.getScores().in > 3 || event.getLinesOfCode() == 0) {
-                        return;
-                    }
+                FeaturesVector featuresVector =
+                    calculateFeatures(event, variablesInCodeFragment, variablesCountsInCodeFragment);
 
-                    List<Integer> prediction = model.predict(Collections.singletonList(featuresVector));
-                    int modelPrediction = prediction.get(0);
-                    calculateMessageToShow(event, featuresVector, result.getDuplicatesCount());
+                if (event.getScores().out > 1 || event.getScores().in > 3 || event.getLinesOfCode() == 0) {
+                    return;
+                }
 
-                    if ((event.isForceExtraction() || modelPrediction == 1) &&
+                List<Integer> prediction = model.predict(Collections.singletonList(featuresVector));
+                int modelPrediction = prediction.get(0);
+                calculateMessageToShow(event, featuresVector, result.getDuplicatesCount());
+
+                if ((event.isForceExtraction() || modelPrediction == 1) &&
                         canBeExtracted(event) && event.getReasonToExtract() != null) {
-                        notify(event.getProject(),
-                               AntiCopyPasterBundle.message(
-                                   "extract.method.refactoring.is.available"),
-                               getRunnableToShowSuggestionDialog(event)
-                        );
-                    }
-                } catch (Exception e) {
-                    LOG.error("[ACP] Failed to make a prediction.", e.getMessage());
+                    notify(event.getProject(),
+                           AntiCopyPasterBundle.message(
+                               "extract.method.refactoring.is.available"),
+                           getRunnableToShowSuggestionDialog(event)
+                    );
                 }
             });
         }
@@ -104,8 +101,8 @@ public class RefactoringNotificationTask extends TimerTask {
         int startOffset = getStartOffset(event.getEditor(), event.getFile(), event.getText());
         PsiElement[] elementsInCodeFragment = getElements(event.getProject(), event.getFile(),
                                                           startOffset, startOffset + event.getText().length());
-        final ExtractMethodProcessor processor = getProcessor(event.getProject(), elementsInCodeFragment,
-                                                              event.getFile(), false);
+        ExtractMethodProcessor processor = getProcessor(event.getProject(), elementsInCodeFragment,
+                                                        event.getFile(), false);
         if (processor == null) return false;
         try {
             canBeExtracted = processor.prepare(null);

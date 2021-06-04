@@ -5,5 +5,5 @@ import org.jetbrains.research.anticopypaster.models.features.features_vector.IFe
 import java.util.List;
 
 public interface IPredictionModel {
-    List<Integer> predict(List<IFeaturesVector> batch) throws Exception;
+    List<Integer> predict(List<IFeaturesVector> batch);
 }
