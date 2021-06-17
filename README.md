@@ -6,8 +6,8 @@ AntiCopyPaster is a plugin for IntelliJ IDEA that tracks the copying and pasting
 
 AntiCopyPaster requires IntelliJ IDEA of version 2021.1 or higher to work. To install the plugin:
 
-1. Download the pre-built version of the plugin from [here](https://drive.google.com/file/d/1v8X1WNz4Fg60wrcVFxtCM1a7H92A6imE/view?usp=sharing); 
-2. Go to `File`/`Settings`/`Plugins`;
+1. Download the pre-built version of the plugin from [here](https://drive.google.com/file/d/1fWzkxle4sySWcYgn4dqpwMLWI22GfJj6/view?usp=sharing); 
+2. Open IntelliJ IDEA and go to `File`/`Settings`/`Plugins`;
 3. Select the gear icon, and choose `Install Plugin from Disk...`;
 4. Choose the downloaded ZIP archive;
 5. Click `Apply`;
