@@ -233,7 +233,7 @@ public class RefactoringNotificationTask extends TimerTask {
 
         if (scoreOverall >= 4.99) {
             event.setReasonToExtract(AntiCopyPasterBundle.message(
-                "code.fragment.strongly.simplifies.logic.of.enclosing.method"));
+                "extract.method.to.simplify.logic.of.enclosing.method"));
             event.setForceExtraction(true);
         }
 
