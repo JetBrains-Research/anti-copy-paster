@@ -21,7 +21,7 @@ The scripts and tools that were used for data gathering and model training could
 
 ### Demonstration video
 
-We have a [demonstration video](https://youtu.be/SmPbq1BJqxE) that describes how the Random Forest model was built and how the plugin operates in the IDE.
+We have a [demonstration video](https://youtu.be/pazQDNcNtBw) that describes how the Random Forest model was built and how the plugin operates in the IDE.
 
 ## Contacts
 
