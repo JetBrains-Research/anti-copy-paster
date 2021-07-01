@@ -147,10 +147,10 @@ public class MethodDeclarationMetricsExtractor {
                     scores.isSet = true;
 
 
-                    int locs = StringUtils.countMatches(nodeText, "\n");
+                    int locs = StringUtils.countMatches(nodeText, "\n") + 1; //Line-length of the method
                     int dep = totalDepth(text);
                     vec.addFeature(
-                        new FeatureItem(Feature.MethodDeclarationSymbols, StringUtils.countMatches(nodeText, "\n")));
+                        new FeatureItem(Feature.MethodDeclarationSymbols, nodeText.length()));
                     vec.addFeature(
                         new FeatureItem(Feature.MethodDeclarationAverageSymbols, (double) nodeText.length() / locs));
                     vec.addFeature(new FeatureItem(Feature.MethodDeclarationDepth, dep));
