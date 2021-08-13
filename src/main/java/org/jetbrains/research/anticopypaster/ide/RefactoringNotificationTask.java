@@ -17,16 +17,16 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
+import org.jetbrains.research.anticopypaster.metrics.ScoreCalculator;
 import org.jetbrains.research.anticopypaster.metrics.extractors.CouplingCalculator;
 import org.jetbrains.research.anticopypaster.metrics.extractors.HistoricalFeaturesExtractor;
 import org.jetbrains.research.anticopypaster.metrics.extractors.KeywordMetricsExtractor;
 import org.jetbrains.research.anticopypaster.metrics.extractors.MethodDeclarationMetricsExtractor;
 import org.jetbrains.research.anticopypaster.models.IPredictionModel;
-import org.jetbrains.research.anticopypaster.models.features.feature.Feature;
-import org.jetbrains.research.anticopypaster.models.features.feature.FeatureItem;
-import org.jetbrains.research.anticopypaster.models.features.features_vector.FeaturesVector;
-import org.jetbrains.research.anticopypaster.models.features.features_vector.IFeaturesVector;
-import org.jetbrains.research.anticopypaster.models.offline.WekaBasedModel;
+import org.jetbrains.research.anticopypaster.models.features.Feature;
+import org.jetbrains.research.anticopypaster.models.features.FeatureItem;
+import org.jetbrains.research.anticopypaster.models.features.FeaturesVector;
+import org.jetbrains.research.anticopypaster.models.features.IFeaturesVector;
 
 import javax.swing.event.HyperlinkEvent;
 import java.util.*;
@@ -49,7 +49,7 @@ public class RefactoringNotificationTask extends TimerTask {
     private static final Logger LOG = Logger.getInstance(RefactoringNotificationTask.class);
 
     public RefactoringNotificationTask() {
-        model = new WekaBasedModel();
+
     }
 
     @Override
@@ -75,6 +75,7 @@ public class RefactoringNotificationTask extends TimerTask {
 
                 FeaturesVector featuresVector =
                     calculateFeatures(event, variablesInCodeFragment, variablesCountsInCodeFragment);
+
 
                 if (event.getScores().out > 1 || event.getScores().in > 3 || event.getLinesOfCode() == 0) {
                     return;
@@ -166,42 +167,23 @@ public class RefactoringNotificationTask extends TimerTask {
     private FeaturesVector calculateFeatures(RefactoringEvent event,
                                              HashSet<String> varsInFragment,
                                              HashMap<String, Integer> varsCountsInFragment) {
-        FeaturesVector featuresVector = new FeaturesVector(117);
+        PsiFile file = event.getFile();
+        String repoPath = file.getProject().getBasePath();
+        final String virtualFilePath = file.getVirtualFile().getCanonicalPath();
+        PsiMethod psiMethodBeforeRevision = getMethodStartLineInBeforeRevision(file, event.getDestinationMethod());
+        int eventBeginLine = getNumberOfLine(file,
+                psiMethodBeforeRevision.getTextRange().getStartOffset());
+        int eventEndLine = getNumberOfLine(file,
+                psiMethodBeforeRevision.getTextRange().getEndOffset());
 
-        KeywordMetricsExtractor.calculate(event.getText(), event.getLinesOfCode(), featuresVector);
-        CouplingCalculator.calculate(event.getFile(), event.getText(), event.getLinesOfCode(), featuresVector);
-        featuresVector.addFeature(new FeatureItem(Feature.TotalSymbolsInCodeFragment, event.getText().length()));
-        featuresVector.addFeature(
-            new FeatureItem(Feature.AverageSymbolsInCodeLine,
-                            (double) event.getText().length() / event.getLinesOfCode()));
-
-        int depthTotal = MethodDeclarationMetricsExtractor.totalDepth(event.getText());
-
-        featuresVector.addFeature(new FeatureItem(Feature.TotalLinesDepth, depthTotal));
-        featuresVector.addFeature(
-            new FeatureItem(Feature.AverageLinesDepth, (double) depthTotal / event.getLinesOfCode()));
-
-        MethodDeclarationMetricsExtractor.ParamsScores scores =
-            MethodDeclarationMetricsExtractor.calculate(event.getFile(), event.getText(), featuresVector,
+        // TODO: Call MetricCalculator
+        ScoreCalculator.ParamsScores scores =
+                ScoreCalculator.calculate(event.getFile(), event.getText(),
                                                         varsInFragment,
                                                         varsCountsInFragment);
         event.setScores(scores);
 
-        try {
-            PsiFile file = event.getFile();
-            final String virtualFilePath = file.getVirtualFile().getCanonicalPath();
-            PsiMethod psiMethodBeforeRevision = getMethodStartLineInBeforeRevision(file, event.getDestinationMethod());
-            if (virtualFilePath != null && psiMethodBeforeRevision != null)
-                HistoricalFeaturesExtractor.calculateHistoricalFeatures(file.getProject().getBasePath(),
-                                                                        getNumberOfLine(file,
-                                                                                        psiMethodBeforeRevision.getTextRange().getStartOffset()),
-                                                                        getNumberOfLine(file,
-                                                                                        psiMethodBeforeRevision.getTextRange().getEndOffset()),
-                                                                        virtualFilePath,
-                                                                        featuresVector);
-        } catch (GitAPIException e) {
-            LOG.error("[ACP] Failed to calculate historical features.");
-        }
+
         return featuresVector;
     }
 
