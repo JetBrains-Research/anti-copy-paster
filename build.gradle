@@ -26,6 +26,7 @@ dependencies {
     implementation(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.4.3.201909031940-r') {
         exclude group: "org.slf4j"
     }
+    implementation 'org.pmml4s:pmml4s_2.13:0.9.10'
 }
 
 project.gradle.startParameter.excludedTaskNames.add('buildSearchableOptions')
