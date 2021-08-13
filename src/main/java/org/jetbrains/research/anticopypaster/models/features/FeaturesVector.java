@@ -41,6 +41,10 @@ public class FeaturesVector implements IFeaturesVector {
         return 0.0;
     }
 
+    public Object[] getFeatures() {
+        return features.stream().map(IFeatureItem::getValue).toArray();
+    }
+
     public List<Float> buildVector() {
         features.sort(Comparator.comparingInt(IFeatureItem::getId));
         int itemsPtr = 0;

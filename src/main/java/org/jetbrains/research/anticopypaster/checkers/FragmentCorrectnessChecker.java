@@ -12,10 +12,10 @@ import java.util.HashSet;
 
 public class FragmentCorrectnessChecker {
     private static final String wrapperFormat = "class Tmp {\n" +
-        "    public static void main(String[] args) {\n" +
-        "        %s\n" +
-        "    }\n" +
-        "}";
+            "    public static void main(String[] args) {\n" +
+            "        %s\n" +
+            "    }\n" +
+            "}";
 
     public static boolean isCorrect(Project project,
                                     PsiFile file,
@@ -26,11 +26,11 @@ public class FragmentCorrectnessChecker {
         PsiFile tmp;
         try {
             tmp = PsiFileFactory.getInstance(project)
-                .createFileFromText(file.getFileType(),
-                                    "tmp.txt",
-                                    wrappedFragment,
-                                    0,
-                                    wrappedFragment.length());
+                    .createFileFromText(file.getFileType(),
+                            "tmp.txt",
+                            wrappedFragment,
+                            0,
+                            wrappedFragment.length());
         } catch (IncorrectOperationException e) {
             return false;
         }
@@ -62,7 +62,7 @@ public class FragmentCorrectnessChecker {
 
         for (PsiElement child : children) {
             result &=
-                traverse(child, nodeText.contains("PsiMethod") || inside, vars_in_fragment, vars_counts_in_fragment);
+                    traverse(child, nodeText.contains("PsiMethod") || inside, vars_in_fragment, vars_counts_in_fragment);
         }
 
         return result;

@@ -14,15 +14,14 @@ import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.research.anticopypaster.models.MemberSets;
 import org.jetbrains.research.anticopypaster.models.features.Feature;
 import org.jetbrains.research.anticopypaster.models.features.FeatureItem;
 import org.jetbrains.research.anticopypaster.models.features.FeaturesVector;
-import org.jetbrains.research.anticopypaster.models.MemberSets;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 import static org.jetbrains.research.anticopypaster.metrics.DepthAnalyzer.getNestingArea;
@@ -30,24 +29,21 @@ import static org.jetbrains.research.anticopypaster.metrics.DepthAnalyzer.getNes
 public class MetricCalculator {
     private final String statementsStr;
     private final PsiMethod method;
+    private final String repoPath;
+    private final String filePath;
     private final int beginLine;
     private final int endLine;
     private final FeaturesVector featuresVector;
 
-    public MetricCalculator(, PsiMethod method, int beginLine, int endLine) {
-        this.method = method;
+    public MetricCalculator(String code, PsiMethod dummyPsiMethod, String repoPath, String filePath, int beginLine, int endLine) {
+        this.method = dummyPsiMethod;
+        this.statementsStr = code;
         this.beginLine = beginLine;
         this.endLine = endLine;
         this.featuresVector = new FeaturesVector(82); // TODO: Make dimension changeable outside
-        computeFeatureVector();
-    }
-
-    public MetricCalculator(PsiElement psiElement, int beginLine, int endLine) {
-        this.method = ((PsiMethod) psiElement);
-        this.statementsStr = this.method.getBody().getText();
-        this.beginLine = beginLine;
-        this.endLine = endLine;
-        this.featuresVector = new FeaturesVector(82); // TODO: Make dimension changeable outside
+        this.repoPath = Path.of(repoPath).toAbsolutePath().toString();
+        this.filePath = Path.of(repoPath).toAbsolutePath().
+                relativize(Path.of(filePath).toAbsolutePath()).toString();
         computeFeatureVector();
     }
 
@@ -181,23 +177,19 @@ public class MetricCalculator {
     }
 
     private void historicalFeatures() { //Actually no clue if it works
-        Path repoPath = Paths.get(method.getContainingFile().getProject().getBasePath()).toAbsolutePath();
-        Path filePath = Paths.get(method.getContainingFile().getVirtualFile().getCanonicalPath()).toAbsolutePath();
         Repository repository;
         try {
             repository = openRepository(repoPath.toString());
         } catch (Exception e) {
-            LOG.error("[RefactoringJudge]: Failed to open the project repository.");
             return;
         }
 
         BlameResult result = null;
         try {
-            result = new Git(repository).blame().setFilePath
-                    (repoPath.relativize(filePath).toString())
+            result = new Git(repository).blame().setFilePath(filePath)
                     .setTextComparator(RawTextComparator.WS_IGNORE_ALL).call();
         } catch (GitAPIException e) {
-            LOG.error("[RefactoringJudge]: Failed to get GitBlame.");
+            return;
         }
 
         ArrayList<Integer> creationDates = new ArrayList<>();

@@ -4,8 +4,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
-import org.jetbrains.research.anticopypaster.metrics.ScoreCalculator;
-import org.jetbrains.research.anticopypaster.metrics.extractors.MethodDeclarationMetricsExtractor;
 
 /**
  * Contains information about the code fragment that is recommended for extraction into a separate method.
@@ -18,7 +16,6 @@ public class RefactoringEvent {
     private final Project project;
     private final Editor editor;
     private final int linesOfCode;
-    private ScoreCalculator.ParamsScores scores;
     private boolean forceExtraction = false;
     private String reasonToExtract;
 
@@ -78,13 +75,5 @@ public class RefactoringEvent {
 
     public int getLinesOfCode() {
         return linesOfCode;
-    }
-
-    public ScoreCalculator.ParamsScores getScores() {
-        return scores;
-    }
-
-    public void setScores(ScoreCalculator.ParamsScores scores) {
-        this.scores = scores;
     }
 }

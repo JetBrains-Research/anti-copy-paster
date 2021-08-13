@@ -39,34 +39,34 @@ public final class DuplicatesInspection {
         @NotNull Collection<PsiMethod> methods = PsiTreeUtil.findChildrenOfType(file, PsiMethod.class);
         for (PsiMethod psiMethod : methods) {
             tasks.add(
-                pool.submit(() -> ApplicationManager.getApplication().runReadAction(new Computable<DuplicateResult>() {
-                    @Override
-                    public DuplicateResult compute() {
-                        DuplicateResult duplicateResult = null;
-                        PsiCodeBlock methodBody = psiMethod.getBody();
-                        if (methodBody != null) {
-                            String rawCode =
-                                code.replace('\n', ' ').replace('\t', ' ')
-                                    .replace('\r', ' ').replaceAll("\\s+", "");
-                            String rawMethodBody = psiMethod.getText().replace('\n', ' ').replace('\t', ' ')
-                                .replace('\r', ' ').replaceAll("\\s+", "");
-                            boolean matches = StringUtils.contains(rawMethodBody, rawCode);
-                            if (matches) {
-                                duplicateResult = new DuplicateResult(psiMethod, 1.0);
-                            } else {
-                                List<String> tokensOfMethod = getTokens(methodBody.getText());
-                                double maxNumOfTokens = Math.max(tokensOfPastedCode.size(), tokensOfMethod.size());
-                                // Calculates the intersection of tokens
-                                tokensOfMethod.retainAll(tokensOfPastedCode);
-                                double threshold = tokensOfMethod.size() / maxNumOfTokens;
-                                if (threshold >= 0.8) {
-                                    duplicateResult = new DuplicateResult(psiMethod, threshold);
+                    pool.submit(() -> ApplicationManager.getApplication().runReadAction(new Computable<DuplicateResult>() {
+                        @Override
+                        public DuplicateResult compute() {
+                            DuplicateResult duplicateResult = null;
+                            PsiCodeBlock methodBody = psiMethod.getBody();
+                            if (methodBody != null) {
+                                String rawCode =
+                                        code.replace('\n', ' ').replace('\t', ' ')
+                                                .replace('\r', ' ').replaceAll("\\s+", "");
+                                String rawMethodBody = psiMethod.getText().replace('\n', ' ').replace('\t', ' ')
+                                        .replace('\r', ' ').replaceAll("\\s+", "");
+                                boolean matches = StringUtils.contains(rawMethodBody, rawCode);
+                                if (matches) {
+                                    duplicateResult = new DuplicateResult(psiMethod, 1.0);
+                                } else {
+                                    List<String> tokensOfMethod = getTokens(methodBody.getText());
+                                    double maxNumOfTokens = Math.max(tokensOfPastedCode.size(), tokensOfMethod.size());
+                                    // Calculates the intersection of tokens
+                                    tokensOfMethod.retainAll(tokensOfPastedCode);
+                                    double threshold = tokensOfMethod.size() / maxNumOfTokens;
+                                    if (threshold >= 0.8) {
+                                        duplicateResult = new DuplicateResult(psiMethod, threshold);
+                                    }
                                 }
                             }
+                            return duplicateResult;
                         }
-                        return duplicateResult;
-                    }
-                })));
+                    })));
         }
 
         ArrayList<DuplicateResult> results = new ArrayList<>();

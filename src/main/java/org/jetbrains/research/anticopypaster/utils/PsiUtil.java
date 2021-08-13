@@ -41,9 +41,9 @@ public class PsiUtil {
                     String content = beforeRevision.getContent();
                     if (content != null) {
                         PsiFile psiFileBeforeRevision =
-                            PsiFileFactory.getInstance(fileWithLocalChanges.getProject()).createFileFromText("tmp",
-                                                                                                             JavaFileType.INSTANCE,
-                                                                                                             content);
+                                PsiFileFactory.getInstance(fileWithLocalChanges.getProject()).createFileFromText("tmp",
+                                        JavaFileType.INSTANCE,
+                                        content);
                         PsiElement[] children = psiFileBeforeRevision.getChildren();
                         for (PsiElement element : children) {
                             if (element instanceof PsiClass) {
@@ -118,7 +118,7 @@ public class PsiUtil {
             elements = CodeInsightUtil.findStatementsInRange(file, startOffset, endOffset);
             if (elements.length == 0) {
                 final PsiExpression expression =
-                    IntroduceVariableBase.getSelectedExpression(project, file, startOffset, endOffset);
+                        IntroduceVariableBase.getSelectedExpression(project, file, startOffset, endOffset);
                 if (expression != null && IntroduceVariableBase.getErrorMessage(expression) == null) {
                     final PsiType originalType = RefactoringUtil.getTypeByExpressionWithExpectedType(expression);
                     if (originalType != null) {
