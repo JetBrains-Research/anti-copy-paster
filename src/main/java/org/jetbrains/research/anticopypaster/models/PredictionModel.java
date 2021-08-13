@@ -6,7 +6,7 @@ import org.pmml4s.model.Model;
 
 public interface PredictionModel {
     Model model = Model.fromInputStream(PredictionModel.class.getClassLoader()
-            .getResourceAsStream("rf_pipeline.pmml"));
+            .getResourceAsStream("mlp_pipeline.pmml"));
     ;
 
     static double getClassificationValue(FeaturesVector featuresVector) {
