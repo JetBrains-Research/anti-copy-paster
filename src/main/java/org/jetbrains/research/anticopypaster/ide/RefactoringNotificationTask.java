@@ -162,7 +162,6 @@ public class RefactoringNotificationTask extends TimerTask {
                 psiMethodBeforeRevision.getTextRange().getStartOffset());
         int eventEndLine = getNumberOfLine(file,
                 psiMethodBeforeRevision.getTextRange().getEndOffset());
-        // TODO: Call MetricCalculator
         MetricCalculator metricCalculator = new MetricCalculator(event.getText(), psiMethodBeforeRevision,
                 repoPath, virtualFilePath, eventBeginLine, eventEndLine);
         return metricCalculator.getFeaturesVector();
