@@ -50,7 +50,7 @@ public class ExtractionTask extends TimerTask {
             Language language = file.getLanguage();
             PsiElement element = file.getOriginalElement();
             List<RefactoringSupportProvider>
-                providers = LanguageRefactoringSupport.INSTANCE.allForLanguage(language);
+                    providers = LanguageRefactoringSupport.INSTANCE.allForLanguage(language);
 
             for (RefactoringSupportProvider provider : providers) {
                 if (provider.isAvailable(element)) {

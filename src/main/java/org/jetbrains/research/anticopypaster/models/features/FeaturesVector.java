@@ -1,15 +1,14 @@
-package org.jetbrains.research.anticopypaster.models.features.features_vector;
-
-import org.jetbrains.research.anticopypaster.models.features.feature.Feature;
-import org.jetbrains.research.anticopypaster.models.features.feature.IFeatureItem;
+package org.jetbrains.research.anticopypaster.models.features;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class FeaturesVector implements IFeaturesVector {
-    private List<IFeatureItem> features = new ArrayList<>();
-    private int dimension;
+    private final List<IFeatureItem> features = new ArrayList<>();
+    private final int dimension;
 
     public FeaturesVector(int dimension) {
         this.dimension = dimension;
@@ -19,15 +18,31 @@ public class FeaturesVector implements IFeaturesVector {
         this.features.add(item);
     }
 
+    public int getDimension() {
+        return dimension;
+    }
+
+    public List<Integer> getMissingFeaturesId() {
+        List<Integer> range = IntStream.range(0, dimension)
+                .boxed().collect(Collectors.toList());
+        features.forEach(c -> range.remove(c.getId()));
+
+        return range;
+    }
+
     @Override
     public double getFeature(Feature toSearch) {
-        for (IFeatureItem item: features) {
+        for (IFeatureItem item : features) {
             if (item.getId() == toSearch.getId()) {
                 return item.getValue();
             }
         }
 
         return 0.0;
+    }
+
+    public Object[] getFeatures() {
+        return features.stream().map(IFeatureItem::getValue).toArray();
     }
 
     public List<Float> buildVector() {

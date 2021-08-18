@@ -1,7 +1,7 @@
-package org.jetbrains.research.anticopypaster.models.features.feature;
+package org.jetbrains.research.anticopypaster.models.features;
 
 public class FeatureItem implements IFeatureItem {
-    private Feature type;
+    private final Feature type;
     private double value;
 
     public FeatureItem(Feature type, double value) {

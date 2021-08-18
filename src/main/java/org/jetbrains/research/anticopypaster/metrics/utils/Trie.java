@@ -9,7 +9,7 @@ public class Trie {
 
     public Trie(List<String> words) {
         root = new TrieNode();
-        for (String word: words) {
+        for (String word : words) {
             insert(word);
         }
     }

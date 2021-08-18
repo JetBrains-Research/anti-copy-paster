@@ -54,10 +54,10 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
 
         if (project == null || editor == null || file == null ||
-            !FragmentCorrectnessChecker.isCorrect(project, file,
-                                                  text,
-                                                  variablesInCodeFragment,
-                                                  variablesCountsInCodeFragment)) {
+                !FragmentCorrectnessChecker.isCorrect(project, file,
+                        text,
+                        variablesInCodeFragment,
+                        variablesCountsInCodeFragment)) {
             return text;
         }
 
@@ -67,7 +67,6 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
 
         // find number of code fragments considered as duplicated
         DuplicatesInspection.InspectionResult result = inspection.resolve(file, text);
-
         if (result.getDuplicatesCount() == 0) {
             return text;
         }
@@ -76,8 +75,8 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         int linesOfCode = getCountOfCodeLines(text);
 
         refactoringNotificationTask.addEvent(
-            new RefactoringEvent(file, destinationMethod, text, result.getDuplicatesCount(),
-                                 project, editor, linesOfCode));
+                new RefactoringEvent(file, destinationMethod, text, result.getDuplicatesCount(),
+                        project, editor, linesOfCode));
 
         return text;
     }
