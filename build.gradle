@@ -4,13 +4,13 @@ plugins {
 }
 
 intellij {
-    version = '2021.1'
+    version = '2021.2'
     plugins = ['java']
     downloadSources true
 }
 
 group 'org.jetbrains.research.anticopypaster'
-version '3.3'
+version '2021.2-1.0'
 
 sourceCompatibility = 1.8
 
