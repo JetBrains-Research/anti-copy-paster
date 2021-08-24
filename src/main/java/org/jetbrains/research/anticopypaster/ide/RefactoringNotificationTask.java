@@ -42,46 +42,47 @@ public class RefactoringNotificationTask extends TimerTask {
     private static final Logger LOG = Logger.getInstance(RefactoringNotificationTask.class);
 
     public RefactoringNotificationTask() {
-
     }
 
     @Override
     public void run() {
         while (!eventsQueue.isEmpty()) {
-            final RefactoringEvent event = eventsQueue.poll();
+            try {
+                final RefactoringEvent event = eventsQueue.poll();
+                ApplicationManager.getApplication().runReadAction(() -> {
+                    DuplicatesInspection.InspectionResult result = inspection.resolve(event.getFile(), event.getText());
+                    if (result.getDuplicatesCount() < 1) {
+                        return;
+                    }
 
-            ApplicationManager.getApplication().runReadAction(() -> {
-                DuplicatesInspection.InspectionResult result = inspection.resolve(event.getFile(), event.getText());
-                if (result.getDuplicatesCount() < 1) {
-                    return;
-                }
+                    HashSet<String> variablesInCodeFragment = new HashSet<>();
+                    HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
 
-                HashSet<String> variablesInCodeFragment = new HashSet<>();
-                HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
+                    if (!FragmentCorrectnessChecker.isCorrect(event.getProject(), event.getFile(),
+                            event.getText(),
+                            variablesInCodeFragment,
+                            variablesCountsInCodeFragment)) {
+                        return;
+                    }
 
-                if (!FragmentCorrectnessChecker.isCorrect(event.getProject(), event.getFile(),
-                        event.getText(),
-                        variablesInCodeFragment,
-                        variablesCountsInCodeFragment)) {
-                    return;
-                }
+                    FeaturesVector featuresVector = calculateFeatures(event);
 
-                FeaturesVector featuresVector = calculateFeatures(event);
+                    double prediction = PredictionModel.getClassificationValue(featuresVector);
+                    event.setReasonToExtract(AntiCopyPasterBundle.message(
+                            "extract.method.to.simplify.logic.of.enclosing.method")); // dummy
 
-
-                double prediction = PredictionModel.getClassificationValue(featuresVector);
-                event.setReasonToExtract(AntiCopyPasterBundle.message(
-                        "extract.method.to.simplify.logic.of.enclosing.method")); // dummy
-
-                if ((event.isForceExtraction() || prediction > predictionThreshold) &&
-                        canBeExtracted(event)) {
-                    notify(event.getProject(),
-                            AntiCopyPasterBundle.message(
-                                    "extract.method.refactoring.is.available"),
-                            getRunnableToShowSuggestionDialog(event)
-                    );
-                }
-            });
+                    if ((event.isForceExtraction() || prediction > predictionThreshold) &&
+                            canBeExtracted(event)) {
+                        notify(event.getProject(),
+                                AntiCopyPasterBundle.message(
+                                        "extract.method.refactoring.is.available"),
+                                getRunnableToShowSuggestionDialog(event)
+                        );
+                    }
+                });
+            } catch (Exception e) {
+                LOG.error("[ACP] Can't process an event");
+            }
         }
     }
 
@@ -156,13 +157,12 @@ public class RefactoringNotificationTask extends TimerTask {
         PsiFile file = event.getFile();
         String repoPath = file.getProject().getBasePath();
         final String virtualFilePath = file.getVirtualFile().getCanonicalPath();
-        PsiMethod psiMethodBeforeRevision = getMethodStartLineInBeforeRevision(file, event.getDestinationMethod());
-
+        PsiMethod methodAfterPasting = event.getDestinationMethod();
         int eventBeginLine = getNumberOfLine(file,
-                psiMethodBeforeRevision.getTextRange().getStartOffset());
+                methodAfterPasting.getTextRange().getStartOffset());
         int eventEndLine = getNumberOfLine(file,
-                psiMethodBeforeRevision.getTextRange().getEndOffset());
-        MetricCalculator metricCalculator = new MetricCalculator(event.getText(), psiMethodBeforeRevision,
+                methodAfterPasting.getTextRange().getEndOffset());
+        MetricCalculator metricCalculator = new MetricCalculator(event.getText(), methodAfterPasting,
                 repoPath, virtualFilePath, eventBeginLine, eventEndLine);
         return metricCalculator.getFeaturesVector();
     }
