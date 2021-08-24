@@ -49,7 +49,6 @@ public class RefactoringNotificationTask extends TimerTask {
         while (!eventsQueue.isEmpty()) {
             try {
                 final RefactoringEvent event = eventsQueue.poll();
-
                 ApplicationManager.getApplication().runReadAction(() -> {
                     DuplicatesInspection.InspectionResult result = inspection.resolve(event.getFile(), event.getText());
                     if (result.getDuplicatesCount() < 1) {
@@ -68,7 +67,6 @@ public class RefactoringNotificationTask extends TimerTask {
 
                     FeaturesVector featuresVector = calculateFeatures(event);
 
-
                     double prediction = PredictionModel.getClassificationValue(featuresVector);
                     event.setReasonToExtract(AntiCopyPasterBundle.message(
                             "extract.method.to.simplify.logic.of.enclosing.method")); // dummy
@@ -83,7 +81,7 @@ public class RefactoringNotificationTask extends TimerTask {
                     }
                 });
             } catch (Exception e) {
-                LOG.error("Can't process an event");
+                LOG.error("[ACP] Can't process an event");
             }
         }
     }
