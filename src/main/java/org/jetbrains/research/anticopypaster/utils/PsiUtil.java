@@ -57,7 +57,7 @@ public class PsiUtil {
                             }
                         }
                     }
-                } catch (VcsException e) {
+                } catch (Exception e) {
                     LOG.error("[ACP] Failed to get a file's content from the last revision.", e.getMessage());
                 }
             }

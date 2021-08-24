@@ -92,5 +92,4 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
             LOG.error("[ACP] Failed to schedule the checking for refactorings.", ex.getMessage());
         }
     }
-
 }
