@@ -42,8 +42,13 @@ public class FeaturesVector implements IFeaturesVector {
     }
 
     public Object[] getFeatures() {
-        return features.stream().map(IFeatureItem::getValue).toArray();
+        List<Double> tmpList = new ArrayList<>();
+        for(int id = 0; id < dimension; id++) {
+            tmpList.add(getFeature(Feature.fromId(id)));
+        }
+        return tmpList.toArray();
     }
+
 
     public List<Float> buildVector() {
         features.sort(Comparator.comparingInt(IFeatureItem::getId));

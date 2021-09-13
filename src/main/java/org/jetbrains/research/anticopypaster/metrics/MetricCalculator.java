@@ -188,8 +188,15 @@ public class MetricCalculator {
         try {
             result = new Git(repository).blame().setFilePath(filePath)
                     .setTextComparator(RawTextComparator.WS_IGNORE_ALL).call();
-        } catch (GitAPIException e) {
-            return;
+        } catch (Exception e) {
+            featuresVector.addFeature(
+                    new FeatureItem(Feature.TotalCommitsInFragment, 0));
+            featuresVector.addFeature(
+                    new FeatureItem(Feature.TotalAuthorsInFragment, 0));
+            featuresVector.addFeature(new FeatureItem(Feature.LiveTimeOfFragment, 0));
+            featuresVector.addFeature(
+                    new FeatureItem(Feature.LiveTimePerLine, (double) 0));
+            return; // If can't get blame result, skip by adding zeroes
         }
 
         ArrayList<Integer> creationDates = new ArrayList<>();
