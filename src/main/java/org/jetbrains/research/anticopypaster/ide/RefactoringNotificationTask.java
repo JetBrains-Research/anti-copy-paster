@@ -155,15 +155,13 @@ public class RefactoringNotificationTask extends TimerTask {
      */
     private FeaturesVector calculateFeatures(RefactoringEvent event) {
         PsiFile file = event.getFile();
-        String repoPath = file.getProject().getBasePath();
-        final String virtualFilePath = file.getVirtualFile().getCanonicalPath();
         PsiMethod methodAfterPasting = event.getDestinationMethod();
         int eventBeginLine = getNumberOfLine(file,
                 methodAfterPasting.getTextRange().getStartOffset());
         int eventEndLine = getNumberOfLine(file,
                 methodAfterPasting.getTextRange().getEndOffset());
         MetricCalculator metricCalculator = new MetricCalculator(event.getText(), methodAfterPasting,
-                repoPath, virtualFilePath, eventBeginLine, eventEndLine);
+                 eventBeginLine, eventEndLine);
         return metricCalculator.getFeaturesVector();
     }
 }

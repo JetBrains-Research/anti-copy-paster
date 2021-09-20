@@ -29,39 +29,20 @@ import static org.jetbrains.research.anticopypaster.metrics.DepthAnalyzer.getNes
 public class MetricCalculator {
     private final String statementsStr;
     private final PsiMethod method;
-    private final String repoPath;
-    private final String filePath;
+
     private final int beginLine;
     private final int endLine;
     private final FeaturesVector featuresVector;
 
-    public MetricCalculator(String code, PsiMethod dummyPsiMethod, String repoPath, String filePath, int beginLine, int endLine) {
+    public MetricCalculator(String code, PsiMethod dummyPsiMethod, int beginLine, int endLine) {
         this.method = dummyPsiMethod;
         this.statementsStr = code;
         this.beginLine = beginLine;
         this.endLine = endLine;
         this.featuresVector = new FeaturesVector(82); // TODO: Make dimension changeable outside
-        this.repoPath = Path.of(repoPath).toAbsolutePath().toString();
-        this.filePath = Path.of(repoPath).toAbsolutePath().
-                relativize(Path.of(filePath).toAbsolutePath()).toString();
         computeFeatureVector();
     }
 
-    private static Repository openRepository(String repositoryPath) throws Exception {
-        File folder = new File(repositoryPath);
-        Repository repository;
-        if (folder.exists()) {
-            RepositoryBuilder builder = new RepositoryBuilder();
-            repository = builder
-                    .setGitDir(new File(folder, ".git"))
-                    .readEnvironment()
-                    .findGitDir()
-                    .build();
-        } else {
-            throw new FileNotFoundException(repositoryPath);
-        }
-        return repository;
-    }
 
     private void computeFeatureVector() {
         couplingFeatures();
@@ -176,75 +157,14 @@ public class MetricCalculator {
 
     }
 
-    private void historicalFeatures() { //Actually no clue if it works
-        Repository repository;
-        try {
-            repository = openRepository(repoPath.toString());
-        } catch (Exception e) {
-            return;
-        }
-
-        BlameResult result = null;
-        try {
-            result = new Git(repository).blame().setFilePath(filePath)
-                    .setTextComparator(RawTextComparator.WS_IGNORE_ALL).call();
-        } catch (Exception e) {
-            featuresVector.addFeature(
-                    new FeatureItem(Feature.TotalCommitsInFragment, 0));
-            featuresVector.addFeature(
-                    new FeatureItem(Feature.TotalAuthorsInFragment, 0));
-            featuresVector.addFeature(new FeatureItem(Feature.LiveTimeOfFragment, 0));
-            featuresVector.addFeature(
-                    new FeatureItem(Feature.LiveTimePerLine, (double) 0));
-            return; // If can't get blame result, skip by adding zeroes
-        }
-
-        ArrayList<Integer> creationDates = new ArrayList<>();
-        Set<String> commits = new HashSet<>();
-        Set<String> authors = new HashSet<>();
-        if (result != null) {
-            final RawText rawText = result.getResultContents();
-            for (int i = beginLine; i < Math.min(rawText.size(), endLine + 1); i++) {
-                final PersonIdent sourceAuthor = result.getSourceAuthor(i);
-                final RevCommit sourceCommit = result.getSourceCommit(i);
-                if (sourceCommit != null) {
-                    creationDates.add(sourceCommit.getCommitTime());
-                    commits.add(sourceCommit.getName());
-                    authors.add(sourceAuthor.getName());
-                }
-            }
-        }
-
+    private void historicalFeatures() {
+        // Temporary solution by padding with zeroes
         featuresVector.addFeature(
-                new FeatureItem(Feature.TotalCommitsInFragment, commits.size()));
+                new FeatureItem(Feature.TotalCommitsInFragment, 0));
         featuresVector.addFeature(
-                new FeatureItem(Feature.TotalAuthorsInFragment, authors.size()));
-
-        int minTime = Integer.MAX_VALUE;
-        int maxTime = Integer.MIN_VALUE;
-
-        for (Integer time : creationDates) {
-            if (minTime > time) {
-                minTime = time;
-            }
-            if (maxTime < time) {
-                maxTime = time;
-            }
-        }
-
-        if (minTime != Integer.MAX_VALUE) {
-            int totalTime = 0;
-            for (Integer time : creationDates) {
-                totalTime += time - minTime;
-            }
-
-            featuresVector.addFeature(new FeatureItem(Feature.LiveTimeOfFragment, maxTime - minTime));
-            featuresVector.addFeature(
-                    new FeatureItem(Feature.LiveTimePerLine, (double) totalTime / creationDates.size()));
-        } else {
-            featuresVector.addFeature(new FeatureItem(Feature.LiveTimeOfFragment, 0));
-            featuresVector.addFeature(
-                    new FeatureItem(Feature.LiveTimePerLine, 0));
-        }
+                new FeatureItem(Feature.TotalAuthorsInFragment, 0));
+        featuresVector.addFeature(new FeatureItem(Feature.LiveTimeOfFragment, 0));
+        featuresVector.addFeature(
+                new FeatureItem(Feature.LiveTimePerLine, (double) 0));
     }
 }
