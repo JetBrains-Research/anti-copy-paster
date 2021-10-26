@@ -15,9 +15,9 @@ import com.intellij.refactoring.extractMethod.PrepareFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
-import org.jetbrains.research.anticopypaster.metrics.MetricCalculator;
+import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.anticopypaster.models.PredictionModel;
-import org.jetbrains.research.anticopypaster.models.features.FeaturesVector;
+import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
 import javax.swing.event.HyperlinkEvent;
 import java.util.HashMap;
@@ -155,15 +155,15 @@ public class RefactoringNotificationTask extends TimerTask {
      */
     private FeaturesVector calculateFeatures(RefactoringEvent event) {
         PsiFile file = event.getFile();
-        String repoPath = file.getProject().getBasePath();
-        final String virtualFilePath = file.getVirtualFile().getCanonicalPath();
         PsiMethod methodAfterPasting = event.getDestinationMethod();
         int eventBeginLine = getNumberOfLine(file,
                 methodAfterPasting.getTextRange().getStartOffset());
         int eventEndLine = getNumberOfLine(file,
                 methodAfterPasting.getTextRange().getEndOffset());
-        MetricCalculator metricCalculator = new MetricCalculator(event.getText(), methodAfterPasting,
-                repoPath, virtualFilePath, eventBeginLine, eventEndLine);
+        MetricCalculator metricCalculator =
+                new MetricCalculator(event.getText(), methodAfterPasting,
+                        eventBeginLine, eventEndLine);
+
         return metricCalculator.getFeaturesVector();
     }
 }
