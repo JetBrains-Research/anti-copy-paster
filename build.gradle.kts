@@ -28,7 +28,6 @@ dependencies {
     implementation("org.pmml4s:pmml4s_2.13:0.9.10")
 
     // extract-method-metrics module inclusion
-
     implementation("$extractMethodProjectName:extract-method-metrics") {
         version {
             branch = "plugin-utils" // until merged into master
