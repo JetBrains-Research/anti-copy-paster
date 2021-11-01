@@ -10,7 +10,7 @@ intellij {
 }
 
 group = "org.jetbrains.research.anticopypaster"
-version = "3.3"
+version = "2021.1-2.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -30,10 +30,9 @@ dependencies {
     // extract-method-metrics module inclusion
     implementation("$extractMethodProjectName:extract-method-metrics") {
         version {
-            branch = "plugin-utils" // until merged into master
+            branch = "master" // until merged into master
         }
     }
-
 }
 
 tasks {
