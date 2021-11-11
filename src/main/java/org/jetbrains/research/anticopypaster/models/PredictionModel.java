@@ -1,14 +1,16 @@
 package org.jetbrains.research.anticopypaster.models;
 
-import org.jetbrains.research.anticopypaster.models.features.FeaturesVector;
+import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import org.pmml4s.model.Model;
+
 
 public interface PredictionModel {
     Model model = Model.fromInputStream(PredictionModel.class.getClassLoader()
             .getResourceAsStream("mlp_model.pmml"));
 
     static double getClassificationValue(FeaturesVector featuresVector) {
-        Object[] result = model.predict(featuresVector.getFeatures());
-        return (Double) result[0];
+        model.probabilitiesSupported();
+        Object[] result = model.predict(featuresVector.buildVector().toArray());
+        return (Double) result[1];
     }
 }
