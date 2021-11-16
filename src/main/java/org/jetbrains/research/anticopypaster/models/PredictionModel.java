@@ -6,11 +6,11 @@ import org.pmml4s.model.Model;
 
 public interface PredictionModel {
     Model model = Model.fromInputStream(PredictionModel.class.getClassLoader()
-            .getResourceAsStream("mlp_model.pmml"));
+            .getResourceAsStream("gradboost.pmml"));
 
     static double getClassificationValue(FeaturesVector featuresVector) {
         model.probabilitiesSupported();
         Object[] result = model.predict(featuresVector.buildVector().toArray());
-        return (Double) result[1];
+        return (Double) result[0];
     }
 }
