@@ -15,8 +15,6 @@ import com.intellij.refactoring.RefactoringActionHandler;
 import java.util.List;
 import java.util.TimerTask;
 
-import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getStartOffset;
-
 public class ExtractionTask extends TimerTask {
     public Editor editor;
     public Project project;
@@ -38,14 +36,6 @@ public class ExtractionTask extends TimerTask {
             if (!fileText.contains(text)) {
                 return;
             }
-
-            int startOffset = getStartOffset(editor, file, text);
-
-            if (startOffset == -1) {
-                return;
-            }
-
-            editor.getSelectionModel().setSelection(startOffset, startOffset + text.length());
 
             Language language = file.getLanguage();
             PsiElement element = file.getOriginalElement();

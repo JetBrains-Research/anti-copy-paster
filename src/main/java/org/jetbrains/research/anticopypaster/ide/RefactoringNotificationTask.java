@@ -111,6 +111,10 @@ public class RefactoringNotificationTask extends TimerTask {
             if (message.isEmpty()) {
                 message = AntiCopyPasterBundle.message("extract.method.to.simplify.logic.of.enclosing.method");
             }
+
+            int startOffset = getStartOffset(event.getEditor(), event.getFile(), event.getText());
+            event.getEditor().getSelectionModel().setSelection(startOffset, startOffset + event.getText().length());
+
             int result =
                     Messages.showOkCancelDialog(message,
                             AntiCopyPasterBundle.message("anticopypaster.recommendation.dialog.name"),
