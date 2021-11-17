@@ -32,7 +32,7 @@ import static org.jetbrains.research.anticopypaster.utils.PsiUtil.*;
  * Shows a notification about discovered Extract Method refactoring opportunity.
  */
 public class RefactoringNotificationTask extends TimerTask {
-    private static final Double predictionThreshold = 0.48; // certainty threshold for models
+    private static final Double predictionThreshold = 0.28; // certainty threshold for models
     private ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
     private static DuplicatesInspection inspection = new DuplicatesInspection();
     private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Extract Method suggestion",
