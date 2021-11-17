@@ -1,16 +1,10 @@
 plugins {
     java
-    id("org.jetbrains.intellij") version "0.7.2"
-}
-
-intellij {
-    type = "IC"
-    version = "2021.1"
-    setPlugins("java")
+    id("org.jetbrains.intellij") version "1.3.0"
 }
 
 group = "org.jetbrains.research.anticopypaster"
-version = "2021.1-2.0"
+version = "2021.2-1.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -33,6 +27,16 @@ dependencies {
             branch = "master" // until merged into master
         }
     }
+}
+
+fun properties(key: String) = project.findProperty(key).toString()
+
+intellij {
+    version.set(properties("platformVersion"))
+    type.set(properties("platformType"))
+    downloadSources.set(properties("platformDownloadSources").toBoolean())
+    updateSinceUntilBuild.set(true)
+    plugins.set(properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty))
 }
 
 tasks {
