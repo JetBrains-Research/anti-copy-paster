@@ -15,13 +15,9 @@ AntiCopyPaster requires IntelliJ IDEA of version 2021.2 to work. To install the 
 
 ### How it works
 
-The plugin monitors the copying and pasting that takes place inside the IDE. As soon as a code fragment is pasted, the plugin checks if it introduces code duplication, and if it does, the plugin calculates a set of code metrics for it, and a pre-installed Random Forest model makes a decision whether this piece of code is suitable for `Extract Method` refactoring. If it is, the plugin suggests the developer to perform the `Extract Method` refactoring and applies the refactoring if necessary.
+The plugin monitors the copying and pasting that takes place inside the IDE. As soon as a code fragment is pasted, the plugin checks if it introduces code duplication, and if it does, the plugin calculates a set of code metrics for it, and a pre-installed Gradient Boosting Classifier model makes a decision whether this piece of code is suitable for `Extract Method` refactoring. If it is, the plugin suggests the developer to perform the `Extract Method` refactoring and applies the refactoring if necessary.
 
 The scripts and tools that were used for data gathering and model training could be found [here](https://github.com/JetBrains-Research/extract-method-experiments).
-
-### Demonstration video
-
-We have a [demonstration video](https://youtu.be/pazQDNcNtBw) that describes how the Random Forest model was built and how the plugin operates in the IDE.
 
 ## Contacts
 
