@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "org.jetbrains.research.anticopypaster"
-version = "2021.2-1.0"
+version = "2021.3-1.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
