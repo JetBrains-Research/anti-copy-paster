@@ -9,7 +9,6 @@ public interface PredictionModel {
             .getResourceAsStream("gradboost.pmml"));
 
     static double getClassificationValue(FeaturesVector featuresVector) {
-//        model.probabilitiesSupported();
         Object[] result = model.predict(featuresVector.buildVector().toArray());
         return (Double) result[1];
     }
