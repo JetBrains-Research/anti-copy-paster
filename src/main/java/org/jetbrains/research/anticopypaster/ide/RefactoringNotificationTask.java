@@ -80,9 +80,9 @@ public class RefactoringNotificationTask extends TimerTask {
                         notify(event.getProject(),
                                 AntiCopyPasterBundle.message(
                                         "extract.method.refactoring.is.available"),
-                                getRunnableToShowSuggestionDialog(event)
+                                getRunnableToShowSuggestionDialog(event, featuresVector)
                         );
-                        eventLogger.refactoringSuggestionMade(event.getProject(), featuresVector);
+                        eventLogger.refactoringNotificationMade(event.getProject(), featuresVector);
                     }
                 });
             } catch (Exception e) {
@@ -110,7 +110,7 @@ public class RefactoringNotificationTask extends TimerTask {
         return canBeExtracted;
     }
 
-    private Runnable getRunnableToShowSuggestionDialog(RefactoringEvent event) {
+    private Runnable getRunnableToShowSuggestionDialog(RefactoringEvent event, FeaturesVector featuresVector) {
         return () -> {
             String message = event.getReasonToExtract();
             if (message.isEmpty()) {
@@ -133,7 +133,10 @@ public class RefactoringNotificationTask extends TimerTask {
                         event.getFile(),
                         event.getEditor(),
                         event.getText());
+
+                eventLogger.refactoringNotificationApplied(event.getProject(), featuresVector);
             }
+            eventLogger.refactoringNotificationDismissed(event.getProject(), featuresVector);
         };
     }
 
