@@ -4,9 +4,7 @@ import com.intellij.concurrency.JobScheduler;
 import com.intellij.internal.statistic.eventLog.EventLogGroup;
 import com.intellij.internal.statistic.eventLog.FeatureUsageData;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.research.anticopypaster.ide.RefactoringEvent;
 import org.jetbrains.research.extractMethod.metrics.features.Feature;
-import org.jetbrains.research.extractMethod.metrics.features.FeatureItem;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
 import java.util.concurrent.TimeUnit;
@@ -38,39 +36,26 @@ public class SuggestionLogsCollector {
         SuggestionLogger.log(group, "registered");
     }
 
-/*    public void migrationUndone(Project project, int typeChangeId) {
-        FeatureUsageData data = new FeatureUsageData().addProject(project)
-                .addData("type_change_id", typeChangeId);
-        SuggestionLogger.log(group, "migration.undone", data);
-    }
-
-    public void renamePerformed(Project project, String elementCanonicalName) {
-        FeatureUsageData data = new FeatureUsageData().addProject(project)
-                .addData("element_canonical_name", elementCanonicalName);
-        SuggestionLogger.log(group, "rename.performed", data);
-    }
-
-    public void recoveringIntentionApplied(Project project, int typeChangeId) {
-        FeatureUsageData data = new FeatureUsageData().addProject(project)
-                .addData("type_change_id", typeChangeId);
-        SuggestionLogger.log(group, "recovering.intention.applied", data);
-    }*/
-
     private FeatureUsageData makeRefactoringData(Project project, FeaturesVector featuresVector) {
         FeatureUsageData data = new FeatureUsageData().addProject(project);
-        for(Feature f : Feature.values()){
+        for (Feature f : Feature.values()) {
             data.addData(f.getName(), featuresVector.getFeature(f));
         }
         return data;
     }
 
     public void refactoringNotificationMade(Project project, FeaturesVector featuresVector) {
-        SuggestionLogger.log(group, "refactoring.notification.made", makeRefactoringData(project, featuresVector));
+        SuggestionLogger.log(group, "refactoring.notification.made",
+                makeRefactoringData(project, featuresVector));
     }
+
     public void refactoringNotificationApplied(Project project, FeaturesVector featuresVector) {
-        SuggestionLogger.log(group, "refactoring.notification.applied", makeRefactoringData(project, featuresVector));
+        SuggestionLogger.log(group, "refactoring.notification.applied",
+                makeRefactoringData(project, featuresVector));
     }
+
     public void refactoringNotificationDismissed(Project project, FeaturesVector featuresVector) {
-        SuggestionLogger.log(group, "refactoring.notification.dismissed", makeRefactoringData(project, featuresVector));
+        SuggestionLogger.log(group, "refactoring.notification.dismissed",
+                makeRefactoringData(project, featuresVector));
     }
 }
