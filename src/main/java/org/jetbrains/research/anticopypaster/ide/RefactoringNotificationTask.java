@@ -2,6 +2,7 @@ package org.jetbrains.research.anticopypaster.ide;
 
 import com.intellij.CommonBundle;
 import com.intellij.notification.*;
+import com.intellij.notification.impl.NotificationGroupManagerImpl;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -15,6 +16,7 @@ import com.intellij.refactoring.extractMethod.PrepareFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
+import org.jetbrains.research.anticopypaster.ide.fus.SuggestionLogsCollector;
 import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.anticopypaster.models.PredictionModel;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
@@ -40,6 +42,8 @@ public class RefactoringNotificationTask extends TimerTask {
             true);
 
     private static final Logger LOG = Logger.getInstance(RefactoringNotificationTask.class);
+
+    private static final SuggestionLogsCollector eventLogger = SuggestionLogsCollector.getInstance();
 
     public RefactoringNotificationTask() {
     }
@@ -76,8 +80,9 @@ public class RefactoringNotificationTask extends TimerTask {
                         notify(event.getProject(),
                                 AntiCopyPasterBundle.message(
                                         "extract.method.refactoring.is.available"),
-                                getRunnableToShowSuggestionDialog(event)
+                                getRunnableToShowSuggestionDialog(event, featuresVector)
                         );
+                        eventLogger.refactoringNotificationMade(event.getProject(), featuresVector);
                     }
                 });
             } catch (Exception e) {
@@ -105,7 +110,7 @@ public class RefactoringNotificationTask extends TimerTask {
         return canBeExtracted;
     }
 
-    private Runnable getRunnableToShowSuggestionDialog(RefactoringEvent event) {
+    private Runnable getRunnableToShowSuggestionDialog(RefactoringEvent event, FeaturesVector featuresVector) {
         return () -> {
             String message = event.getReasonToExtract();
             if (message.isEmpty()) {
@@ -128,7 +133,10 @@ public class RefactoringNotificationTask extends TimerTask {
                         event.getFile(),
                         event.getEditor(),
                         event.getText());
+
+                eventLogger.refactoringNotificationApplied(event.getProject(), featuresVector);
             }
+            eventLogger.refactoringNotificationDismissed(event.getProject(), featuresVector);
         };
     }
 
