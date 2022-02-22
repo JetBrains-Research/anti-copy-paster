@@ -43,8 +43,6 @@ public class RefactoringNotificationTask extends TimerTask {
 
     private static final Logger LOG = Logger.getInstance(RefactoringNotificationTask.class);
 
-    private static final SuggestionLogsCollector eventLogger = SuggestionLogsCollector.getInstance();
-
     public RefactoringNotificationTask() {
     }
 
@@ -82,7 +80,6 @@ public class RefactoringNotificationTask extends TimerTask {
                                         "extract.method.refactoring.is.available"),
                                 getRunnableToShowSuggestionDialog(event, featuresVector)
                         );
-                        eventLogger.refactoringNotificationMade(event.getProject(), featuresVector);
                     }
                 });
             } catch (Exception e) {
@@ -133,10 +130,7 @@ public class RefactoringNotificationTask extends TimerTask {
                         event.getFile(),
                         event.getEditor(),
                         event.getText());
-
-                eventLogger.refactoringNotificationApplied(event.getProject(), featuresVector);
             }
-            eventLogger.refactoringNotificationDismissed(event.getProject(), featuresVector);
         };
     }
 
