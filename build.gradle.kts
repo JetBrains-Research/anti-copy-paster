@@ -24,7 +24,7 @@ dependencies {
     // extract-method-metrics module inclusion
     implementation("$extractMethodProjectName:extract-method-metrics") {
         version {
-            branch = "master" // until merged into master
+            branch = "loc-revamp" // until merged into master
         }
     }
 }
