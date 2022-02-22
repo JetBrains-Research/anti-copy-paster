@@ -16,7 +16,6 @@ import com.intellij.refactoring.extractMethod.PrepareFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
-import org.jetbrains.research.anticopypaster.ide.fus.SuggestionLogsCollector;
 import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.anticopypaster.models.PredictionModel;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
@@ -78,7 +77,7 @@ public class RefactoringNotificationTask extends TimerTask {
                         notify(event.getProject(),
                                 AntiCopyPasterBundle.message(
                                         "extract.method.refactoring.is.available"),
-                                getRunnableToShowSuggestionDialog(event, featuresVector)
+                                getRunnableToShowSuggestionDialog(event)
                         );
                     }
                 });
@@ -107,7 +106,7 @@ public class RefactoringNotificationTask extends TimerTask {
         return canBeExtracted;
     }
 
-    private Runnable getRunnableToShowSuggestionDialog(RefactoringEvent event, FeaturesVector featuresVector) {
+    private Runnable getRunnableToShowSuggestionDialog(RefactoringEvent event) {
         return () -> {
             String message = event.getReasonToExtract();
             if (message.isEmpty()) {
