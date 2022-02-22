@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PredictionModel {
     Model model = Model.fromInputStream(PredictionModel.class.getClassLoader()
-            .getResourceAsStream("rf_eman.pmml"));
+            .getResourceAsStream("rf_imbalanced_pruned.pmml"));
 
     List<Integer> leftFeatures = Arrays.asList(1, 3, 4, 5, 7, 8, 10, 11, 12,
             13, 14, 15, 19, 20, 24, 25, 51, 61);
