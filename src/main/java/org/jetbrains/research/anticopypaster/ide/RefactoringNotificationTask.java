@@ -2,6 +2,7 @@ package org.jetbrains.research.anticopypaster.ide;
 
 import com.intellij.CommonBundle;
 import com.intellij.notification.*;
+import com.intellij.notification.impl.NotificationGroupManagerImpl;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -51,7 +52,7 @@ public class RefactoringNotificationTask extends TimerTask {
                 final RefactoringEvent event = eventsQueue.poll();
                 ApplicationManager.getApplication().runReadAction(() -> {
                     DuplicatesInspection.InspectionResult result = inspection.resolve(event.getFile(), event.getText());
-                    if (result.getDuplicatesCount() < 1) {
+                    if (result.getDuplicatesCount() < 2) {
                         return;
                     }
 

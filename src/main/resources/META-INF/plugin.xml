@@ -5,7 +5,7 @@
     <version>2021.3-1.0</version>
 
     <description><![CDATA[
-    Tracks the copying and pasting actions and suggests extracting duplicates into a new method.
+    Tracks the copying and pasting actions and suggests extracting duplicates into a new method. Based on Eman's experiment.
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
