@@ -2,7 +2,6 @@ package org.jetbrains.research.anticopypaster.ide;
 
 import com.intellij.CommonBundle;
 import com.intellij.notification.*;
-import com.intellij.notification.impl.NotificationGroupManagerImpl;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -16,9 +15,11 @@ import com.intellij.refactoring.extractMethod.PrepareFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
+import org.jetbrains.research.anticopypaster.models.ScikitModel;
+import org.jetbrains.research.anticopypaster.models.TensorflowModel;
 import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
-import org.jetbrains.research.anticopypaster.models.PredictionModel;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
+import org.tensorflow.Tensor;
 
 import javax.swing.event.HyperlinkEvent;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ import static org.jetbrains.research.anticopypaster.utils.PsiUtil.*;
  * Shows a notification about discovered Extract Method refactoring opportunity.
  */
 public class RefactoringNotificationTask extends TimerTask {
-    private static final Double predictionThreshold = 0.2; // certainty threshold for models
+    private static final Double predictionThreshold = 0.5; // certainty threshold for models
     private ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
     private static DuplicatesInspection inspection = new DuplicatesInspection();
     private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Extract Method suggestion",
@@ -52,7 +53,7 @@ public class RefactoringNotificationTask extends TimerTask {
                 final RefactoringEvent event = eventsQueue.poll();
                 ApplicationManager.getApplication().runReadAction(() -> {
                     DuplicatesInspection.InspectionResult result = inspection.resolve(event.getFile(), event.getText());
-                    if (result.getDuplicatesCount() < 2) {
+                    if (result.getDuplicatesCount() < 1) {
                         return;
                     }
 
@@ -68,7 +69,7 @@ public class RefactoringNotificationTask extends TimerTask {
 
                     FeaturesVector featuresVector = calculateFeatures(event);
 
-                    double prediction = PredictionModel.getClassificationValue(featuresVector);
+                    float prediction = TensorflowModel.getClassificationValue(featuresVector);
                     event.setReasonToExtract(AntiCopyPasterBundle.message(
                             "extract.method.to.simplify.logic.of.enclosing.method")); // dummy
 
@@ -166,7 +167,7 @@ public class RefactoringNotificationTask extends TimerTask {
         int eventEndLine = getNumberOfLine(file,
                 methodAfterPasting.getTextRange().getEndOffset());
         MetricCalculator metricCalculator =
-                new MetricCalculator(event.getText(), methodAfterPasting,
+                new MetricCalculator(methodAfterPasting, event.getText(),
                         eventBeginLine, eventEndLine);
 
         return metricCalculator.getFeaturesVector();
