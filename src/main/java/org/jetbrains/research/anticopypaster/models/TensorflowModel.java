@@ -17,18 +17,19 @@ import java.util.Collections;
 
 
 public class TensorflowModel extends PredictionModel{
+    private String modelResourcePath = "tf_model";
     private SavedModelBundle modelBundle;
     static final Logger LOG = Logger.getInstance(AntiCopyPastePreProcessor.class);
 
     public TensorflowModel() {
         try {
-            copyFromJar("tf_model", Paths.get("tf_model"));
+            copyFromJar(modelResourcePath, Paths.get(modelResourcePath));
         } catch (URISyntaxException | IOException e) {
             LOG.error("[ACP] Could not read the model" + e.getMessage());
         }
 
         try {
-            modelBundle = SavedModelBundle.load("tf_model", "serve");
+            modelBundle = SavedModelBundle.load(modelResourcePath, "serve");
         } catch (Exception ex) {
             LOG.error("[ACP] Could not load the model" + ex.getMessage());
         }
