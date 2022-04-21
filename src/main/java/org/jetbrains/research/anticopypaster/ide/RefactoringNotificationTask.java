@@ -15,6 +15,7 @@ import com.intellij.refactoring.extractMethod.PrepareFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
+import org.jetbrains.research.anticopypaster.models.PredictionModel;
 import org.jetbrains.research.anticopypaster.models.ScikitModel;
 import org.jetbrains.research.anticopypaster.models.TensorflowModel;
 import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
@@ -48,12 +49,13 @@ public class RefactoringNotificationTask extends TimerTask {
 
     @Override
     public void run() {
+        PredictionModel model = new TensorflowModel();
         while (!eventsQueue.isEmpty()) {
             try {
                 final RefactoringEvent event = eventsQueue.poll();
                 ApplicationManager.getApplication().runReadAction(() -> {
                     DuplicatesInspection.InspectionResult result = inspection.resolve(event.getFile(), event.getText());
-                    if (result.getDuplicatesCount() < 1) {
+                    if (result.getDuplicatesCount() < 2) {
                         return;
                     }
 
@@ -69,7 +71,7 @@ public class RefactoringNotificationTask extends TimerTask {
 
                     FeaturesVector featuresVector = calculateFeatures(event);
 
-                    float prediction = TensorflowModel.getClassificationValue(featuresVector);
+                    float prediction = model.predict(featuresVector);
                     event.setReasonToExtract(AntiCopyPasterBundle.message(
                             "extract.method.to.simplify.logic.of.enclosing.method")); // dummy
 
@@ -83,7 +85,7 @@ public class RefactoringNotificationTask extends TimerTask {
                     }
                 });
             } catch (Exception e) {
-                LOG.error("[ACP] Can't process an event");
+                LOG.error("[ACP] Can't process an event" + e.getMessage());
             }
         }
     }
