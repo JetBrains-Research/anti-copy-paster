@@ -1,5 +1,6 @@
 package org.jetbrains.research.anticopypaster.models;
 
+import it.unimi.dsi.fastutil.floats.FloatImmutableList;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import org.pmml4s.model.Model;
 
@@ -18,7 +19,7 @@ public class ScikitModel extends PredictionModel {
         List<Float> features = featuresVector.buildCroppedVector(leftFeatures);
         Object[] result = model.predict(features.toArray());
 
-        float positive_proba = (float) result[1];
-        return positive_proba;
+        Double positive_proba = (Double) result[1];
+        return positive_proba.floatValue();
     }
 }
