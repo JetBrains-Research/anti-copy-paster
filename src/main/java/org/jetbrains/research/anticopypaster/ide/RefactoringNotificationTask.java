@@ -16,11 +16,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
 import org.jetbrains.research.anticopypaster.models.PredictionModel;
-import org.jetbrains.research.anticopypaster.models.ScikitModel;
 import org.jetbrains.research.anticopypaster.models.TensorflowModel;
 import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
-import org.tensorflow.Tensor;
 
 import javax.swing.event.HyperlinkEvent;
 import java.util.HashMap;
@@ -36,8 +34,8 @@ import static org.jetbrains.research.anticopypaster.utils.PsiUtil.*;
  */
 public class RefactoringNotificationTask extends TimerTask {
     private static final Double predictionThreshold = 0.5; // certainty threshold for models
-    private ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
-    private static DuplicatesInspection inspection = new DuplicatesInspection();
+    private final ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
+    private static final DuplicatesInspection inspection = new DuplicatesInspection();
     private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Extract Method suggestion",
             NotificationDisplayType.BALLOON,
             true);

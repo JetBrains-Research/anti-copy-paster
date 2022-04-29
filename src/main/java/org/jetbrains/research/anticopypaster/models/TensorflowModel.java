@@ -16,23 +16,28 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 
 
-public class TensorflowModel extends PredictionModel{
-    private String modelResourcePath = "tf_model";
-    private SavedModelBundle modelBundle;
+public class TensorflowModel extends PredictionModel {
+    private final String modelResourcePath = "TrainedModel";
+    private final SavedModelBundle modelBundle;
     static final Logger LOG = Logger.getInstance(AntiCopyPastePreProcessor.class);
 
-    public TensorflowModel() {
+    public TensorflowModel(){
+        modelBundle = loadModel(modelResourcePath);
+    }
+
+    private static SavedModelBundle loadModel(String modelResourcePath) {
         try {
             copyFromJar(modelResourcePath, Paths.get(modelResourcePath));
-        } catch (URISyntaxException | IOException e) {
-            LOG.error("[ACP] Could not read the model" + e.getMessage());
+        } catch (URISyntaxException | IOException | FileSystemAlreadyExistsException e) {
+            LOG.warn("[ACP] Issues when reading the model" + e.getMessage());
         }
 
         try {
-            modelBundle = SavedModelBundle.load(modelResourcePath, "serve");
+            return SavedModelBundle.load(modelResourcePath, "serve");
         } catch (Exception ex) {
             LOG.error("[ACP] Could not load the model" + ex.getMessage());
         }
+        return null;
     }
 
     @Override
@@ -49,7 +54,8 @@ public class TensorflowModel extends PredictionModel{
         Tensor<Float> x = Tensor.create(shape, floatBuffer);
 
         return runModel(session, x,
-                "serving_default_input_1:0", "StatefulPartitionedCall:0");
+                "serving_default_batch_normalization_input:0",
+                "StatefulPartitionedCall:0");
     }
 
     /**
@@ -78,8 +84,8 @@ public class TensorflowModel extends PredictionModel{
      * Copies resource directory 'source' from jar,
      * into 'target' in gradle cache
      */
-    public void copyFromJar(String source, final Path target) throws URISyntaxException, IOException {
-        URI resource = getClass().getClassLoader().getResource(source).toURI();
+    public static void copyFromJar(String source, final Path target) throws URISyntaxException, IOException {
+        URI resource = TensorflowModel.class.getClassLoader().getResource(source).toURI();
         FileSystem fileSystem = FileSystems.newFileSystem(
                 resource,
                 Collections.<String, String>emptyMap()
