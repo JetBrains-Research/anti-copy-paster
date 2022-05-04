@@ -18,9 +18,13 @@ import java.util.Collections;
  * Attributes:
  * modelResourcePath - String-name of directory in resource folder corresponding to the TF model.
  * modelBundle - TF model loaded from resources.
+ * inputLayerName - name of the model's input layer, see wiki for details.
+ * outputLayerName - name of the model's output layer, see wiki for details.
  */
 public class TensorflowModel extends PredictionModel {
     private final String modelResourcePath = "TrainedModel";
+    private final String inputLayerName = "serving_default_batch_normalization_input:0";
+    private final String outputLayerName = "StatefulPartitionedCall:0";
     private final SavedModelBundle modelBundle;
 
     static private final Logger LOG = Logger.getInstance(TensorflowModel.class);
@@ -32,14 +36,16 @@ public class TensorflowModel extends PredictionModel {
     private static SavedModelBundle loadModel(String modelResourcePath) {
         try {
             copyFromJar(modelResourcePath, Paths.get(modelResourcePath));
-        } catch (URISyntaxException | IOException | FileSystemAlreadyExistsException e) {
-            LOG.warn("[ACP] Issues when reading the model" + e.getMessage());
+        } catch (URISyntaxException | IOException e) {
+            LOG.error("[ACP] Issues when reading the model" + e.getMessage());
+        } catch (FileSystemAlreadyExistsException e) {
+            LOG.warn("[ACP] Trying make a redundant copy of model-resource");
         }
 
         try {
             return SavedModelBundle.load(modelResourcePath, "serve");
-        } catch (Exception ex) {
-            LOG.error("[ACP] Could not load the model" + ex.getMessage());
+        } catch (Exception e) {
+            LOG.error("[ACP] Could not load the model" + e.getMessage());
         }
         return null;
     }
@@ -57,9 +63,7 @@ public class TensorflowModel extends PredictionModel {
         // create an input Tensor
         Tensor<Float> x = Tensor.create(shape, floatBuffer);
 
-        return runModel(session, x,
-                "serving_default_batch_normalization_input:0",
-                "StatefulPartitionedCall:0");
+        return runModel(session, x);
     }
 
     /**
@@ -68,8 +72,7 @@ public class TensorflowModel extends PredictionModel {
      * `saved_model_cli show --dir <model> --tag_set serve --signature_def serving_default`
      * where <model> is name of directory to where the model was saved.
      */
-    private float runModel(Session session, Tensor<Float> inputTensor,
-                           String inputLayerName, String outputLayerName) {
+    private float runModel(Session session, Tensor<Float> inputTensor) {
 
         Tensor<?> result = session.runner()
                 .feed(inputLayerName, inputTensor)
@@ -77,11 +80,12 @@ public class TensorflowModel extends PredictionModel {
                 .run()
                 .get(0);
 
-        float[][] tmp = new float[1][1];
-        result.copyTo(tmp);
-        float positiveProba = tmp[0][0];
+        float[][] outputMatrix = new float[1][1];
+        result.copyTo(outputMatrix);
 
-        return positiveProba;
+        float positiveProbability = outputMatrix[0][0];
+
+        return positiveProbability;
     }
 
     /**
