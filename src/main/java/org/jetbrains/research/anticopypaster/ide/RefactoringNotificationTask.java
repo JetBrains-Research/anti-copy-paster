@@ -2,7 +2,6 @@ package org.jetbrains.research.anticopypaster.ide;
 
 import com.intellij.CommonBundle;
 import com.intellij.notification.*;
-import com.intellij.notification.impl.NotificationGroupManagerImpl;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -16,8 +15,9 @@ import com.intellij.refactoring.extractMethod.PrepareFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
-import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.anticopypaster.models.PredictionModel;
+import org.jetbrains.research.anticopypaster.models.TensorflowModel;
+import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
 import javax.swing.event.HyperlinkEvent;
@@ -33,9 +33,9 @@ import static org.jetbrains.research.anticopypaster.utils.PsiUtil.*;
  * Shows a notification about discovered Extract Method refactoring opportunity.
  */
 public class RefactoringNotificationTask extends TimerTask {
-    private static final Double predictionThreshold = 0.2; // certainty threshold for models
-    private ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
-    private static DuplicatesInspection inspection = new DuplicatesInspection();
+    private static final Double predictionThreshold = 0.5; // certainty threshold for models
+    private final ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
+    private static final DuplicatesInspection inspection = new DuplicatesInspection();
     private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Extract Method suggestion",
             NotificationDisplayType.BALLOON,
             true);
@@ -47,6 +47,7 @@ public class RefactoringNotificationTask extends TimerTask {
 
     @Override
     public void run() {
+        PredictionModel model = new TensorflowModel();
         while (!eventsQueue.isEmpty()) {
             try {
                 final RefactoringEvent event = eventsQueue.poll();
@@ -68,7 +69,7 @@ public class RefactoringNotificationTask extends TimerTask {
 
                     FeaturesVector featuresVector = calculateFeatures(event);
 
-                    double prediction = PredictionModel.getClassificationValue(featuresVector);
+                    float prediction = model.predict(featuresVector);
                     event.setReasonToExtract(AntiCopyPasterBundle.message(
                             "extract.method.to.simplify.logic.of.enclosing.method")); // dummy
 
@@ -82,7 +83,7 @@ public class RefactoringNotificationTask extends TimerTask {
                     }
                 });
             } catch (Exception e) {
-                LOG.error("[ACP] Can't process an event");
+                LOG.error("[ACP] Can't process an event" + e.getMessage());
             }
         }
     }
@@ -166,7 +167,7 @@ public class RefactoringNotificationTask extends TimerTask {
         int eventEndLine = getNumberOfLine(file,
                 methodAfterPasting.getTextRange().getEndOffset());
         MetricCalculator metricCalculator =
-                new MetricCalculator(event.getText(), methodAfterPasting,
+                new MetricCalculator(methodAfterPasting, event.getText(),
                         eventBeginLine, eventEndLine);
 
         return metricCalculator.getFeaturesVector();
