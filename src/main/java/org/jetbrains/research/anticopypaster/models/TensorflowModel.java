@@ -15,13 +15,18 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 
-
+/**
+ * Attributes:
+ * modelResourcePath - String-name of directory in resource folder corresponding to the TF model.
+ * modelBundle - TF model loaded from resources.
+ */
 public class TensorflowModel extends PredictionModel {
     private final String modelResourcePath = "TrainedModel";
     private final SavedModelBundle modelBundle;
-    static final Logger LOG = Logger.getInstance(AntiCopyPastePreProcessor.class);
 
-    public TensorflowModel(){
+    static private final Logger LOG = Logger.getInstance(TensorflowModel.class);
+
+    public TensorflowModel() {
         modelBundle = loadModel(modelResourcePath);
     }
 
@@ -75,9 +80,9 @@ public class TensorflowModel extends PredictionModel {
 
         float[][] m = new float[1][1];
         result.copyTo(m);
-        float positive_proba = m[0][0];
+        float positiveProba = m[0][0];
 
-        return positive_proba;
+        return positiveProba;
     }
 
     /**
