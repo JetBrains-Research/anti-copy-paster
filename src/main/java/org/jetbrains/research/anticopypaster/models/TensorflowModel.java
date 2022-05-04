@@ -78,9 +78,9 @@ public class TensorflowModel extends PredictionModel {
                 .run()
                 .get(0);
 
-        float[][] m = new float[1][1];
-        result.copyTo(m);
-        float positiveProba = m[0][0];
+        float[][] tmp = new float[1][1];
+        result.copyTo(tmp);
+        float positiveProba = tmp[0][0];
 
         return positiveProba;
     }
