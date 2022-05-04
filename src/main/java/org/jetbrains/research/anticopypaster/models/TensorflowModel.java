@@ -1,7 +1,6 @@
 package org.jetbrains.research.anticopypaster.models;
 
 import com.intellij.openapi.diagnostic.Logger;
-import org.jetbrains.research.anticopypaster.ide.AntiCopyPastePreProcessor;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session;
