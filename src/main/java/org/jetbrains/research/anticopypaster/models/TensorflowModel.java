@@ -1,5 +1,6 @@
 package org.jetbrains.research.anticopypaster.models;
 
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import org.tensorflow.SavedModelBundle;
@@ -7,7 +8,6 @@ import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.FloatBuffer;
 import java.nio.file.*;
@@ -30,22 +30,18 @@ public class TensorflowModel extends PredictionModel {
     static private final Logger LOG = Logger.getInstance(TensorflowModel.class);
 
     public TensorflowModel() {
+        TensorflowNativeLibraryLoader.load();
         modelBundle = loadModel(modelResourcePath);
     }
 
     private static SavedModelBundle loadModel(String modelResourcePath) {
-        try {
-            copyFromJar(modelResourcePath, Paths.get(modelResourcePath));
-        } catch (URISyntaxException | IOException e) {
-            LOG.error("[ACP] Issues when reading the model" + e.getMessage());
-        } catch (FileSystemAlreadyExistsException e) {
-            LOG.warn("[ACP] Trying make a redundant copy of model-resource");
-        }
-
-        try {
-            return SavedModelBundle.load(modelResourcePath, "serve");
-        } catch (Exception e) {
-            LOG.error("[ACP] Could not load the model" + e.getMessage());
+        Path target = Paths.get(PathManager.getPluginsPath(), "ACP", modelResourcePath).toAbsolutePath();
+        if (copyFromJar(modelResourcePath, target) ) {
+            try {
+                return SavedModelBundle.load(target.toString(), "serve");
+            } catch (Exception e) {
+                LOG.error("[ACP] Could not load the model" + e.getMessage());
+            }
         }
         return null;
     }
@@ -89,33 +85,37 @@ public class TensorflowModel extends PredictionModel {
     }
 
     /**
-     * Copies resource directory 'source' from jar,
-     * into 'target' in gradle cache
+     * Copies resource directory 'source' from jar into 'target'
      */
-    public static void copyFromJar(String source, final Path target) throws URISyntaxException, IOException {
-        URI resource = TensorflowModel.class.getClassLoader().getResource(source).toURI();
-        FileSystem fileSystem = FileSystems.newFileSystem(
-                resource,
+    public static boolean copyFromJar(String source, final Path target) {
+        try (FileSystem fileSystem = FileSystems.newFileSystem(
+                TensorflowModel.class.getClassLoader().getResource(source).toURI(),
                 Collections.<String, String>emptyMap()
-        );
+        )) {
+            final Path jarPath = fileSystem.getPath(source);
 
-        final Path jarPath = fileSystem.getPath(source);
+            Files.walkFileTree(jarPath, new SimpleFileVisitor<Path>() {
+                private Path currentTarget;
 
-        Files.walkFileTree(jarPath, new SimpleFileVisitor<Path>() {
-            private Path currentTarget;
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    currentTarget = target.resolve(jarPath.relativize(dir).toString());
+                    Files.createDirectories(currentTarget);
+                    return FileVisitResult.CONTINUE;
+                }
 
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                currentTarget = target.resolve(jarPath.relativize(dir).toString());
-                Files.createDirectories(currentTarget);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.copy(file, target.resolve(jarPath.relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.copy(file, target.resolve(jarPath.relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            return true;
+        } catch (URISyntaxException | IOException e) {
+            LOG.error("[ACP] Issues when reading the model" + e.getMessage());
+        } catch (FileSystemAlreadyExistsException e) {
+            LOG.warn("[ACP] Trying make a redundant copy of model-resource");
+        }
+        return false;
     }
 }
