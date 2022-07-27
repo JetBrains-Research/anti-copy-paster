@@ -23,6 +23,7 @@ import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import javax.swing.event.HyperlinkEvent;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -40,6 +41,11 @@ public class RefactoringNotificationTask extends TimerTask {
     private final NotificationGroup notificationGroup = NotificationGroupManager.getInstance()
             .getNotificationGroup("Extract Method suggestion");
     private final PredictionModel model = new TensorflowModel();
+    private final Timer timer;
+
+    public RefactoringNotificationTask(Timer timer) {
+        this.timer = timer;
+    }
 
     @Override
     public void run() {
@@ -140,8 +146,8 @@ public class RefactoringNotificationTask extends TimerTask {
         notification.notify(project);
     }
 
-    private static void scheduleExtraction(Project project, PsiFile file, Editor editor, String text) {
-        new java.util.Timer().schedule(
+    private void scheduleExtraction(Project project, PsiFile file, Editor editor, String text) {
+        timer.schedule(
                 new ExtractionTask(editor, file, text, project),
                 100
         );
