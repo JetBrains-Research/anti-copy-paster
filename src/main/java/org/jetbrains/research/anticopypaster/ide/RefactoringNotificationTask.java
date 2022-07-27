@@ -33,14 +33,12 @@ import static org.jetbrains.research.anticopypaster.utils.PsiUtil.*;
  * Shows a notification about discovered Extract Method refactoring opportunity.
  */
 public class RefactoringNotificationTask extends TimerTask {
-    private static final Double predictionThreshold = 0.5; // certainty threshold for models
-    private final ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
-    private static final DuplicatesInspection inspection = new DuplicatesInspection();
-    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Extract Method suggestion",
-            NotificationDisplayType.BALLOON,
-            true);
-
     private static final Logger LOG = Logger.getInstance(RefactoringNotificationTask.class);
+    private static final float predictionThreshold = 0.5f; // certainty threshold for models
+    private final DuplicatesInspection inspection = new DuplicatesInspection();
+    private final ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
+    private final NotificationGroup NOTIFICATION_GROUP = NotificationGroupManager.getInstance()
+            .getNotificationGroup("Extract Method suggestion");
 
     public RefactoringNotificationTask() {
     }
@@ -83,7 +81,7 @@ public class RefactoringNotificationTask extends TimerTask {
                     }
                 });
             } catch (Exception e) {
-                LOG.error("[ACP] Can't process an event" + e.getMessage());
+                LOG.error("[ACP] Can't process an event " + e.getMessage());
             }
         }
     }
