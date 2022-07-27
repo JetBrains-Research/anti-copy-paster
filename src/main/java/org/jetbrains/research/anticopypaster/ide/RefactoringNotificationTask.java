@@ -37,15 +37,12 @@ public class RefactoringNotificationTask extends TimerTask {
     private static final float predictionThreshold = 0.5f; // certainty threshold for models
     private final DuplicatesInspection inspection = new DuplicatesInspection();
     private final ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
-    private final NotificationGroup NOTIFICATION_GROUP = NotificationGroupManager.getInstance()
+    private final NotificationGroup notificationGroup = NotificationGroupManager.getInstance()
             .getNotificationGroup("Extract Method suggestion");
-
-    public RefactoringNotificationTask() {
-    }
+    private final PredictionModel model = new TensorflowModel();
 
     @Override
     public void run() {
-        PredictionModel model = new TensorflowModel();
         while (!eventsQueue.isEmpty()) {
             try {
                 final RefactoringEvent event = eventsQueue.poll();
@@ -133,7 +130,7 @@ public class RefactoringNotificationTask extends TimerTask {
     }
 
     public void notify(Project project, String content, Runnable callback) {
-        final Notification notification = NOTIFICATION_GROUP.createNotification(content, NotificationType.INFORMATION);
+        final Notification notification = notificationGroup.createNotification(content, NotificationType.INFORMATION);
         notification.setListener(new NotificationListener.Adapter() {
             @Override
             protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
