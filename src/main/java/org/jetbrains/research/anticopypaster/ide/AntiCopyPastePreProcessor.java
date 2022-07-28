@@ -27,7 +27,7 @@ import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getCountOfCode
 public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
     private final DuplicatesInspection inspection = new DuplicatesInspection();
     private final Timer timer = new Timer(true);
-    private final RefactoringNotificationTask refactoringNotificationTask = new RefactoringNotificationTask(timer);
+    private final RefactoringNotificationTask refactoringNotificationTask = new RefactoringNotificationTask(inspection, timer);
 
     private static final Logger LOG = Logger.getInstance(AntiCopyPastePreProcessor.class);
 

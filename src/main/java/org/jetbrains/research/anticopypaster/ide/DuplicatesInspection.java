@@ -19,9 +19,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 public final class DuplicatesInspection {
-    private static final ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
-
     private static final Logger LOG = Logger.getInstance(AntiCopyPastePreProcessor.class);
+
+    private final ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
 
     /**
      * Searches for duplicates in methods extracted from the file.

@@ -36,20 +36,30 @@ import static org.jetbrains.research.anticopypaster.utils.PsiUtil.*;
 public class RefactoringNotificationTask extends TimerTask {
     private static final Logger LOG = Logger.getInstance(RefactoringNotificationTask.class);
     private static final float predictionThreshold = 0.5f; // certainty threshold for models
-    private final DuplicatesInspection inspection = new DuplicatesInspection();
+    private final DuplicatesInspection inspection;
     private final ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
     private final NotificationGroup notificationGroup = NotificationGroupManager.getInstance()
             .getNotificationGroup("Extract Method suggestion");
-    private final PredictionModel model = new TensorflowModel();
     private final Timer timer;
+    private PredictionModel model;
 
-    public RefactoringNotificationTask(Timer timer) {
+    public RefactoringNotificationTask(DuplicatesInspection inspection, Timer timer) {
+        this.inspection = inspection;
         this.timer = timer;
+    }
+
+    private PredictionModel getOrInitModel() {
+        PredictionModel model = this.model;
+        if (model == null) {
+            model = this.model = new TensorflowModel();
+        }
+        return model;
     }
 
     @Override
     public void run() {
         while (!eventsQueue.isEmpty()) {
+            final PredictionModel model = getOrInitModel();
             try {
                 final RefactoringEvent event = eventsQueue.poll();
                 ApplicationManager.getApplication().runReadAction(() -> {
