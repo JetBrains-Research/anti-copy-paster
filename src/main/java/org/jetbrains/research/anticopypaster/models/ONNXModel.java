@@ -18,19 +18,19 @@ import java.util.Map;
  * inputLayerName - name of the model's input layer, see wiki for details.
  * outputLayerName - name of the model's output layer, see wiki for details.
  */
-public class ONNXHandler extends PredictionModel {
+public class ONNXModel extends PredictionModel {
     private OrtEnvironment env;
     private OrtSession session;
     private final String modelFile = "cnn_model.onnx";
     private final static String inputLabel = "features";
     private final static String outputLabel = "dense_1";
     private final float defaultOuput = 0f;
-    private static final Logger logger = Logger.getInstance(ONNXHandler.class);
+    private static final Logger logger = Logger.getInstance(ONNXModel.class);
 
-    public ONNXHandler() {
+    public ONNXModel() {
         env= OrtEnvironment.getEnvironment();
         try {
-            var model = ONNXHandler.class.getClassLoader().getResourceAsStream(modelFile).readAllBytes();
+            var model = ONNXModel.class.getClassLoader().getResourceAsStream(modelFile).readAllBytes();
             session = env.createSession(model);
         } catch (OrtException e) {
             logger.error("[ACP] Create OnnxSession from OnnxEnvironment" + e.getMessage());
