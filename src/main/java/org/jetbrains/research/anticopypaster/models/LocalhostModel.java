@@ -23,7 +23,7 @@ public class LocalhostModel extends PredictionModel {
     public LocalhostModel() {
         this.client = HttpClient.newHttpClient();
     }
-    
+
     @Override
     public float predict(FeaturesVector featuresVector) {
         // Serialize feature vector
@@ -41,7 +41,7 @@ public class LocalhostModel extends PredictionModel {
             var rsp = client.send(req, HttpResponse.BodyHandlers.ofString());
             return Float.parseFloat(rsp.body());
         } catch (IOException | InterruptedException e) {
-            logger.error("[ACP] Did not recieve response" + e.getMessage());
+            logger.error("[ACP] Did not receive response" + e.getMessage());
             return 0f;
         }
     }
