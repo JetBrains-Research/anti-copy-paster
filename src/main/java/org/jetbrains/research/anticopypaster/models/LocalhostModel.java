@@ -41,7 +41,7 @@ public class LocalhostModel extends PredictionModel {
             var rsp = client.send(req, HttpResponse.BodyHandlers.ofString());
             return Float.parseFloat(rsp.body());
         } catch (IOException | InterruptedException e) {
-            logger.error("[ACP] Did not reviece response" + e.getMessage());
+            logger.error("[ACP] Did not recieve response" + e.getMessage());
             return 0f;
         }
     }
