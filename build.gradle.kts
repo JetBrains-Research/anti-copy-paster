@@ -20,8 +20,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.8.6")
     compile("org.apache.commons:commons-lang3:3.0")
     implementation("com.microsoft.onnxruntime:onnxruntime:1.12.1")
-//    implementation("org.pmml4s:pmml4s_2.13:0.9.10")
-//    implementation("org.tensorflow:tensorflow:1.15.0")
+    implementation("org.pmml4s:pmml4s_2.13:0.9.10")
+    implementation("org.tensorflow:tensorflow:1.15.0")
 
 
     // extract-method-metrics module inclusion

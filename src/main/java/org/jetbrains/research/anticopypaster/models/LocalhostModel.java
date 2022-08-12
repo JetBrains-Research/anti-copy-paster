@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.net.http.*;
 import java.net.URI;
 
+import com.intellij.openapi.diagnostic.Logger;
+import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
+
 /**
  * Attributes:
  * port - Localhost port running development inference server
@@ -15,13 +18,14 @@ public class LocalhostModel extends PredictionModel {
     
     private final Integer port = 4500;
     private HttpClient client;
+    private static final Logger logger = Logger.getInstance(LocalhostModel.class);
 
     public LocalhostModel() {
         this.client = HttpClient.newHttpClient();
     }
     
     @Override
-    public float predict(FeaturesVector featuresVector) throws IOException, InterruptedException {
+    public float predict(FeaturesVector featuresVector) {
         // Serialize feature vector
         String body = Arrays.toString(featuresVector.buildArray());
         // Build uri object
@@ -33,8 +37,13 @@ public class LocalhostModel extends PredictionModel {
                 .header("accept", "application/json")
                 .build();
         // Send request via client
-        var rsp = client.send(req, HttpResponse.BodyHandlers.ofString());
-        return Float.parseFloat(rsp.body());
+        try {
+            var rsp = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return Float.parseFloat(rsp.body());
+        } catch (IOException | InterruptedException e) {
+            logger.error("[ACP] Did not reviece response" + e.getMessage());
+            return 0f;
+        }
     }
 
 }
