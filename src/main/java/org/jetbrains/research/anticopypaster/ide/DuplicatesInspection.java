@@ -11,17 +11,17 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 public final class DuplicatesInspection {
-    private static ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
-
     private static final Logger LOG = Logger.getInstance(AntiCopyPastePreProcessor.class);
+
+    private final ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
 
     /**
      * Searches for duplicates in methods extracted from the file.
@@ -34,52 +34,21 @@ public final class DuplicatesInspection {
      * @return the result of duplicates' detection.
      */
     public InspectionResult resolve(PsiFile file, final String code) {
-        final ArrayList<Future<DuplicateResult>> tasks = new ArrayList<>();
         final List<String> tokensOfPastedCode = getTokens(code);
         @NotNull Collection<PsiMethod> methods = PsiTreeUtil.findChildrenOfType(file, PsiMethod.class);
-        for (PsiMethod psiMethod : methods) {
-            tasks.add(
-                    pool.submit(() -> ApplicationManager.getApplication().runReadAction(new Computable<DuplicateResult>() {
-                        @Override
-                        public DuplicateResult compute() {
-                            DuplicateResult duplicateResult = null;
-                            PsiCodeBlock methodBody = psiMethod.getBody();
-                            if (methodBody != null) {
-                                String rawCode =
-                                        code.replace('\n', ' ').replace('\t', ' ')
-                                                .replace('\r', ' ').replaceAll("\\s+", "");
-                                String rawMethodBody = psiMethod.getText().replace('\n', ' ').replace('\t', ' ')
-                                        .replace('\r', ' ').replaceAll("\\s+", "");
-                                boolean matches = StringUtils.contains(rawMethodBody, rawCode);
-                                if (matches) {
-                                    duplicateResult = new DuplicateResult(psiMethod, 1.0);
-                                } else {
-                                    List<String> tokensOfMethod = getTokens(methodBody.getText());
-                                    double maxNumOfTokens = Math.max(tokensOfPastedCode.size(), tokensOfMethod.size());
-                                    // Calculates the intersection of tokens
-                                    tokensOfMethod.retainAll(tokensOfPastedCode);
-                                    double threshold = tokensOfMethod.size() / maxNumOfTokens;
-                                    if (threshold >= 0.8) {
-                                        duplicateResult = new DuplicateResult(psiMethod, threshold);
-                                    }
-                                }
-                            }
-                            return duplicateResult;
-                        }
-                    })));
-        }
-
-        ArrayList<DuplicateResult> results = new ArrayList<>();
-        for (Future<DuplicateResult> future : tasks) {
-            try {
-                DuplicateResult result = future.get();
-                if (result != null)
-                    results.add(result);
-            } catch (Exception e) {
-                LOG.warn("[ACP] Failed while searching for code duplicates.", e);
-            }
-        }
-
+        final List<DuplicateResult> results = methods.stream()
+                .map(method -> new DuplicateResultComputable(code, method, tokensOfPastedCode))
+                .map(computable -> pool.submit(() -> ApplicationManager.getApplication().runReadAction(computable)))
+                .map(future -> {
+                    try {
+                        return future.get();
+                    } catch (Exception e) {
+                        LOG.warn("[ACP] Failed while searching for code duplicates.", e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         return new InspectionResult(results);
     }
 
@@ -94,9 +63,9 @@ public final class DuplicatesInspection {
     }
 
     public static class InspectionResult {
-        private final ArrayList<DuplicateResult> results;
+        private final List<DuplicateResult> results;
 
-        public InspectionResult(ArrayList<DuplicateResult> results) {
+        public InspectionResult(List<DuplicateResult> results) {
             this.results = results;
         }
 
@@ -105,7 +74,46 @@ public final class DuplicatesInspection {
         }
     }
 
-    private List<String> getTokens(String text) {
+    private static class DuplicateResultComputable implements Computable<DuplicateResult> {
+        private final String code;
+        private final PsiMethod psiMethod;
+        private final List<String> tokensOfPastedCode;
+
+        private DuplicateResultComputable(String code, PsiMethod psiMethod, List<String> tokensOfPastedCode) {
+            this.code = code;
+            this.psiMethod = psiMethod;
+            this.tokensOfPastedCode = tokensOfPastedCode;
+        }
+
+        @Override
+        public DuplicateResult compute() {
+            DuplicateResult duplicateResult = null;
+            PsiCodeBlock methodBody = psiMethod.getBody();
+            if (methodBody != null) {
+                String rawCode =
+                        code.replace('\n', ' ').replace('\t', ' ')
+                                .replace('\r', ' ').replaceAll("\\s+", "");
+                String rawMethodBody = psiMethod.getText().replace('\n', ' ').replace('\t', ' ')
+                        .replace('\r', ' ').replaceAll("\\s+", "");
+                boolean matches = StringUtils.contains(rawMethodBody, rawCode);
+                if (matches) {
+                    duplicateResult = new DuplicateResult(psiMethod, 1.0);
+                } else {
+                    List<String> tokensOfMethod = getTokens(methodBody.getText());
+                    double maxNumOfTokens = Math.max(tokensOfPastedCode.size(), tokensOfMethod.size());
+                    // Calculates the intersection of tokens
+                    tokensOfMethod.retainAll(tokensOfPastedCode);
+                    double threshold = tokensOfMethod.size() / maxNumOfTokens;
+                    if (threshold >= 0.8) {
+                        duplicateResult = new DuplicateResult(psiMethod, threshold);
+                    }
+                }
+            }
+            return duplicateResult;
+        }
+    }
+
+    private static List<String> getTokens(String text) {
         return StringUtil.getWordsIn(text);
     }
 }

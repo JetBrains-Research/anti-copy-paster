@@ -21,6 +21,10 @@ The plugin monitors the copying and pasting that takes place inside the IDE. As 
 
 The scripts and tools that were used for data gathering and model training could be found [here](https://github.com/JetBrains-Research/extract-method-experiments).
 
+### Experiments
+
+The tool validation and embedded models are available here: https://github.com/JetBrains-Research/extract-method-experiments
+
 ## Contacts
 
 If you have any questions or propositions, do not hesitate to contact Yaroslav Golubev at yaroslav.golubev@jetbrains.com.

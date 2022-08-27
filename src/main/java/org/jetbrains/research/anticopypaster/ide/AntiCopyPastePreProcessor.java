@@ -26,7 +26,8 @@ import static org.jetbrains.research.anticopypaster.utils.PsiUtil.getCountOfCode
  */
 public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
     private final DuplicatesInspection inspection = new DuplicatesInspection();
-    private final RefactoringNotificationTask refactoringNotificationTask = new RefactoringNotificationTask();
+    private final Timer timer = new Timer(true);
+    private final RefactoringNotificationTask refactoringNotificationTask = new RefactoringNotificationTask(inspection, timer);
 
     private static final Logger LOG = Logger.getInstance(AntiCopyPastePreProcessor.class);
 
@@ -86,7 +87,6 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
      */
     private void setCheckingForRefactoringOpportunities() {
         try {
-            Timer timer = new Timer();
             timer.schedule(refactoringNotificationTask, 15000, 15000);
         } catch (Exception ex) {
             LOG.error("[ACP] Failed to schedule the checking for refactorings.", ex.getMessage());

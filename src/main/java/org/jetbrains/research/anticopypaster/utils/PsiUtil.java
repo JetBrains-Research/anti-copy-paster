@@ -6,14 +6,13 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vcs.changes.ContentRevision;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.refactoring.introduceVariable.IntroduceVariableBase;
-import com.intellij.refactoring.util.RefactoringUtil;
+import com.intellij.refactoring.IntroduceVariableUtil;
+import com.intellij.util.CommonJavaRefactoringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -118,9 +117,9 @@ public class PsiUtil {
             elements = CodeInsightUtil.findStatementsInRange(file, startOffset, endOffset);
             if (elements.length == 0) {
                 final PsiExpression expression =
-                        IntroduceVariableBase.getSelectedExpression(project, file, startOffset, endOffset);
-                if (expression != null && IntroduceVariableBase.getErrorMessage(expression) == null) {
-                    final PsiType originalType = RefactoringUtil.getTypeByExpressionWithExpectedType(expression);
+                        IntroduceVariableUtil.getSelectedExpression(project, file, startOffset, endOffset);
+                if (expression != null && IntroduceVariableUtil.getErrorMessage(expression) == null) {
+                    final PsiType originalType = CommonJavaRefactoringUtil.getTypeByExpressionWithExpectedType(expression);
                     if (originalType != null) {
                         elements = new PsiElement[]{expression};
                     }

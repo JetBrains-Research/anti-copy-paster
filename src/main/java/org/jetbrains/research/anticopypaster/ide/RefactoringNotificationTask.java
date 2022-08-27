@@ -23,6 +23,7 @@ import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import javax.swing.event.HyperlinkEvent;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -33,22 +34,32 @@ import static org.jetbrains.research.anticopypaster.utils.PsiUtil.*;
  * Shows a notification about discovered Extract Method refactoring opportunity.
  */
 public class RefactoringNotificationTask extends TimerTask {
-    private static final Double predictionThreshold = 0.5; // certainty threshold for models
-    private final ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
-    private static final DuplicatesInspection inspection = new DuplicatesInspection();
-    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Extract Method suggestion",
-            NotificationDisplayType.BALLOON,
-            true);
-
     private static final Logger LOG = Logger.getInstance(RefactoringNotificationTask.class);
+    private static final float predictionThreshold = 0.5f; // certainty threshold for models
+    private final DuplicatesInspection inspection;
+    private final ConcurrentLinkedQueue<RefactoringEvent> eventsQueue = new ConcurrentLinkedQueue<>();
+    private final NotificationGroup notificationGroup = NotificationGroupManager.getInstance()
+            .getNotificationGroup("Extract Method suggestion");
+    private final Timer timer;
+    private PredictionModel model;
 
-    public RefactoringNotificationTask() {
+    public RefactoringNotificationTask(DuplicatesInspection inspection, Timer timer) {
+        this.inspection = inspection;
+        this.timer = timer;
+    }
+
+    private PredictionModel getOrInitModel() {
+        PredictionModel model = this.model;
+        if (model == null) {
+            model = this.model = new TensorflowModel();
+        }
+        return model;
     }
 
     @Override
     public void run() {
-        PredictionModel model = new TensorflowModel();
         while (!eventsQueue.isEmpty()) {
+            final PredictionModel model = getOrInitModel();
             try {
                 final RefactoringEvent event = eventsQueue.poll();
                 ApplicationManager.getApplication().runReadAction(() -> {
@@ -83,7 +94,7 @@ public class RefactoringNotificationTask extends TimerTask {
                     }
                 });
             } catch (Exception e) {
-                LOG.error("[ACP] Can't process an event" + e.getMessage());
+                LOG.error("[ACP] Can't process an event " + e.getMessage());
             }
         }
     }
@@ -135,7 +146,7 @@ public class RefactoringNotificationTask extends TimerTask {
     }
 
     public void notify(Project project, String content, Runnable callback) {
-        final Notification notification = NOTIFICATION_GROUP.createNotification(content, NotificationType.INFORMATION);
+        final Notification notification = notificationGroup.createNotification(content, NotificationType.INFORMATION);
         notification.setListener(new NotificationListener.Adapter() {
             @Override
             protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
@@ -145,8 +156,8 @@ public class RefactoringNotificationTask extends TimerTask {
         notification.notify(project);
     }
 
-    private static void scheduleExtraction(Project project, PsiFile file, Editor editor, String text) {
-        new java.util.Timer().schedule(
+    private void scheduleExtraction(Project project, PsiFile file, Editor editor, String text) {
+        timer.schedule(
                 new ExtractionTask(editor, file, text, project),
                 100
         );
