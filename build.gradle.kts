@@ -1,10 +1,10 @@
 plugins {
     java
-    id("org.jetbrains.intellij") version "1.6.0"
+    id("org.jetbrains.intellij") version "1.8.0"
 }
 
 group = "org.jetbrains.research.anticopypaster"
-version = "2022.1-1.0"
+version = "2022.2-1.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -21,7 +21,6 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.0")
     implementation("org.pmml4s:pmml4s_2.13:0.9.10")
     implementation("org.tensorflow:tensorflow:1.15.0")
-
 
     // extract-method-metrics module inclusion
     implementation("$extractMethodProjectName:extract-method-metrics") {

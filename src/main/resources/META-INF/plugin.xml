@@ -2,7 +2,7 @@
     <id>org.jetbrains.research.anticopypaster</id>
     <name>AntiCopyPaster</name>
     <vendor>JetBrains</vendor>
-    <version>2022.1-1.0</version>
+    <version>2022.2-1.0</version>
 
     <description><![CDATA[
     Tracks the copying and pasting actions and suggests extracting duplicates into a new method. Based on imbalanced-pruned experiment.
