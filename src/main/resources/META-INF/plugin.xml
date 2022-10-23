@@ -13,7 +13,10 @@
     <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="org.jetbrains.research.anticopypaster.statistics.UsageStatisticsCollector"/>
+
         <copyPastePreProcessor implementation="org.jetbrains.research.anticopypaster.ide.AntiCopyPastePreProcessor"/>
+
         <notificationGroup id="Extract Method suggestion"
                            displayType="BALLOON"/>
     </extensions>
