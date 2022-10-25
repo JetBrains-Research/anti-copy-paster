@@ -13,6 +13,7 @@ import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
+import org.jetbrains.research.anticopypaster.statistics.UsageStatisticsCollector;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +42,7 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
     @Nullable
     @Override
     public String preprocessOnCopy(PsiFile file, int[] startOffsets, int[] endOffsets, String text) {
+        UsageStatisticsCollector.getInstance().onCopy();
         return null;
     }
 
@@ -51,6 +53,8 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
     @NotNull
     @Override
     public String preprocessOnPaste(Project project, PsiFile file, Editor editor, String text, RawText rawText) {
+        UsageStatisticsCollector.getInstance().onPaste();
+
         HashSet<String> variablesInCodeFragment = new HashSet<>();
         HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
 

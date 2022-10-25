@@ -37,12 +37,22 @@ class UsageStatisticsCollector implements PersistentStateComponent<PluginState> 
     public void extractMethodRejected() {
         usageState.extractMethodApplied();
     }
+
+    public void onCopy() {
+        usageState.onCopy();
+    }
+
+    public void onPaste() {
+        usageState.onPaste();
+    }
 }
 
 class PluginState {
     private int notificationCount = 0;
     private int extractMethodAppliedCount = 0;
     private int extractMethodRejectedCount = 0;
+    private int copyCount = 0;
+    private int pasteCount = 0;
 
     public void notification() {
         notificationCount += 1;
@@ -54,6 +64,14 @@ class PluginState {
 
     public void extractMethodRejected() {
         extractMethodRejectedCount += 1;
+    }
+
+    public void onCopy() {
+        copyCount += 1;
+    }
+
+    public void onPaste() {
+        pasteCount += 1;
     }
 }
 
