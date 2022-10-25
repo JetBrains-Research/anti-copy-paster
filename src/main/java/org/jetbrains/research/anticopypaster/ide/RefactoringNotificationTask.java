@@ -143,9 +143,9 @@ public class RefactoringNotificationTask extends TimerTask {
                         event.getEditor(),
                         event.getText());
 
-                AntiCopyPasterUsageStatistics.getInstance().extractMethodApplied();
+                AntiCopyPasterUsageStatistics.getInstance(event.getProject()).extractMethodApplied();
             } else {
-                AntiCopyPasterUsageStatistics.getInstance().extractMethodRejected();
+                AntiCopyPasterUsageStatistics.getInstance(event.getProject()).extractMethodRejected();
             }
         };
     }
@@ -159,7 +159,7 @@ public class RefactoringNotificationTask extends TimerTask {
             }
         });
         notification.notify(project);
-        AntiCopyPasterUsageStatistics.getInstance().notificationShown();
+        AntiCopyPasterUsageStatistics.getInstance(project).notificationShown();
     }
 
     private void scheduleExtraction(Project project, PsiFile file, Editor editor, String text) {

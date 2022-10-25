@@ -42,7 +42,7 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
     @Nullable
     @Override
     public String preprocessOnCopy(PsiFile file, int[] startOffsets, int[] endOffsets, String text) {
-        AntiCopyPasterUsageStatistics.getInstance().onCopy();
+        AntiCopyPasterUsageStatistics.getInstance(file.getProject()).onCopy();
         return null;
     }
 
@@ -53,8 +53,6 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
     @NotNull
     @Override
     public String preprocessOnPaste(Project project, PsiFile file, Editor editor, String text, RawText rawText) {
-        AntiCopyPasterUsageStatistics.getInstance().onPaste();
-
         HashSet<String> variablesInCodeFragment = new HashSet<>();
         HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
 
@@ -65,6 +63,8 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
                         variablesCountsInCodeFragment)) {
             return text;
         }
+
+        AntiCopyPasterUsageStatistics.getInstance(project).onPaste();
 
         @Nullable Caret caret = CommonDataKeys.CARET.getData(DataManager.getInstance().getDataContext());
         int offset = caret == null ? 0 : caret.getOffset();
