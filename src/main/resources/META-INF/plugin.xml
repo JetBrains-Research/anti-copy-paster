@@ -13,7 +13,8 @@
     <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="org.jetbrains.research.anticopypaster.statistics.UsageStatisticsCollector"/>
+        <applicationService
+                serviceImplementation="org.jetbrains.research.anticopypaster.statistics.AntiCopyPasterUsageStatistics"/>
 
         <copyPastePreProcessor implementation="org.jetbrains.research.anticopypaster.ide.AntiCopyPastePreProcessor"/>
 
