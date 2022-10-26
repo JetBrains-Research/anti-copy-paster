@@ -8,7 +8,7 @@ AntiCopyPaster is a plugin for IntelliJ IDEA that tracks the copying and pasting
 
 AntiCopyPaster requires IntelliJ IDEA of version 2022.2 to work. To install the plugin:
 
-1. Download the pre-built version of the plugin from [here](https://drive.google.com/file/d/1hueIpbxUxr_IPCNtww7Htc2ckqzTcsPE/view?usp=sharing);
+1. Download the pre-built version of the plugin from [here](https://drive.google.com/file/d/1zc1Sx7slvEVfaXcvPx19OP-tUHs6qOWZ/view?usp=sharing);
 2. Open IntelliJ IDEA and go to `File`/`Settings`/`Plugins`;
 3. Select the gear icon, and choose `Install Plugin from Disk...`;
 4. Choose the downloaded ZIP archive;
@@ -23,7 +23,7 @@ The scripts and tools that were used for data gathering and model training could
 
 ### Experiments
 
-The tool validation and embedded models are available here: https://github.com/JetBrains-Research/extract-method-experiments
+The tool validation and embedded models are available here: https://github.com/JetBrains-Research/extract-method-experiments.
 
 ## Contacts
 
