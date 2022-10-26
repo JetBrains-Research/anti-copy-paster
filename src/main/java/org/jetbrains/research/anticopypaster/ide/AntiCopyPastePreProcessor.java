@@ -56,15 +56,14 @@ public class AntiCopyPastePreProcessor implements CopyPastePreProcessor {
         HashSet<String> variablesInCodeFragment = new HashSet<>();
         HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
 
-        if (project == null || editor == null || file == null ||
-                !FragmentCorrectnessChecker.isCorrect(project, file,
-                        text,
-                        variablesInCodeFragment,
-                        variablesCountsInCodeFragment)) {
+        AntiCopyPasterUsageStatistics.getInstance(project).onPaste();
+
+        if (editor == null || file == null || !FragmentCorrectnessChecker.isCorrect(project, file,
+                text,
+                variablesInCodeFragment,
+                variablesCountsInCodeFragment)) {
             return text;
         }
-
-        AntiCopyPasterUsageStatistics.getInstance(project).onPaste();
 
         @Nullable Caret caret = CommonDataKeys.CARET.getData(DataManager.getInstance().getDataContext());
         int offset = caret == null ? 0 : caret.getOffset();
