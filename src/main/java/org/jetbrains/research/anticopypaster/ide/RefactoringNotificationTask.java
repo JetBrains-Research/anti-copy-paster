@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
 import org.jetbrains.research.anticopypaster.models.PredictionModel;
-import org.jetbrains.research.anticopypaster.models.TensorflowModel;
+import org.jetbrains.research.anticopypaster.models.UserDefinedModel;
 import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
@@ -51,7 +51,7 @@ public class RefactoringNotificationTask extends TimerTask {
     private PredictionModel getOrInitModel() {
         PredictionModel model = this.model;
         if (model == null) {
-            model = this.model = new TensorflowModel();
+            model = this.model = new UserDefinedModel();
         }
         return model;
     }
