@@ -25,7 +25,7 @@ dependencies {
     // extract-method-metrics module inclusion
     implementation("$extractMethodProjectName:extract-method-metrics") {
         version {
-            branch = "upgrade-libraries"
+            branch = "master"
         }
     }
 }
