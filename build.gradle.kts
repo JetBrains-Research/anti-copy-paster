@@ -1,13 +1,13 @@
 plugins {
     java
-    id("org.jetbrains.intellij") version "1.8.0"
+    id("org.jetbrains.intellij") version "1.10.0"
 }
 
 group = "org.jetbrains.research.anticopypaster"
-version = "2022.2-1.0"
+version = "2022.3-1.0"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
@@ -25,7 +25,7 @@ dependencies {
     // extract-method-metrics module inclusion
     implementation("$extractMethodProjectName:extract-method-metrics") {
         version {
-            branch = "tf-metrics" // until merged into master
+            branch = "master"
         }
     }
 }
