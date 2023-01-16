@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.jetbrains.intellij") version "1.8.0"
+    id("org.jetbrains.intellij") version "1.10.0"
 }
 
 group = "org.jetbrains.research.anticopypaster"
@@ -28,6 +28,7 @@ dependencies {
             branch = "tf-metrics" // until merged into master
         }
     }
+//    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 }
 
 fun properties(key: String) = project.findProperty(key).toString()
