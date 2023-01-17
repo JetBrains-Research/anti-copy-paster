@@ -17,6 +17,7 @@ import org.jetbrains.research.anticopypaster.AntiCopyPasterBundle;
 import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker;
 import org.jetbrains.research.anticopypaster.models.PredictionModel;
 import org.jetbrains.research.anticopypaster.models.UserDefinedModel;
+import org.jetbrains.research.anticopypaster.statistics.AntiCopyPasterUsageStatistics;
 import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
@@ -141,6 +142,10 @@ public class RefactoringNotificationTask extends TimerTask {
                         event.getFile(),
                         event.getEditor(),
                         event.getText());
+
+                AntiCopyPasterUsageStatistics.getInstance(event.getProject()).extractMethodApplied();
+            } else {
+                AntiCopyPasterUsageStatistics.getInstance(event.getProject()).extractMethodRejected();
             }
         };
     }
@@ -154,6 +159,7 @@ public class RefactoringNotificationTask extends TimerTask {
             }
         });
         notification.notify(project);
+        AntiCopyPasterUsageStatistics.getInstance(project).notificationShown();
     }
 
     private void scheduleExtraction(Project project, PsiFile file, Editor editor, String text) {
