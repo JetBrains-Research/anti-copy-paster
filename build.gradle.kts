@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.jetbrains.intellij") version "1.10.0"
+    id("org.jetbrains.intellij") version "1.12.0"
 }
 
 group = "org.jetbrains.research.anticopypaster"
@@ -11,6 +11,7 @@ java {
 }
 
 repositories {
+    maven("https://packages.jetbrains.team/maven/p/big-code/bigcode")
     mavenCentral()
 }
 
