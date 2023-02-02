@@ -2,11 +2,11 @@ import java.net.URI
 
 rootProject.name = "AntiCopyPaster"
 
-val utilitiesRepo = "https://github.com/JetBrains-Research/extract-method-experiments.git"
-val utilitiesProjectName = "org.jetbrains.research.extractMethod"
+val extractMethodExperimentsRepository = "https://github.com/JetBrains-Research/extract-method-experiments.git"
+val extractMethodExperimentsProjectName = "org.jetbrains.research.extractMethod"
 
 sourceControl {
-    gitRepository(URI.create(utilitiesRepo)) {
-        producesModule("$utilitiesProjectName:extract-method-metrics")
+    gitRepository(URI.create(extractMethodExperimentsRepository)) {
+        producesModule("$extractMethodExperimentsProjectName:extract-method-metrics")
     }
 }
