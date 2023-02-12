@@ -28,3 +28,16 @@ The tool validation and embedded models are available here: https://github.com/J
 ## Contacts
 
 If you have any questions or propositions, do not hesitate to contact Yaroslav Golubev at yaroslav.golubev@jetbrains.com.
+
+### How to cite?
+Please, use the following bibtex entry:
+
+```tex
+@inproceedings{alomar2022anticopypaster,
+  title={AntiCopyPaster: Extracting Code Duplicates As Soon As They Are Introduced in the IDE},
+  author={Alomar, Eman Abdullah and Ivanov, Anton and Kurbatova, Zarina and Golubev, Yaroslav and Mkaouer, Mohamed Wiem and Ouni, Ali and Bryksin, Timofey and Nguyen, Le and Kini, Amit and Thakur, Aditya},
+  booktitle={37th IEEE/ACM International Conference on Automated Software Engineering (ASE)},
+  pages={1--4},
+  year={2022}
+}
+```
