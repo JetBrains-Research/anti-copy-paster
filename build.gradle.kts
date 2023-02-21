@@ -25,7 +25,7 @@ dependencies {
     implementation("org.pmml4s:pmml4s_2.13:0.9.10")
     implementation("org.tensorflow:tensorflow:1.15.0")
 
-    // Test stuffs part 1
+    // Test dependencies
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
@@ -55,6 +55,7 @@ tasks {
     runIde {
         maxHeapSize = "1g"
     }
+    //test task
     test {
         useJUnitPlatform()
     }
