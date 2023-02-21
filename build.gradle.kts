@@ -51,11 +51,10 @@ intellij {
 
 tasks {
     withType<org.jetbrains.intellij.tasks.BuildSearchableOptionsTask>()
-            .forEach { it.enabled = false }
+        .forEach { it.enabled = false }
     runIde {
         maxHeapSize = "1g"
     }
-    // Test stuffs part 2
     test {
         useJUnitPlatform()
     }

@@ -1,0 +1,24 @@
+<idea-plugin url="https://github.com/JetBrains-Research/anti-copy-paster">
+    <id>org.jetbrains.research.anticopypaster</id>
+    <name>AntiCopyPaster</name>
+    <vendor>JetBrains</vendor>
+    <version>2022.3-1.0</version>
+
+    <description><![CDATA[
+    Tracks the copying and pasting actions and suggests extracting duplicates into a new method. Based on imbalanced-pruned experiment.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.lang</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <projectService
+                serviceImplementation="org.jetbrains.research.anticopypaster.statistics.AntiCopyPasterUsageStatistics"/>
+
+        <copyPastePreProcessor implementation="org.jetbrains.research.anticopypaster.ide.AntiCopyPastePreProcessor"/>
+
+        <notificationGroup id="Extract Method suggestion"
+                           displayType="BALLOON"/>
+    </extensions>
+</idea-plugin>
