@@ -1,6 +1,7 @@
 package org.jetbrains.research.anticopypaster.utils;
 
 import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -12,103 +13,84 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
+/**
+ * This class is used to gather metrics from every method within the currently
+ * open IntelliJ Project. If multiple IntellIJ Projects are currently in use,
+ * only the first project will be scoured.
+ */
 public class MetricsGatherer {
-
+    /**
+     * A list of all the FeaturesVectors for all methods within
+     * the IntelliJ Project.
+     */
     private List<FeaturesVector> methodsMetrics;
 
+    /**
+     * Builds an instance of the MetricsGatherer and
+     * does the initial (and only) metrics gathering.
+     */
     public MetricsGatherer(){
         this.methodsMetrics = new ArrayList<>();
         gatherMetrics();
     }
 
+    /**
+     * Getter for the methodsMetrics.
+     * @return the list of featuresVectors made by the gatherer.
+     */
+    public List<FeaturesVector> getMethodsMetrics(){
+        return this.methodsMetrics;
+    }
+    /**
+     * Gathers all the metrics from every method within the IntelliJ Project.
+     */
     private void gatherMetrics(){
-        System.err.println("Hello world");
+        // Gets the first currently opened project
         Project project = ProjectManager.getInstance().getOpenProjects()[0];
 
+        // Gets all Java files from the Project
         Collection<VirtualFile> vfCollection = FileTypeIndex.getFiles(
                 JavaFileType.INSTANCE,
                 GlobalSearchScope.projectScope(project));
+
+        // Gets a PsiFile for every Java file in the project
         List<PsiFile> pfList = new ArrayList<>();
         for(VirtualFile file: vfCollection){
             pfList.add(PsiManager.getInstance(project).findFile(file));
         }
 
-//        try(FileWriter fr = new FileWriter("D:\\Desktop\\MethodStuff\\fileList.txt")){
-//            for(PsiFile file:pfList){
-//                fr.write(file.getName());
-//                fr.write("\n");
-//            }
-//        }catch(IOException io){
-//
-//        }
-        List<PsiMethod> methods = new ArrayList<>();
-        List<Integer> methodStart = new ArrayList<>();
-        List<Integer> methodEnd = new ArrayList<>();
+        // Gets all the PsiMethods, as well as their start and end lines.
+        for(PsiFile psiFile: pfList){
+            // wrappers are used to get information out of runReadActions.
+            // PsiTree's can't be accessed outside a read action, or it
+            // can cause race conditions.
+            var psiMethodWrapper = new Object(){ Collection<PsiMethod> psiMethods = null; };
+            ApplicationManager.getApplication().runReadAction(() -> {
+                psiMethodWrapper.psiMethods = PsiTreeUtil.findChildrenOfType(psiFile, PsiMethod.class);
+            });
 
-//        try(FileWriter fr = new FileWriter("D:\\Desktop\\MethodStuff\\classList.txt")){
-            for(PsiFile psiFile: pfList){
-                PsiJavaFile psiJavaFile = (PsiJavaFile)psiFile;
-                PsiClass[] classes = psiJavaFile.getClasses();
-                Collection<PsiMethod> psiMethods = PsiTreeUtil.findChildrenOfType(psiFile, PsiMethod.class);
-        //                for(PsiClass psiClass: classes){
-        //                    fr.write(Objects.requireNonNull(psiClass.getName()));
-        //                    fr.write("\n");
-        //                    PsiMethod[] methodArr = psiClass.getMethods();
-                    for(PsiMethod method: psiMethods) {
-                        int start = PsiUtil.getNumberOfLine(psiFile, method.getTextRange().getStartOffset());
-                        int end = PsiUtil.getNumberOfLine(psiFile, method.getTextRange().getEndOffset());
-//                        fr.write(method.getName());
-//                        fr.write("\n");
-//                        fr.write(Integer.toString(end));
-//                        fr.write("\n");
-                        methodStart.add(start);
-                        methodEnd.add(end);
-                        methods.add(method);
-                    }
+            Collection<PsiMethod> psiMethods = psiMethodWrapper.psiMethods;
+            for(PsiMethod method: psiMethods) {
+                int startLine = PsiUtil.getNumberOfLine(psiFile, method.getTextRange().getStartOffset());
+                int endLine = PsiUtil.getNumberOfLine(psiFile, method.getTextRange().getEndOffset());
 
-               // }
+                var fvWrapper = new Object(){ FeaturesVector features = null; };
+                ApplicationManager.getApplication().runReadAction(() -> {
+                    fvWrapper.features = new
+                            MetricCalculator(method, method.getText(), startLine, endLine).getFeaturesVector();
+                });
+                FeaturesVector features = fvWrapper.features;
+                this.methodsMetrics.add(features);
             }
-//        }catch(IOException io) {
-//
-//        }
-        for(int i = 0; i < methods.size(); i++){
-            int startOffset = methodStart.get(i);
-            int endOffset = methodEnd.get(i);
-            PsiMethod method = methods.get(i);
-//            try(FileWriter fr = new FileWriter("D:\\Desktop\\MethodStuff\\testing2.txt")){
-//                fr.write("Line before MetricCalculator");
-//            }catch(IOException ioe){
-//
-//            }
 
-            FeaturesVector features = new
-                    MetricCalculator(method, method.getText(), startOffset, endOffset).getFeaturesVector();
-
-//            try(FileWriter fr = new FileWriter("D:\\Desktop\\MethodStuff\\testing3.txt")){
-//                fr.write("Did calculator build?");
-//            }catch(IOException ioe){
-//
-//            }
-            methodsMetrics.add(features);
-            String fileLocation = "D:\\Desktop\\MethodStuff\\";
-            String filename = fileLocation + method.getName() + ".txt";
-
-//            try (FileWriter fileWriter = new FileWriter(filename)) {
-//                fileWriter.write(method.getName() + "\n");
-//                fileWriter.write(method.getText() + "\n\n");
-                float[] theNumbers = features.buildArray();
-
-                for (int j = 0; j < theNumbers.length; j++) {
-//                    fileWriter.write(j + " : " + theNumbers[j]);
-                    System.out.println(theNumbers[i]);
-                }
-//            } catch (IOException io) {
-//                System.out.println("Print failed but you won't see this");
-//            }
         }
     }
 }
