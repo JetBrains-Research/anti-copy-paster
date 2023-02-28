@@ -44,19 +44,18 @@ public class RefactoringNotificationTask extends TimerTask {
             .getNotificationGroup("Extract Method suggestion");
     private final Timer timer;
     private PredictionModel model;
-    private boolean didIt;
+    private MetricsGatherer metricsGatherer;
+
 
     public RefactoringNotificationTask(DuplicatesInspection inspection, Timer timer) {
         this.inspection = inspection;
         this.timer = timer;
-        this.didIt = false;
     }
 
     private PredictionModel getOrInitModel() {
         PredictionModel model = this.model;
-        if(!didIt){
-            MetricsGatherer gatherer = new MetricsGatherer();
-            didIt = !didIt;
+        if(metricsGatherer == null){
+            this.metricsGatherer = new MetricsGatherer();
         }
         if (model == null) {
             model = this.model = new TensorflowModel();
