@@ -1,6 +1,7 @@
 plugins {
     java
-    id("org.jetbrains.intellij") version "1.10.0"
+    id("org.jetbrains.intellij") version "1.13.0"
+    id("com.adarshr.test-logger") version "3.2.0"
 }
 
 group = "org.jetbrains.research.anticopypaster"
@@ -11,6 +12,8 @@ java {
 }
 
 repositories {
+    maven("https://plugins.gradle.org/m2/")
+    maven("https://packages.jetbrains.team/maven/p/big-code/bigcode")
     mavenCentral()
 }
 
@@ -21,6 +24,12 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.0")
     implementation("org.pmml4s:pmml4s_2.13:0.9.10")
     implementation("org.tensorflow:tensorflow:1.15.0")
+
+    // Test dependencies
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.9.2")
 
     // extract-method-metrics module inclusion
     implementation("$extractMethodProjectName:extract-method-metrics") {
@@ -47,4 +56,9 @@ tasks {
     runIde {
         maxHeapSize = "1g"
     }
+    //test task
+    test {
+        useJUnitPlatform()
+    }
 }
+

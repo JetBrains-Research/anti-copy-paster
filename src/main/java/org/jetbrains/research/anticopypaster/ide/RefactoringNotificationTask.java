@@ -18,6 +18,7 @@ import org.jetbrains.research.anticopypaster.checkers.FragmentCorrectnessChecker
 import org.jetbrains.research.anticopypaster.models.PredictionModel;
 import org.jetbrains.research.anticopypaster.models.UserSettingsModel;
 import org.jetbrains.research.anticopypaster.statistics.AntiCopyPasterUsageStatistics;
+import org.jetbrains.research.anticopypaster.utils.MetricsGatherer;
 import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
@@ -43,6 +44,8 @@ public class RefactoringNotificationTask extends TimerTask {
             .getNotificationGroup("Extract Method suggestion");
     private final Timer timer;
     private PredictionModel model;
+    private MetricsGatherer metricsGatherer;
+
 
     public RefactoringNotificationTask(DuplicatesInspection inspection, Timer timer) {
         this.inspection = inspection;
@@ -51,6 +54,9 @@ public class RefactoringNotificationTask extends TimerTask {
 
     private PredictionModel getOrInitModel() {
         PredictionModel model = this.model;
+        if(metricsGatherer == null){
+            this.metricsGatherer = new MetricsGatherer();
+        }
         if (model == null) {
             model = this.model = new UserSettingsModel();
         }
