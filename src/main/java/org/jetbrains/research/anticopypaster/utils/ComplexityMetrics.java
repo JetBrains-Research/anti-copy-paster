@@ -8,7 +8,7 @@ import java.util.List;
 public class ComplexityMetrics implements Flag{
 
     private int sensitivity;
-    
+
     private List<FeaturesVector> featuresVectorList;
     
     private float complexityMetricQ1;
@@ -80,12 +80,13 @@ public class ComplexityMetrics implements Flag{
     }
 
     @Override
-    public void changeSensitivity(int sensitivity){
+    public int changeSensitivity(int sensitivity){
         if(sensitivity > 3 || sensitivity < 0){
             this.sensitivity = 0;
         } else {
             this.sensitivity = sensitivity;
         }
+        return this.sensitivity;
     }
 
 

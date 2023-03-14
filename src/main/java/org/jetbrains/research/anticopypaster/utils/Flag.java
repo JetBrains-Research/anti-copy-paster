@@ -4,7 +4,7 @@ import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
 public interface Flag{
 
-    public void changeSensitivity(int sensitivity);
+    public int changeSensitivity(int sensitivity);
     public boolean isFlagTriggered(FeaturesVector featuresVector);
 
 }
