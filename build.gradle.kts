@@ -37,7 +37,6 @@ dependencies {
             branch = "master"
         }
     }
-//    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 }
 
 fun properties(key: String) = project.findProperty(key).toString()
