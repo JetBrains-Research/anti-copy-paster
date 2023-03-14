@@ -13,11 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -63,8 +59,12 @@ public class MetricsGatherer {
 
         // Gets a PsiFile for every Java file in the project
         List<PsiFile> pfList = new ArrayList<>();
-        for(VirtualFile file: vfCollection){
-            pfList.add(PsiManager.getInstance(project).findFile(file));
+        for (VirtualFile file : vfCollection) {
+            // Makes everything lowercase for consistency, and gets rid of file extension
+            String filename = file.getName().toLowerCase().split("[.]")[0];
+            if (!filename.startsWith("test") && !filename.endsWith("test")) {
+                pfList.add(PsiManager.getInstance(project).findFile(file));
+            }
         }
 
         // Gets all the PsiMethods, as well as their start and end lines.
