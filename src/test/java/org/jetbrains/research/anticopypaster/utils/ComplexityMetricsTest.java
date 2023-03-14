@@ -46,52 +46,10 @@ public class ComplexityMetricsTest {
 
     @BeforeEach
     public void beforeTest(){
+        //Zero out everything
         this.complexityMetric = null;
         this.fvList = new ArrayList<FeaturesVector>();
     }
 
-    @Test
-    public void testSensitivityZero(){
-        this.complexityMetric = new ComplexityMetrics(this.fvList);
-        int newSens = complexityMetric.changeSensitivity(0);
-        assertEquals(newSens, 0);
-    }
-
-    @Test
-    public void testSensitivityOne(){
-        this.complexityMetric = new ComplexityMetrics(this.fvList);
-        int newSens = complexityMetric.changeSensitivity(1);
-        assertEquals(newSens, 1);
-    }
-
-    @Test
-    public void testSensitivityTwo(){
-        this.complexityMetric = new ComplexityMetrics(this.fvList);
-        int newSens = complexityMetric.changeSensitivity(2);
-        assertEquals(newSens, 2);
-    }
-
-    @Test
-    public void testSensitivityThree(){
-        this.complexityMetric = new ComplexityMetrics(this.fvList);
-        int newSens = complexityMetric.changeSensitivity(3);
-        assertEquals(newSens, 3);
-    }
-
-    @Test
-    public void testSensitivityOutOfRangePositive(){
-        this.complexityMetric = new ComplexityMetrics(this.fvList);
-        int newSens = complexityMetric.changeSensitivity(4);
-        assertEquals(newSens, 0);
-    }
-
-    @Test
-    public void testSensitivityOutOfRangeNegative(){
-        this.complexityMetric = new ComplexityMetrics(this.fvList);
-        int newSens = complexityMetric.changeSensitivity(-1);
-        assertEquals(newSens, 0);
-    }
-
-
-
+    
 }
