@@ -9,10 +9,15 @@ public class ComplexityMetrics extends Flag{
 
     public ComplexityMetrics(List<FeaturesVector> featuresVectorList){
         super(featuresVectorList);
+        calculateAverageComplexityMetrics();
     }
 
     private float getComplexityMetricFromFV(FeaturesVector fv){
-        return fv.buildArray()[3];
+        if(fv != null){
+            return fv.buildArray()[3];
+        } else {
+            return 0;
+        }
     }
 
     private void calculateAverageComplexityMetrics(){
@@ -39,8 +44,6 @@ public class ComplexityMetrics extends Flag{
                 return fvComplexityValue >= metricQ2; 
             case 3:
                 return fvComplexityValue >= metricQ3; 
-            default:
-                return false;
         }
     }
 }
