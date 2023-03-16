@@ -38,27 +38,23 @@ public abstract class Flag{
         }
 
         float q1;
+        float q2;
+        float q3;
+
+        // Box plot logic, for even length lists get the average between middle values
+        // For odd length lists just get the middle index
         if (data.size() % 2 == 0) {
             q1 = (data.get(data.size()/4 - 1) + data.get(data.size()/4)) / 2;
-        } else {
-            q1 = data.get(data.size()/4);
-        }
-        metricQ1 = q1;
-        
-        float q2;
-        if (data.size() % 2 == 0) {
             q2 = (data.get(data.size()/2 - 1) + data.get(data.size()/2)) / 2;
-        } else {
-            q2 = data.get(data.size()/2);
-        }
-        metricQ2 = q2;
-        
-        float q3;
-        if (data.size() % 2 == 0) {
             q3 = (data.get(data.size()*3/4 - 1) + data.get(data.size()*3/4)) / 2;
         } else {
+            q1 = data.get(data.size()/4);
+            q2 = data.get(data.size()/2);
             q3 = data.get(data.size()*3/4);
         }
+        
+        metricQ1 = q1;
+        metricQ2 = q2;
         metricQ3 = q3;
     }
 
@@ -74,6 +70,10 @@ public abstract class Flag{
         return this.metricQ3;
     }
 
+    /**
+    Change the sensitivity of the flag. 
+    Any sensitivities apart from 0, 1, 2, or 3 will be set to 0 (off)
+     */
     public int changeSensitivity(int sensitivity){
         if(sensitivity > 3 || sensitivity < 0){
             this.sensitivity = 0;
