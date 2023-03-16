@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.jetbrains.intellij") version "1.13.0"
+    id("org.jetbrains.intellij") version "1.13.2"
     id("com.adarshr.test-logger") version "3.2.0"
 }
 
