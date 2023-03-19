@@ -435,4 +435,268 @@ public class UserSettingsModelTest {
         assertEquals(model.predict(passedInFv.getMock()), 0, 0);
     }
 
+    @Test
+    public void testPredictOnlyComplexityOnSensOneTrue(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+         // This category only uses metric 4, which would be index 3 here
+        float[] fvArrayValue1 = new float[78];
+        fvArrayValue1[3] = 1;
+
+        float[] fvArrayValue2 = new float[78];
+        fvArrayValue2[3] = 2;
+
+        float[] fvArrayValue3 = new float[78];
+        fvArrayValue3[3] = 3;
+
+        float[] fvArrayValue4 = new float[78];
+        fvArrayValue4[3] = 4;
+
+        float[] fvArrayValue5 = new float[78];
+        fvArrayValue5[3] = 5;
+        
+        //Adding these values gives:
+        // Q1 = 2
+        // Q2 = 3
+        // Q3 = 4
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(1);
+        this.model.setKeywordsSensitivity(0);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will trip the flag
+        float[] passedInArray = new float[78];
+        passedInArray[3] = (float)3;
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 1, 0);
+    }
+
+    @Test
+    public void testPredictOnlyComplexityOnSensOneFalse(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+         // This category only uses metric 4, which would be index 3 here
+        float[] fvArrayValue1 = new float[78];
+        fvArrayValue1[3] = 1;
+
+        float[] fvArrayValue2 = new float[78];
+        fvArrayValue2[3] = 2;
+
+        float[] fvArrayValue3 = new float[78];
+        fvArrayValue3[3] = 3;
+
+        float[] fvArrayValue4 = new float[78];
+        fvArrayValue4[3] = 4;
+
+        float[] fvArrayValue5 = new float[78];
+        fvArrayValue5[3] = 5;
+        
+        //Adding these values gives:
+        // Q1 = 2
+        // Q2 = 3
+        // Q3 = 4
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(1);
+        this.model.setKeywordsSensitivity(0);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will NOT trip the flag
+        float[] passedInArray = new float[78];
+        passedInArray[3] = (float)1;
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 0, 0);
+    }
+
+    @Test
+    public void testPredictOnlyComplexityOnSensTwoTrue(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+         // This category only uses metric 4, which would be index 3 here
+        float[] fvArrayValue1 = new float[78];
+        fvArrayValue1[3] = 1;
+
+        float[] fvArrayValue2 = new float[78];
+        fvArrayValue2[3] = 2;
+
+        float[] fvArrayValue3 = new float[78];
+        fvArrayValue3[3] = 3;
+
+        float[] fvArrayValue4 = new float[78];
+        fvArrayValue4[3] = 4;
+
+        float[] fvArrayValue5 = new float[78];
+        fvArrayValue5[3] = 5;
+        
+        //Adding these values gives:
+        // Q1 = 2
+        // Q2 = 3
+        // Q3 = 4
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(2);
+        this.model.setKeywordsSensitivity(0);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will trip the flag
+        float[] passedInArray = new float[78];
+        passedInArray[3] = (float)4;
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 1, 0);
+    }
+
+    @Test
+    public void testPredictOnlyComplexityOnSensTwoFalse(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+         // This category only uses metric 4, which would be index 3 here
+        float[] fvArrayValue1 = new float[78];
+        fvArrayValue1[3] = 1;
+
+        float[] fvArrayValue2 = new float[78];
+        fvArrayValue2[3] = 2;
+
+        float[] fvArrayValue3 = new float[78];
+        fvArrayValue3[3] = 3;
+
+        float[] fvArrayValue4 = new float[78];
+        fvArrayValue4[3] = 4;
+
+        float[] fvArrayValue5 = new float[78];
+        fvArrayValue5[3] = 5;
+        
+        //Adding these values gives:
+        // Q1 = 2
+        // Q2 = 3
+        // Q3 = 4
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(2);
+        this.model.setKeywordsSensitivity(0);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will NOT trip the flag
+        float[] passedInArray = new float[78];
+        passedInArray[3] = (float)2;
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 0, 0);
+    }
+
+    @Test
+    public void testPredictOnlyComplexityOnSensThreeTrue(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+         // This category only uses metric 4, which would be index 3 here
+        float[] fvArrayValue1 = new float[78];
+        fvArrayValue1[3] = 1;
+
+        float[] fvArrayValue2 = new float[78];
+        fvArrayValue2[3] = 2;
+
+        float[] fvArrayValue3 = new float[78];
+        fvArrayValue3[3] = 3;
+
+        float[] fvArrayValue4 = new float[78];
+        fvArrayValue4[3] = 4;
+
+        float[] fvArrayValue5 = new float[78];
+        fvArrayValue5[3] = 5;
+        
+        //Adding these values gives:
+        // Q1 = 2
+        // Q2 = 3
+        // Q3 = 4
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(3);
+        this.model.setKeywordsSensitivity(0);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will trip the flag
+        float[] passedInArray = new float[78];
+        passedInArray[3] = (float)5;
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 1, 0);
+    }
+
+    @Test
+    public void testPredictOnlyComplexityOnSensThreeFalse(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+         // This category only uses metric 4, which would be index 3 here
+        float[] fvArrayValue1 = new float[78];
+        fvArrayValue1[3] = 1;
+
+        float[] fvArrayValue2 = new float[78];
+        fvArrayValue2[3] = 2;
+
+        float[] fvArrayValue3 = new float[78];
+        fvArrayValue3[3] = 3;
+
+        float[] fvArrayValue4 = new float[78];
+        fvArrayValue4[3] = 4;
+
+        float[] fvArrayValue5 = new float[78];
+        fvArrayValue5[3] = 5;
+        
+        //Adding these values gives:
+        // Q1 = 2
+        // Q2 = 3
+        // Q3 = 4
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(3);
+        this.model.setKeywordsSensitivity(0);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will NOT trip the flag
+        float[] passedInArray = new float[78];
+        passedInArray[3] = (float)3;
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 0, 0);
+    }
+
 }
