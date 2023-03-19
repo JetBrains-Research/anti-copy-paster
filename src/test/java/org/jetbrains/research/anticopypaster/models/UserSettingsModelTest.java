@@ -769,7 +769,7 @@ public class UserSettingsModelTest {
         this.model.setKeywordsSensitivity(1);
         this.model.setSizeSensitivity(0);
 
-        // Make a FeaturesVector that will trip the flag
+        // Make a FeaturesVector that will NOT trip the flag
         float[] passedInArray = generateAndFillArray(1);
         FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
 
@@ -839,7 +839,7 @@ public class UserSettingsModelTest {
         this.model.setKeywordsSensitivity(2);
         this.model.setSizeSensitivity(0);
 
-        // Make a FeaturesVector that will trip the flag
+        // Make a FeaturesVector that will NOT trip the flag
         float[] passedInArray = generateAndFillArray(2);
         FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
 
@@ -909,7 +909,7 @@ public class UserSettingsModelTest {
         this.model.setKeywordsSensitivity(3);
         this.model.setSizeSensitivity(0);
 
-        // Make a FeaturesVector that will trip the flag
+        // Make a FeaturesVector that will NOT trip the flag
         float[] passedInArray = generateAndFillArray(3);
         FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
 
@@ -1030,7 +1030,7 @@ public class UserSettingsModelTest {
         this.model.setKeywordsSensitivity(0);
         this.model.setSizeSensitivity(1);
 
-        // Make a FeaturesVector that will trip the flag
+        // Make a FeaturesVector that will NOT trip the flag
         float[] passedInArray = new float[78];
         passedInArray[0] = 1;
         passedInArray[11] = 2;
@@ -1092,7 +1092,7 @@ public class UserSettingsModelTest {
         this.model.setKeywordsSensitivity(0);
         this.model.setSizeSensitivity(1);
 
-        // Make a FeaturesVector that will trip the flag
+        // Make a FeaturesVector that will NOT trip the flag
         float[] passedInArray = new float[78];
         passedInArray[0] = 1;
         passedInArray[11] = 10;
@@ -1215,7 +1215,7 @@ public class UserSettingsModelTest {
         this.model.setKeywordsSensitivity(1);
         this.model.setSizeSensitivity(1);
 
-        // Make a FeaturesVector that will trip the flag
+        // Make a FeaturesVector that will NOT trip the flag
         float[] passedInArray = generateAndFillArray(1);
         passedInArray[0] = 1;
         passedInArray[11] = 2;
@@ -1276,7 +1276,7 @@ public class UserSettingsModelTest {
         this.model.setKeywordsSensitivity(1);
         this.model.setSizeSensitivity(1);
 
-        // Make a FeaturesVector that will trip the flag
+        // Make a FeaturesVector that will NOT trip the flag
         float[] passedInArray = generateAndFillArray(1);
         passedInArray[0] = 1;
         passedInArray[11] = 10;
@@ -1377,7 +1377,7 @@ public class UserSettingsModelTest {
         this.model.setKeywordsSensitivity(1);
         this.model.setSizeSensitivity(0);
 
-        // Make a FeaturesVector that will trip the flag
+        // Make a FeaturesVector that will NOT trip the flag
         float[] passedInArray = generateAndFillArray(1);
         passedInArray[3] = 3;
         FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
@@ -1427,7 +1427,7 @@ public class UserSettingsModelTest {
         this.model.setKeywordsSensitivity(1);
         this.model.setSizeSensitivity(0);
 
-        // Make a FeaturesVector that will trip the flag
+        // Make a FeaturesVector that will NOT trip the flag
         float[] passedInArray = generateAndFillArray(1);
         passedInArray[3] = 1;
         FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
@@ -1435,4 +1435,275 @@ public class UserSettingsModelTest {
         assertEquals(model.predict(passedInFv.getMock()), 0, 0);
     }
 
+    @Test
+    public void testPredictAllFlagsTrue(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+        // Keywords uses every odd metric from 17-77, so we set those with the helper method
+        // The size category uses metrics 1 and 12, so we set those after the array is filled
+        // The complexity category uses metric 4, so we set that afterwards as well
+        float[] fvArrayValue1 = generateAndFillArray(1);
+        fvArrayValue1[0] = 0;
+        fvArrayValue1[11] = 1;
+        fvArrayValue1[3] = 1;
+        
+
+        float[] fvArrayValue2 = generateAndFillArray(2);
+        fvArrayValue2[0] = 1;
+        fvArrayValue2[11] = 4;
+        fvArrayValue2[3] = 2;
+
+        float[] fvArrayValue3 = generateAndFillArray(3);
+        fvArrayValue3[0] = 1;
+        fvArrayValue3[11] = 2;
+        fvArrayValue3[3] = 3;
+
+        float[] fvArrayValue4 = generateAndFillArray(4);
+        fvArrayValue4[0] = 3;
+        fvArrayValue4[11] = 4;
+        fvArrayValue4[3] = 4;
+
+        float[] fvArrayValue5 = generateAndFillArray(5);
+        fvArrayValue5[0] = 1;
+        fvArrayValue5[11] = 1;
+        fvArrayValue5[3] = 5;
+        
+        //Adding these values gives size metrics of:
+        // Q1 = 0.25
+        // Q2 = 0.5
+        // Q3 = 0.75
+        //And keywords metrics of:
+        // Q1 = 60
+        // Q2 = 90
+        // Q3 = 120
+        //And complexity metrics of:
+        // Q1 = 2
+        // Q2 = 3
+        // Q3 = 4
+
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(1);
+        this.model.setKeywordsSensitivity(1);
+        this.model.setSizeSensitivity(1);
+
+        // Make a FeaturesVector that will trip the flag
+        float[] passedInArray = generateAndFillArray(3);
+        passedInArray[0] = 1;
+        passedInArray[11] = 2;
+        passedInArray[3] = 3;
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 1, 0);
+    }
+
+    @Test
+    public void testPredictAllFlagsFalseOneValue(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+        // Keywords uses every odd metric from 17-77, so we set those with the helper method
+        // The size category uses metrics 1 and 12, so we set those after the array is filled
+        // The complexity category uses metric 4, so we set that afterwards as well
+        float[] fvArrayValue1 = generateAndFillArray(1);
+        fvArrayValue1[0] = 0;
+        fvArrayValue1[11] = 1;
+        fvArrayValue1[3] = 1;
+        
+
+        float[] fvArrayValue2 = generateAndFillArray(2);
+        fvArrayValue2[0] = 1;
+        fvArrayValue2[11] = 4;
+        fvArrayValue2[3] = 2;
+
+        float[] fvArrayValue3 = generateAndFillArray(3);
+        fvArrayValue3[0] = 1;
+        fvArrayValue3[11] = 2;
+        fvArrayValue3[3] = 3;
+
+        float[] fvArrayValue4 = generateAndFillArray(4);
+        fvArrayValue4[0] = 3;
+        fvArrayValue4[11] = 4;
+        fvArrayValue4[3] = 4;
+
+        float[] fvArrayValue5 = generateAndFillArray(5);
+        fvArrayValue5[0] = 1;
+        fvArrayValue5[11] = 1;
+        fvArrayValue5[3] = 5;
+        
+        //Adding these values gives size metrics of:
+        // Q1 = 0.25
+        // Q2 = 0.5
+        // Q3 = 0.75
+        //And keywords metrics of:
+        // Q1 = 60
+        // Q2 = 90
+        // Q3 = 120
+        //And complexity metrics of:
+        // Q1 = 2
+        // Q2 = 3
+        // Q3 = 4
+
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(1);
+        this.model.setKeywordsSensitivity(1);
+        this.model.setSizeSensitivity(1);
+
+        // Make a FeaturesVector that will NOT trip the flag
+        float[] passedInArray = generateAndFillArray(3);
+        passedInArray[0] = 1;
+        passedInArray[11] = 2;
+        passedInArray[3] = 1;
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 0, 0);
+    }
+
+    @Test
+    public void testPredictAllFlagsFalseTwoValues(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+        // Keywords uses every odd metric from 17-77, so we set those with the helper method
+        // The size category uses metrics 1 and 12, so we set those after the array is filled
+        // The complexity category uses metric 4, so we set that afterwards as well
+        float[] fvArrayValue1 = generateAndFillArray(1);
+        fvArrayValue1[0] = 0;
+        fvArrayValue1[11] = 1;
+        fvArrayValue1[3] = 1;
+        
+
+        float[] fvArrayValue2 = generateAndFillArray(2);
+        fvArrayValue2[0] = 1;
+        fvArrayValue2[11] = 4;
+        fvArrayValue2[3] = 2;
+
+        float[] fvArrayValue3 = generateAndFillArray(3);
+        fvArrayValue3[0] = 1;
+        fvArrayValue3[11] = 2;
+        fvArrayValue3[3] = 3;
+
+        float[] fvArrayValue4 = generateAndFillArray(4);
+        fvArrayValue4[0] = 3;
+        fvArrayValue4[11] = 4;
+        fvArrayValue4[3] = 4;
+
+        float[] fvArrayValue5 = generateAndFillArray(5);
+        fvArrayValue5[0] = 1;
+        fvArrayValue5[11] = 1;
+        fvArrayValue5[3] = 5;
+        
+        //Adding these values gives size metrics of:
+        // Q1 = 0.25
+        // Q2 = 0.5
+        // Q3 = 0.75
+        //And keywords metrics of:
+        // Q1 = 60
+        // Q2 = 90
+        // Q3 = 120
+        //And complexity metrics of:
+        // Q1 = 2
+        // Q2 = 3
+        // Q3 = 4
+
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(1);
+        this.model.setKeywordsSensitivity(1);
+        this.model.setSizeSensitivity(1);
+
+        // Make a FeaturesVector that will NOT trip the flag
+        float[] passedInArray = generateAndFillArray(3);
+        passedInArray[0] = 1;
+        passedInArray[11] = 10;
+        passedInArray[3] = 1;
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 0, 0);
+    }
+
+    @Test
+    public void testPredictAllFlagsFalseThreeValues(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+        // Keywords uses every odd metric from 17-77, so we set those with the helper method
+        // The size category uses metrics 1 and 12, so we set those after the array is filled
+        // The complexity category uses metric 4, so we set that afterwards as well
+        float[] fvArrayValue1 = generateAndFillArray(1);
+        fvArrayValue1[0] = 0;
+        fvArrayValue1[11] = 1;
+        fvArrayValue1[3] = 1;
+        
+
+        float[] fvArrayValue2 = generateAndFillArray(2);
+        fvArrayValue2[0] = 1;
+        fvArrayValue2[11] = 4;
+        fvArrayValue2[3] = 2;
+
+        float[] fvArrayValue3 = generateAndFillArray(3);
+        fvArrayValue3[0] = 1;
+        fvArrayValue3[11] = 2;
+        fvArrayValue3[3] = 3;
+
+        float[] fvArrayValue4 = generateAndFillArray(4);
+        fvArrayValue4[0] = 3;
+        fvArrayValue4[11] = 4;
+        fvArrayValue4[3] = 4;
+
+        float[] fvArrayValue5 = generateAndFillArray(5);
+        fvArrayValue5[0] = 1;
+        fvArrayValue5[11] = 1;
+        fvArrayValue5[3] = 5;
+        
+        //Adding these values gives size metrics of:
+        // Q1 = 0.25
+        // Q2 = 0.5
+        // Q3 = 0.75
+        //And keywords metrics of:
+        // Q1 = 60
+        // Q2 = 90
+        // Q3 = 120
+        //And complexity metrics of:
+        // Q1 = 2
+        // Q2 = 3
+        // Q3 = 4
+
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(1);
+        this.model.setKeywordsSensitivity(1);
+        this.model.setSizeSensitivity(1);
+
+        // Make a FeaturesVector that will NOT trip the flag
+        float[] passedInArray = generateAndFillArray(1);
+        passedInArray[0] = 1;
+        passedInArray[11] = 10;
+        passedInArray[3] = 1;
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 0, 0);
+    }
 }
