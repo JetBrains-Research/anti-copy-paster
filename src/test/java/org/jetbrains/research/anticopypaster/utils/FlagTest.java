@@ -162,4 +162,22 @@ public class FlagTest {
         assertEquals(4, testFlag.getMetricQ3(), 0);
     }
 
+    @Test 
+    public void testBoxPlotDifferentNumberFiveDecimalValuesList(){
+        ArrayList fiveValueDifferentNumberDecimalFloatList = new ArrayList<Float>();
+        
+        fiveValueDifferentNumberDecimalFloatList.add((float)0);
+        fiveValueDifferentNumberDecimalFloatList.add((float)0.25);
+        fiveValueDifferentNumberDecimalFloatList.add((float)0.5);
+        fiveValueDifferentNumberDecimalFloatList.add((float)0.75);
+        fiveValueDifferentNumberDecimalFloatList.add((float)1);
+
+        Collections.sort(fiveValueDifferentNumberDecimalFloatList);
+
+        testFlag.boxPlotCalculations(fiveValueDifferentNumberDecimalFloatList);
+        assertEquals(0.25, testFlag.getMetricQ1(), 0);
+        assertEquals(0.5, testFlag.getMetricQ2(), 0);
+        assertEquals(0.75, testFlag.getMetricQ3(), 0);
+    }
+
 }
