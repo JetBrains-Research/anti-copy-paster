@@ -699,4 +699,214 @@ public class UserSettingsModelTest {
         assertEquals(model.predict(passedInFv.getMock()), 0, 0);
     }
 
+    @Test
+    public void testPredictOnlyKeywordsOnSensOneTrue(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+        // This category uses the odd metrics between 17-77, filled by helper method
+        float[] fvArrayValue1 = generateAndFillArray(1);
+        float[] fvArrayValue2 = generateAndFillArray(2);
+        float[] fvArrayValue3 = generateAndFillArray(3);
+        float[] fvArrayValue4 = generateAndFillArray(4);
+        float[] fvArrayValue5 = generateAndFillArray(5);
+        
+        //Adding these values gives:
+        // Q1 = 60
+        // Q2 = 90
+        // Q3 = 120
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(0);
+        this.model.setKeywordsSensitivity(1);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will trip the flag
+        float[] passedInArray = generateAndFillArray(3);
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 1, 0);
+    }
+
+    @Test
+    public void testPredictOnlyKeywordsOnSensOneFalse(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+        // This category uses the odd metrics between 17-77, filled by helper method
+        float[] fvArrayValue1 = generateAndFillArray(1);
+        float[] fvArrayValue2 = generateAndFillArray(2);
+        float[] fvArrayValue3 = generateAndFillArray(3);
+        float[] fvArrayValue4 = generateAndFillArray(4);
+        float[] fvArrayValue5 = generateAndFillArray(5);
+        
+        //Adding these values gives:
+        // Q1 = 60
+        // Q2 = 90
+        // Q3 = 120
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(0);
+        this.model.setKeywordsSensitivity(1);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will trip the flag
+        float[] passedInArray = generateAndFillArray(1);
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 0, 0);
+    }
+
+    @Test
+    public void testPredictOnlyKeywordsOnSensTwoTrue(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+        // This category uses the odd metrics between 17-77, filled by helper method
+        float[] fvArrayValue1 = generateAndFillArray(1);
+        float[] fvArrayValue2 = generateAndFillArray(2);
+        float[] fvArrayValue3 = generateAndFillArray(3);
+        float[] fvArrayValue4 = generateAndFillArray(4);
+        float[] fvArrayValue5 = generateAndFillArray(5);
+        
+        //Adding these values gives:
+        // Q1 = 60
+        // Q2 = 90
+        // Q3 = 120
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(0);
+        this.model.setKeywordsSensitivity(2);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will trip the flag
+        float[] passedInArray = generateAndFillArray(4);
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 1, 0);
+    }
+
+    @Test
+    public void testPredictOnlyKeywordsOnSensTwoFalse(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+        // This category uses the odd metrics between 17-77, filled by helper method
+        float[] fvArrayValue1 = generateAndFillArray(1);
+        float[] fvArrayValue2 = generateAndFillArray(2);
+        float[] fvArrayValue3 = generateAndFillArray(3);
+        float[] fvArrayValue4 = generateAndFillArray(4);
+        float[] fvArrayValue5 = generateAndFillArray(5);
+        
+        //Adding these values gives:
+        // Q1 = 60
+        // Q2 = 90
+        // Q3 = 120
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(0);
+        this.model.setKeywordsSensitivity(2);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will trip the flag
+        float[] passedInArray = generateAndFillArray(2);
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 0, 0);
+    }
+
+    @Test
+    public void testPredictOnlyKeywordsOnSensThreeTrue(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+        // This category uses the odd metrics between 17-77, filled by helper method
+        float[] fvArrayValue1 = generateAndFillArray(1);
+        float[] fvArrayValue2 = generateAndFillArray(2);
+        float[] fvArrayValue3 = generateAndFillArray(3);
+        float[] fvArrayValue4 = generateAndFillArray(4);
+        float[] fvArrayValue5 = generateAndFillArray(5);
+        
+        //Adding these values gives:
+        // Q1 = 60
+        // Q2 = 90
+        // Q3 = 120
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(0);
+        this.model.setKeywordsSensitivity(3);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will trip the flag
+        float[] passedInArray = generateAndFillArray(5);
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 1, 0);
+    }
+
+    @Test
+    public void testPredictOnlyKeywordsOnSensThreeFalse(){
+        List<FeaturesVector> fvList = new ArrayList<FeaturesVector>();
+
+        // This category uses the odd metrics between 17-77, filled by helper method
+        float[] fvArrayValue1 = generateAndFillArray(1);
+        float[] fvArrayValue2 = generateAndFillArray(2);
+        float[] fvArrayValue3 = generateAndFillArray(3);
+        float[] fvArrayValue4 = generateAndFillArray(4);
+        float[] fvArrayValue5 = generateAndFillArray(5);
+        
+        //Adding these values gives:
+        // Q1 = 60
+        // Q2 = 90
+        // Q3 = 120
+        fvList.add(new FeaturesVectorMock(fvArrayValue1).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue2).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue3).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue4).getMock());
+        fvList.add(new FeaturesVectorMock(fvArrayValue5).getMock());
+
+
+        MetricsGathererMock mockMg = new MetricsGathererMock(fvList);
+        this.model.initMetricsGathererAndMetricsFlags(mockMg.getMock());
+        this.model.setComplexitySensitivity(0);
+        this.model.setKeywordsSensitivity(3);
+        this.model.setSizeSensitivity(0);
+
+        // Make a FeaturesVector that will trip the flag
+        float[] passedInArray = generateAndFillArray(3);
+        FeaturesVectorMock passedInFv = new FeaturesVectorMock(passedInArray);
+
+        assertEquals(model.predict(passedInFv.getMock()), 0, 0);
+    }
+
 }
