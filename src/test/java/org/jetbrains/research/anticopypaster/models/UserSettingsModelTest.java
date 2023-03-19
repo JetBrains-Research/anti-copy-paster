@@ -8,6 +8,14 @@ import static org.junit.Assert.assertTrue;
 
 public class UserSettingsModelTest {
 
+
+    /**
+   
+    Mock metrics gatherer needs to go here
+
+    */     
+
+
     private UserSettingsModel model;
 
     /**
@@ -15,18 +23,16 @@ public class UserSettingsModelTest {
      */
     @BeforeEach
     public void beforeTest(){
-        model = new UserSettingsModel();
+        model = new UserSettingsModel(null);
     }
 
     /**
-    This is a test of the skeleton version of the model. This just tests that the predict
-    method returns 1 as expected. This will be changed out in the future as we pass in a feature
-    vector once the flag logic has been added. The third parameter is the delta, which is needed
-    to assert floating point values, 0 just means they need to be exactly the same.
+    This is a test to make sure that if the model has a null metrics
+    gatherer that it will always return 0 (do not pop-up)
      */
     @Test
-    public void testPredictSkeleton(){
-        assertEquals(model.predict(null), 1, 0);
+    public void testPredictEverythingNull(){
+        assertEquals(model.predict(null), 0, 0);
     }
 
 }
