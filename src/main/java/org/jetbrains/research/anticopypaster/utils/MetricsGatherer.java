@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * This class is used to gather metrics from every method within the currently
- * open IntelliJ Project. If multiple IntellIJ Projects are currently in use,
+ * open IntelliJ Project. If multiple IntelliJ Projects are currently in use,
  * only the first project will be scoured.
  */
 public class MetricsGatherer {
@@ -90,7 +90,6 @@ public class MetricsGatherer {
                 FeaturesVector features = fvWrapper.features;
                 this.methodsMetrics.add(features);
             }
-
         }
     }
 }
