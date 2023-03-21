@@ -21,7 +21,7 @@ public class KeywordsMetrics extends Flag{
         if(fv != null){
             float[] fvArray = fv.buildArray();
             int totalKeywords = 0;
-            for(int i = 16; i<=77; i+=2){
+            for(int i = 16; i<77; i+=2){
                 totalKeywords += fvArray[i];
             }
             return totalKeywords;
