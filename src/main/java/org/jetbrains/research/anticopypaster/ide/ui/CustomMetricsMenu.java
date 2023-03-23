@@ -4,16 +4,16 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Scanner;
 
 @State(name = "AntiCopyPasterUsageStatistics", storages = {@Storage("custom-anticopypaster-plugin.xml")})
@@ -53,6 +53,15 @@ public class CustomMetricsMenu extends DialogWrapper implements PersistentStateC
                 customMetricsModel.complexityDropdownValue = scanner.nextLine();
             } catch (FileNotFoundException ex) {
                 // Handle file not found exception
+            }
+        }else{
+            Project p = ProjectManager.getInstance().getOpenProjects()[0];
+            String basePath = p.getBasePath();
+            String filepath = basePath + "/.idea/custom_metrics.txt";
+            try(FileWriter fr = new FileWriter(filepath)){
+                fr.write("This is a test");
+            }catch(IOException ioe){
+
             }
         }
 
