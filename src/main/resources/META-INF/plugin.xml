@@ -21,4 +21,14 @@
         <notificationGroup id="Extract Method suggestion"
                            displayType="BALLOON"/>
     </extensions>
+
+    <actions>
+        <action id="org.jetbrains.research.anticopypaster.ide.ui.CustomMetricsMenuAction" class="org.jetbrains.research.anticopypaster.ide.ui.CustomMetricsMenuAction"
+                text="AntiCopyPaster: Custom Metrics Menu" description="AntiCopyPaster: Custom Metrics Menu">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+            <override-text place="MainMenu" text="AntiCopyPaster: Custom Metrics Menu"/>
+            <keyboard-shortcut first-keystroke="control alt A" second-keystroke="C" keymap="$default"/>
+            <mouse-shortcut keystroke="control button3 doubleClick" keymap="$default"/>
+        </action>
+    </actions>
 </idea-plugin>
