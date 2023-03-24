@@ -1,5 +1,7 @@
 package org.jetbrains.research.anticopypaster.models;
 
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import org.jetbrains.research.anticopypaster.utils.MetricsGatherer;
 import org.jetbrains.research.anticopypaster.utils.KeywordsMetrics;
@@ -144,4 +146,13 @@ public class UserSettingsModel extends PredictionModel{
         return shouldNotify ? 1 : 0;
     }
 
+    /**
+     * This function logs all the pertinent metrics info
+     */
+    @Override
+    public void logInfo(String filepath){
+        this.complexityMetrics.logMetric(filepath);
+        this.keywordsMetrics.logMetric(filepath);
+        this.sizeMetrics.logMetric(filepath);
+    }
 }

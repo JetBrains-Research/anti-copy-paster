@@ -24,7 +24,8 @@ public class KeywordsMetrics extends Flag{
             for(int i = 16; i<77; i+=2){
                 totalKeywords += fvArray[i];
             }
-            return totalKeywords;
+            lastCalculatedMetric = totalKeywords;
+            return lastCalculatedMetric;
         } else {
             return 0;
         }
@@ -60,15 +61,22 @@ public class KeywordsMetrics extends Flag{
             case 0:
                 return false;
             case 1:
-                return fvKeywordsValue >= metricQ1; 
+                return fvKeywordsValue >= metricQ1;
             case 2:
-                return fvKeywordsValue >= metricQ2; 
+                return fvKeywordsValue >= metricQ2;
             case 3:
-                return fvKeywordsValue >= metricQ3; 
+                return fvKeywordsValue >= metricQ3;
             default:
                 return false;
         }
         
     }
 
+    /**
+     * Easier to use logMetric
+     * @param filepath path to the log file
+     */
+    public void logMetric(String filepath){
+        logMetric(filepath, "Keywords");
+    }
 }
