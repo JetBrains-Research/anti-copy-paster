@@ -1,15 +1,11 @@
 package org.jetbrains.research.anticopypaster.models;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import org.jetbrains.research.anticopypaster.utils.MetricsGatherer;
 import org.jetbrains.research.anticopypaster.utils.KeywordsMetrics;
 import org.jetbrains.research.anticopypaster.utils.SizeMetrics;
 import org.jetbrains.research.anticopypaster.utils.ComplexityMetrics;
 import org.jetbrains.research.anticopypaster.utils.Flag;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 

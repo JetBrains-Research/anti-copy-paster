@@ -2,8 +2,6 @@ package org.jetbrains.research.anticopypaster.utils;
 
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

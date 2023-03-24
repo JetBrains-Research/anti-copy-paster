@@ -5,7 +5,6 @@ import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public abstract class Flag{
