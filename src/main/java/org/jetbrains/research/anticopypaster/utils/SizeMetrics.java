@@ -34,10 +34,12 @@ public class SizeMetrics extends Flag{
             //divide by zero error, this will just skip making that calculation
             //and return zero regardless of what size of the snippet is
             if(fvArr[11] != (float)0){
-                return fvArr[0]/fvArr[11];
+                lastCalculatedMetric = fvArr[0]/fvArr[11];
+                return lastCalculatedMetric;
             }
         }
-        return 0; 
+        lastCalculatedMetric = 0;
+        return lastCalculatedMetric;
     }
     
     /**
@@ -62,4 +64,11 @@ public class SizeMetrics extends Flag{
         }
     }
 
+    /**
+     * Easier to use logMetric
+     * @param filepath path to the log file
+     */
+    public void logMetric(String filepath){
+        logMetric(filepath, "Size");
+    }
 }

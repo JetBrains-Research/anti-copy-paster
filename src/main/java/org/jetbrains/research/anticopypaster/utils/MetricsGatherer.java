@@ -52,41 +52,52 @@ public class MetricsGatherer {
         // Gets the first currently opened project
         Project project = ProjectManager.getInstance().getOpenProjects()[0];
 
-        // Gets all Java files from the Project
-        Collection<VirtualFile> vfCollection = FileTypeIndex.getFiles(
-                JavaFileType.INSTANCE,
-                GlobalSearchScope.projectScope(project));
-
+        var vfCollectionWrapper = new Object(){ Collection<VirtualFile> vfCollection = null; };
+        ApplicationManager.getApplication().runReadAction(() -> {
+            // Gets all Java files from the Project
+            vfCollectionWrapper.vfCollection = FileTypeIndex.getFiles(
+                    JavaFileType.INSTANCE,
+                    GlobalSearchScope.projectScope(project));
+        });
+        Collection<VirtualFile> vfCollection = vfCollectionWrapper.vfCollection;
         // Gets a PsiFile for every Java file in the project
         List<PsiFile> pfList = new ArrayList<>();
         for (VirtualFile file : vfCollection) {
             // Makes everything lowercase for consistency, and gets rid of file extension
             String filename = file.getName().toLowerCase().split("[.]")[0];
             if (!filename.startsWith("test") && !filename.endsWith("test")) {
-                pfList.add(PsiManager.getInstance(project).findFile(file));
+                ApplicationManager.getApplication().runReadAction(() -> {
+                    pfList.add(PsiManager.getInstance(project).findFile(file));
+                });
+
             }
         }
 
         // Gets all the PsiMethods, as well as their start and end lines.
-        for(PsiFile psiFile: pfList){
+        for(PsiFile psiFile: pfList) {
             // wrappers are used to get information out of runReadActions.
             // PsiTree's can't be accessed outside a read action, or it
             // can cause race conditions.
-            var psiMethodWrapper = new Object(){ Collection<PsiMethod> psiMethods = null; };
+            var psiMethodWrapper = new Object() {
+                Collection<PsiMethod> psiMethods = null;
+            };
             ApplicationManager.getApplication().runReadAction(() -> {
                 psiMethodWrapper.psiMethods = PsiTreeUtil.findChildrenOfType(psiFile, PsiMethod.class);
             });
 
             Collection<PsiMethod> psiMethods = psiMethodWrapper.psiMethods;
-            for(PsiMethod method: psiMethods) {
+            for (PsiMethod method : psiMethods) {
                 int startLine = PsiUtil.getNumberOfLine(psiFile, method.getTextRange().getStartOffset());
                 int endLine = PsiUtil.getNumberOfLine(psiFile, method.getTextRange().getEndOffset());
 
-                var fvWrapper = new Object(){ FeaturesVector features = null; };
+                var fvWrapper = new Object() {
+                    FeaturesVector features = null;
+                };
                 ApplicationManager.getApplication().runReadAction(() -> {
                     fvWrapper.features = new
                             MetricCalculator(method, method.getText(), startLine, endLine).getFeaturesVector();
                 });
+
                 FeaturesVector features = fvWrapper.features;
                 this.methodsMetrics.add(features);
             }

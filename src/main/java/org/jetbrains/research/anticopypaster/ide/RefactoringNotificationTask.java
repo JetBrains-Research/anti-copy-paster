@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -23,6 +24,8 @@ import org.jetbrains.research.extractMethod.metrics.MetricCalculator;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 
 import javax.swing.event.HyperlinkEvent;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Timer;
@@ -44,6 +47,7 @@ public class RefactoringNotificationTask extends TimerTask {
             .getNotificationGroup("Extract Method suggestion");
     private final Timer timer;
     private PredictionModel model;
+    private boolean debugMetrics;
 
 
     public RefactoringNotificationTask(DuplicatesInspection inspection, Timer timer) {
@@ -55,6 +59,7 @@ public class RefactoringNotificationTask extends TimerTask {
         PredictionModel model = this.model;
         if (model == null) {
             model = this.model = new UserSettingsModel(new MetricsGatherer());
+            this.debugMetrics = true;
         }
         return model;
     }
@@ -67,10 +72,11 @@ public class RefactoringNotificationTask extends TimerTask {
                 final RefactoringEvent event = eventsQueue.poll();
                 ApplicationManager.getApplication().runReadAction(() -> {
                     DuplicatesInspection.InspectionResult result = inspection.resolve(event.getFile(), event.getText());
+                    // This only triggers if there are duplicates found in multiple methods,
+                    // multiple duplicates in one method doesn't count.
                     if (result.getDuplicatesCount() < 2) {
                         return;
                     }
-
                     HashSet<String> variablesInCodeFragment = new HashSet<>();
                     HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
 
@@ -84,6 +90,31 @@ public class RefactoringNotificationTask extends TimerTask {
                     FeaturesVector featuresVector = calculateFeatures(event);
 
                     float prediction = model.predict(featuresVector);
+                    if(debugMetrics){
+                        var filepathHolder = new Object(){String filepath = "";};
+                        ApplicationManager.getApplication().runReadAction(() -> {
+                            Project p = ProjectManager.getInstance().getOpenProjects()[0];
+                            String basePath = p.getBasePath();
+                            filepathHolder.filepath = basePath +
+                                    "/.idea/anticopypaster-refactoringSuggestionsLog.log";
+                        });
+
+                        String filepath = filepathHolder.filepath;
+                        try(FileWriter fr = new FileWriter(filepath, true)){
+                            fr.write("\n-----------------------\nNEW COPY/PASTE EVENT:\nPASTED CODE:\n"
+                                    + event.getText());
+
+                            if(prediction > predictionThreshold){
+                                fr.write("\n\nSent Notification: True");
+                            }else{
+                                fr.write("\n\nSent Notification: False");
+                            }
+                            fr.write("\nMETRICS\n");
+                        }catch(IOException ioe){
+
+                        }
+                        model.logInfo(filepath);
+                    }
                     event.setReasonToExtract(AntiCopyPasterBundle.message(
                             "extract.method.to.simplify.logic.of.enclosing.method")); // dummy
 

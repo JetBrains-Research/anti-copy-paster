@@ -1,8 +1,10 @@
 package org.jetbrains.research.anticopypaster.utils;
 
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
+
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public abstract class Flag{
@@ -15,6 +17,8 @@ public abstract class Flag{
     protected float metricQ2;
     protected float metricQ3;
 
+    protected float lastCalculatedMetric;
+
     public abstract boolean isFlagTriggered(FeaturesVector featuresVector);
 
     public Flag(List<FeaturesVector> featuresVectorList){
@@ -22,6 +26,7 @@ public abstract class Flag{
         this.metricQ1=0;
         this.metricQ2=0;
         this.metricQ3=0;
+        this.lastCalculatedMetric = -1;
     }
 
     /**
@@ -83,4 +88,34 @@ public abstract class Flag{
         return this.sensitivity;
     }
 
+    /**
+     * This function logs the last known metric and the current threshold
+     * @param filepath path to the log file
+     * @param metricName name of the metric
+     */
+    protected void logMetric(String filepath, String metricName){
+        String threshold = switch (sensitivity) {
+            case (0) -> "Off";
+            case (1) -> Float.toString(this.metricQ1);
+            case (2) -> Float.toString(this.metricQ2);
+            case (3) -> Float.toString(this.metricQ3);
+            default -> "INVALID SENSITIVITY";
+        };
+
+        try(FileWriter fr = new FileWriter(filepath, true)){
+            fr.write("Current " + metricName +
+                    " Threshold, Last Calculated Metric: " +
+                    threshold + ", " + lastCalculatedMetric + "\n");
+        }catch(IOException ioe){
+
+        }
+    }
+
+    /**
+     * Abstract logMetric method which is required to be implemented.
+     * This allows descendants to call the above logMetric with the name
+     * of their metric, and have outside classes only require filepath
+     * @param filepath path to the log file
+     */
+    public abstract void logMetric(String filepath);
 }

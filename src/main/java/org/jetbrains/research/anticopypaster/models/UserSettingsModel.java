@@ -6,8 +6,6 @@ import org.jetbrains.research.anticopypaster.utils.KeywordsMetrics;
 import org.jetbrains.research.anticopypaster.utils.SizeMetrics;
 import org.jetbrains.research.anticopypaster.utils.ComplexityMetrics;
 import org.jetbrains.research.anticopypaster.utils.Flag;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -144,4 +142,13 @@ public class UserSettingsModel extends PredictionModel{
         return shouldNotify ? 1 : 0;
     }
 
+    /**
+     * This function logs all the pertinent metrics info
+     */
+    @Override
+    public void logInfo(String filepath){
+        this.complexityMetrics.logMetric(filepath);
+        this.keywordsMetrics.logMetric(filepath);
+        this.sizeMetrics.logMetric(filepath);
+    }
 }
