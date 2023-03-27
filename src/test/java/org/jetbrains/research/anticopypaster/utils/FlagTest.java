@@ -30,6 +30,11 @@ public class FlagTest {
         public boolean isFlagTriggered(FeaturesVector featuresVector){
             return false;
         }
+
+        @Override
+        public void logMetric(String filepath){
+            // Do nothing just lets tests go
+        }
     }
 
     private TestingFlag testFlag;
