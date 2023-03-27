@@ -63,21 +63,23 @@ public class CustomMetricsMenuAction extends AnAction {
             String basePath = p.getBasePath();
             String filepath = basePath + "/.idea/custom_metrics.txt";
             try(FileWriter fr = new FileWriter(filepath)){
+                fr.write("Custom Metrics Values:\n");
+
                 //write keywords values
-                fr.write(customMetricsModel.keywordsDropdownValue);
-                fr.write(customMetricsModel.keywordsCheckboxValue);
+                fr.write(customMetricsModel.keywordsDropdownValue + "\n");
+                fr.write(customMetricsModel.keywordsCheckboxValue + "\n");
 
                 //write coupling values
-                fr.write(customMetricsModel.couplingDropdownValue);
-                fr.write(customMetricsModel.couplingCheckboxValue);
+                fr.write(customMetricsModel.couplingDropdownValue + "\n");
+                fr.write(customMetricsModel.couplingCheckboxValue + "\n");
 
                 //write size values
-                fr.write(customMetricsModel.sizeDropdownValue);
-                fr.write(customMetricsModel.sizeCheckboxValue);
+                fr.write(customMetricsModel.sizeDropdownValue + "\n");
+                fr.write(customMetricsModel.sizeCheckboxValue + "\n");
 
                 //write complexity values
-                fr.write(customMetricsModel.complexityDropdownValue);
-                fr.write(customMetricsModel.complexityCheckboxValue);
+                fr.write(customMetricsModel.complexityDropdownValue + "\n");
+                fr.write(customMetricsModel.complexityCheckboxValue + "\n");
 
             }catch(IOException ioe){
 

@@ -22,7 +22,8 @@ public class CustomMetricsMenu extends DialogWrapper implements PersistentStateC
 
     private CustomMetricsModel customMetricsModel;
 
-    private static final String FILE_PATH = "./custom_metrics.txt";
+    private static final String FILE_PATH = ProjectManager.getInstance().getOpenProjects()[0]
+            .getBasePath() + "/.idea/custom_metrics.txt";
 
     private ComboBox<String> keywordsDropdown;
     private JCheckBox keywordsCheckbox;
@@ -64,7 +65,7 @@ public class CustomMetricsMenu extends DialogWrapper implements PersistentStateC
         this.customMetricsModel = new CustomMetricsModel();
 
 
-        // initialize file to write values to
+        // initialize file to read values from
         File file = new File(FILE_PATH);
         if (file.exists()) {
             firstTime = false;
@@ -82,18 +83,7 @@ public class CustomMetricsMenu extends DialogWrapper implements PersistentStateC
             } catch (FileNotFoundException ex) {
                 // Handle file not found exception
             }
-        }else{
-            Project p = ProjectManager.getInstance().getOpenProjects()[0];
-            String basePath = p.getBasePath();
-            String filepath = basePath + "/.idea/custom_metrics.txt";
-            try(FileWriter fr = new FileWriter(filepath)){
-                fr.write("Custom Metrics Values:");
-            }catch(IOException ioe){
-
-            }
         }
-
-
         // add items to the dropdowns
         keywordsDropdown.addItem("Off");
         keywordsDropdown.addItem("Low");
@@ -137,15 +127,27 @@ public class CustomMetricsMenu extends DialogWrapper implements PersistentStateC
         if (!firstTime) {
             if (customMetricsModel.keywordsDropdownValue != null) {
                 keywordsDropdown.setSelectedItem(customMetricsModel.keywordsDropdownValue);
+                keywordsCheckbox.setSelected(
+                        Boolean.parseBoolean(customMetricsModel.keywordsCheckboxValue)
+                );
             }
             if (customMetricsModel.couplingDropdownValue != null) {
                 couplingDropdown.setSelectedItem(customMetricsModel.couplingDropdownValue);
+                couplingCheckbox.setSelected(
+                        Boolean.parseBoolean(customMetricsModel.couplingCheckboxValue)
+                );
             }
             if (customMetricsModel.sizeDropdownValue != null) {
                 sizeDropdown.setSelectedItem(customMetricsModel.sizeDropdownValue);
+                sizeCheckbox.setSelected(
+                        Boolean.parseBoolean(customMetricsModel.sizeCheckboxValue)
+                );
             }
             if (customMetricsModel.complexityDropdownValue != null) {
                 complexityDropdown.setSelectedItem(customMetricsModel.complexityDropdownValue);
+                complexityCheckbox.setSelected(
+                        Boolean.parseBoolean(customMetricsModel.complexityCheckboxValue)
+                );
             }
         }
 
