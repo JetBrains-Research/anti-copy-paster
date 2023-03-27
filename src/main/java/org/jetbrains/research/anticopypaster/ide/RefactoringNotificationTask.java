@@ -72,9 +72,10 @@ public class RefactoringNotificationTask extends TimerTask {
                 final RefactoringEvent event = eventsQueue.poll();
                 ApplicationManager.getApplication().runReadAction(() -> {
                     DuplicatesInspection.InspectionResult result = inspection.resolve(event.getFile(), event.getText());
+                    // This only triggers if there are duplicates found in multiple methods,
+                    // multiple duplicates in one method doesn't count.
                     if (result.getDuplicatesCount() < 2) {
-                        // This line is commented out due to the getDuplicatesCount method always returning 1.
-                        // return;
+                        return;
                     }
                     HashSet<String> variablesInCodeFragment = new HashSet<>();
                     HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
