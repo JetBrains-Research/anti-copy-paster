@@ -69,14 +69,13 @@ public class RefactoringNotificationTask extends TimerTask {
         while (!eventsQueue.isEmpty()) {
             final PredictionModel model = getOrInitModel();
             try {
-                System.out.println("I made the model");
                 final RefactoringEvent event = eventsQueue.poll();
                 ApplicationManager.getApplication().runReadAction(() -> {
                     DuplicatesInspection.InspectionResult result = inspection.resolve(event.getFile(), event.getText());
                     if (result.getDuplicatesCount() < 2) {
-                        //return;
+                        // This line is commented out due to the getDuplicatesCount method always returning 1.
+                        // return;
                     }
-
                     HashSet<String> variablesInCodeFragment = new HashSet<>();
                     HashMap<String, Integer> variablesCountsInCodeFragment = new HashMap<>();
 
