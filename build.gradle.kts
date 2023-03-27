@@ -1,5 +1,6 @@
 plugins {
     java
+    jacoco
     id("org.jetbrains.intellij") version "1.13.2"
     id("com.adarshr.test-logger") version "3.2.0"
 }
@@ -51,6 +52,11 @@ intellij {
     plugins.set(properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty))
 }
 
+jacoco {
+    toolVersion = "0.8.8"
+    reportsDirectory.set(layout.buildDirectory.dir("customJacocoReportDir"))
+}
+
 tasks {
     withType<org.jetbrains.intellij.tasks.BuildSearchableOptionsTask>()
         .forEach { it.enabled = false }
@@ -60,6 +66,15 @@ tasks {
     //test task
     test {
         useJUnitPlatform()
+        finalizedBy(jacocoTestReport) // report is always generated after tests run
+    }
+    jacocoTestReport {
+        dependsOn(test) // tests are required to run before generating the report
+        reports {
+            xml.required.set(false)
+            csv.required.set(false)
+            html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+        }
     }
 }
 
