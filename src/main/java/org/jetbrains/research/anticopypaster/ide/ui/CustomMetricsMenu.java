@@ -25,19 +25,40 @@ public class CustomMetricsMenu extends DialogWrapper implements PersistentStateC
     private static final String FILE_PATH = "./custom_metrics.txt";
 
     private ComboBox<String> keywordsDropdown;
+    private JCheckBox keywordsCheckbox;
     private ComboBox<String> couplingDropdown;
+    private JCheckBox couplingCheckbox;
     private ComboBox<String> sizeDropdown;
+    private JCheckBox sizeCheckbox;
     private ComboBox<String> complexityDropdown;
+    private JCheckBox complexityCheckbox;
+
 
     public CustomMetricsMenu() {
         super(true); // true means the dialog is modal
         setTitle("Custom Metrics Model");
 
-        // initialize the dropdown components
+        // initialize the dropdown and checkbox components
         keywordsDropdown = new ComboBox<>();
+        keywordsCheckbox = new JCheckBox();
+        keywordsCheckbox.addActionListener(e -> {
+            customMetricsModel.keywordsCheckboxValue = String.valueOf(keywordsCheckbox.isSelected());
+        });
         couplingDropdown = new ComboBox<>();
+        couplingCheckbox = new JCheckBox();
+        couplingCheckbox.addActionListener(e -> {
+            customMetricsModel.couplingCheckboxValue = String.valueOf(couplingCheckbox.isSelected());
+        });
         sizeDropdown = new ComboBox<>();
+        sizeCheckbox = new JCheckBox();
+        sizeCheckbox.addActionListener(e -> {
+            customMetricsModel.sizeCheckboxValue = String.valueOf(sizeCheckbox.isSelected());
+        });
         complexityDropdown = new ComboBox<>();
+        complexityCheckbox = new JCheckBox();
+        complexityCheckbox.addActionListener(e -> {
+            customMetricsModel.complexityCheckboxValue = String.valueOf(complexityCheckbox.isSelected());
+        });
 
         // initialize the customMetricsModel
         this.customMetricsModel = new CustomMetricsModel();
@@ -46,11 +67,18 @@ public class CustomMetricsMenu extends DialogWrapper implements PersistentStateC
         // initialize file to write values to
         File file = new File(FILE_PATH);
         if (file.exists()) {
+            firstTime = false;
             try (Scanner scanner = new Scanner(file)) {
+                //throw away first line
+                scanner.nextLine();
                 customMetricsModel.keywordsDropdownValue = scanner.nextLine();
+                customMetricsModel.keywordsCheckboxValue = scanner.nextLine();
                 customMetricsModel.couplingDropdownValue = scanner.nextLine();
+                customMetricsModel.couplingCheckboxValue = scanner.nextLine();
                 customMetricsModel.sizeDropdownValue = scanner.nextLine();
+                customMetricsModel.sizeCheckboxValue = scanner.nextLine();
                 customMetricsModel.complexityDropdownValue = scanner.nextLine();
+                customMetricsModel.complexityCheckboxValue = scanner.nextLine();
             } catch (FileNotFoundException ex) {
                 // Handle file not found exception
             }
@@ -59,7 +87,7 @@ public class CustomMetricsMenu extends DialogWrapper implements PersistentStateC
             String basePath = p.getBasePath();
             String filepath = basePath + "/.idea/custom_metrics.txt";
             try(FileWriter fr = new FileWriter(filepath)){
-                fr.write("This is a test");
+                fr.write("Custom Metrics Values:");
             }catch(IOException ioe){
 
             }
@@ -129,31 +157,60 @@ public class CustomMetricsMenu extends DialogWrapper implements PersistentStateC
         return keywordsDropdown.getSelectedItem().toString();
     }
 
+    public Boolean getKeywordsCheckboxValue() {
+        return keywordsCheckbox.isSelected();
+    }
+
     public String getCouplingDropdownValue() {
         return couplingDropdown.getSelectedItem().toString();
+    }
+
+    public Boolean getCouplingCheckboxValue() {
+        return couplingCheckbox.isSelected();
     }
 
     public String getSizeDropdownValue() {
         return sizeDropdown.getSelectedItem().toString();
     }
 
+    public Boolean getSizeCheckboxValue() {
+        return sizeCheckbox.isSelected();
+    }
+
     public String getComplexityDropdownValue() {
         return complexityDropdown.getSelectedItem().toString();
+    }
+
+    public Boolean getComplexityCheckboxValue() {
+        return complexityCheckbox.isSelected();
     }
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
         JPanel panel = new JPanel(new GridLayout(4, 3));
-        JLabel keywordsLabel = new JLabel("Keywords Sensitivity:");
-        keywordsLabel.setToolTipText("Select the sensitivity of how many keywords should be found before refactoring is suggested");
-        panel.add(keywordsLabel);
+        //Keywords Inputs
+        JLabel keywordsDropdownLabel = new JLabel("Keywords Sensitivity:");
+        keywordsDropdownLabel.setToolTipText("Select the sensitivity of how many keywords should be found before refactoring is suggested");
+        panel.add(keywordsDropdownLabel);
         panel.add(keywordsDropdown);
+        JLabel keywordsCheckboxLabel = new JLabel("Keywords Required:");
+        panel.add(keywordsCheckboxLabel);
+        panel.add(keywordsCheckbox);
+        //Coupling Inputs
         panel.add(new JLabel("Coupling Sensitivity:"));
         panel.add(couplingDropdown);
+        panel.add(new JLabel("Coupling Required:"));
+        panel.add(couplingCheckbox);
+        //Size Inputs
         panel.add(new JLabel("Size Sensitivity:"));
         panel.add(sizeDropdown);
+        panel.add(new JLabel("Size Required:"));
+        panel.add(sizeCheckbox);
+        //Complexity Inputs
         panel.add(new JLabel("Complexity Sensitivity:"));
         panel.add(complexityDropdown);
+        panel.add(new JLabel("Complexity Required:"));
+        panel.add(complexityCheckbox);
         return panel;
     }
 
