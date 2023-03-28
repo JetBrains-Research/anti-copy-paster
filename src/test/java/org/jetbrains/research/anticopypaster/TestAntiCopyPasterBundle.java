@@ -1,4 +1,4 @@
 package org.jetbrains.research.anticopypaster;
 
-public class AntiCopyPasterBundleTest {
+public class TestAntiCopyPasterBundle {
 }

@@ -2,10 +2,8 @@ package org.jetbrains.research.anticopypaster.utils;
 
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.Assert.assertEquals;
@@ -16,7 +14,7 @@ import org.mockito.Mock;
 
 import static org.mockito.Mockito.*;
 
-public class SizeMetricsTest {
+public class TestSizeMetrics {
     
     /**
     Inner class to mock a FeaturesVector

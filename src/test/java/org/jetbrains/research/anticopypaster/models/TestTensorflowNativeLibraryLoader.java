@@ -1,4 +1,4 @@
 package org.jetbrains.research.anticopypaster.models;
 
-public class TensorflowNativeLibraryLoaderTest {
+public class TestTensorflowNativeLibraryLoader {
 }

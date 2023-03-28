@@ -1,17 +1,12 @@
 package org.jetbrains.research.anticopypaster.models;
 
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.jetbrains.research.extractMethod.metrics.features.FeaturesVector;
 import org.jetbrains.research.anticopypaster.utils.MetricsGatherer;
-import org.jetbrains.research.anticopypaster.utils.KeywordsMetrics;
-import org.jetbrains.research.anticopypaster.utils.SizeMetrics;
-import org.jetbrains.research.anticopypaster.utils.ComplexityMetrics;
-import org.jetbrains.research.anticopypaster.utils.Flag;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -22,7 +17,7 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 
 
-public class UserSettingsModelTest {
+public class TestUserSettingsModel {
 
     /**
     Inner class to mock a FeaturesVector, should only need buildArray() for this

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.*;
  * plugins with the full Psi/Project functionality, while reusing the same project in
  * between tests.
  */
-public class MetricsGathererTest extends LightJavaCodeInsightFixtureTestCase {
+public class TestMetricsGatherer extends LightJavaCodeInsightFixtureTestCase {
     // Boolean to ensure the testdata is only added once across the multiple tests
     private boolean addedTestClass = false;
 
