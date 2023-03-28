@@ -41,3 +41,17 @@ Please, use the following bibtex entry:
   year={2022}
 }
 ```
+
+Also, refer to our extended version of this work here:
+```tex
+@article{alomar2023just,
+  title={Just-in-time code duplicates extraction},
+  author={AlOmar, Eman Abdullah and Ivanov, Anton and Kurbatova, Zarina and Golubev, Yaroslav and Mkaouer, Mohamed Wiem and Ouni, Ali and Bryksin, Timofey and Nguyen, Le and Kini, Amit and Thakur, Aditya},
+  journal={Information and Software Technology},
+  volume={158},
+  pages={107169},
+  year={2023},
+  publisher={Elsevier}
+}
+```
+
