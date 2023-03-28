@@ -16,8 +16,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.Scanner;
 
-@State(name = "AntiCopyPasterUsageStatistics", storages = {@Storage("custom-anticopypaster-plugin.xml")})
-public class CustomMetricsMenu extends DialogWrapper implements PersistentStateComponent<CustomMetricsModel> {
+public class CustomMetricsMenu extends DialogWrapper {
     private boolean firstTime = true;
 
     private CustomMetricsModel customMetricsModel;
@@ -215,19 +214,4 @@ public class CustomMetricsMenu extends DialogWrapper implements PersistentStateC
         panel.add(complexityCheckbox);
         return panel;
     }
-
-    @Override
-    public @Nullable CustomMetricsModel getState() {
-        return customMetricsModel;
-    }
-
-    @Override
-    public void loadState(@NotNull CustomMetricsModel state) {
-        customMetricsModel = state;
-    }
-
-    public static CustomMetricsModel getInstance(Project project) {
-        return project.getService(CustomMetricsModel.class);
-    }
-
 }

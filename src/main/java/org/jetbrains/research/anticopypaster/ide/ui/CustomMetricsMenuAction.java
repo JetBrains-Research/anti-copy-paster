@@ -11,7 +11,6 @@ import java.io.IOException;
 
 public class CustomMetricsMenuAction extends AnAction {
 
-    private static final String FILE_PATH = "./custom_metrics.txt";
 
     public void actionPerformed(AnActionEvent e) {
         CustomMetricsMenu dialog = new CustomMetricsMenu();
@@ -36,27 +35,6 @@ public class CustomMetricsMenuAction extends AnAction {
             customMetricsModel.sizeCheckboxValue = String.valueOf(sizeCheckboxValue);
             customMetricsModel.complexityDropdownValue = complexityDropdownValue;
             customMetricsModel.complexityCheckboxValue = String.valueOf(complexityCheckboxValue);
-
-            // Save the values to the file
-            dialog.loadState(customMetricsModel);
-
-
-            System.out.println("---------------------------------------------------------");
-            System.out.println("NEW METRICS INPUT");
-            System.out.println(customMetricsModel);
-            System.out.println("Keywords Sensitivity Dropdown Value:\n\t" + customMetricsModel.keywordsDropdownValue);
-            System.out.println("Keywords Sensitivity Checkbox Value:\n\t" + customMetricsModel.keywordsCheckboxValue);
-
-            System.out.println("Coupling Sensitivity Dropdown Value:\n\t" + customMetricsModel.couplingDropdownValue);
-            System.out.println("Coupling Sensitivity Checkbox Value:\n\t" + customMetricsModel.couplingCheckboxValue);
-
-            System.out.println("Size Sensitivity Dropdown Value:\n\t" + customMetricsModel.sizeDropdownValue);
-            System.out.println("Size Sensitivity Checkbox Value:\n\t" + customMetricsModel.sizeCheckboxValue);
-
-            System.out.println("Complexity Sensitivity Dropdown Value:\n\t" + customMetricsModel.complexityDropdownValue);
-            System.out.println("Complexity Sensitivity Checkbox Value:\n\t" + customMetricsModel.complexityCheckboxValue);
-
-            System.out.println("---------------------------------------------------------");
 
             // initialize file to write values to
             Project p = ProjectManager.getInstance().getOpenProjects()[0];
