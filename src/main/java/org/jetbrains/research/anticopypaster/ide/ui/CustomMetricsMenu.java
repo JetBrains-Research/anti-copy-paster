@@ -26,8 +26,6 @@ public class CustomMetricsMenu extends DialogWrapper {
 
     private ComboBox<String> keywordsDropdown;
     private JCheckBox keywordsCheckbox;
-    private ComboBox<String> couplingDropdown;
-    private JCheckBox couplingCheckbox;
     private ComboBox<String> sizeDropdown;
     private JCheckBox sizeCheckbox;
     private ComboBox<String> complexityDropdown;
@@ -43,11 +41,6 @@ public class CustomMetricsMenu extends DialogWrapper {
         keywordsCheckbox = new JCheckBox();
         keywordsCheckbox.addActionListener(e -> {
             customMetricsModel.keywordsCheckboxValue = String.valueOf(keywordsCheckbox.isSelected());
-        });
-        couplingDropdown = new ComboBox<>();
-        couplingCheckbox = new JCheckBox();
-        couplingCheckbox.addActionListener(e -> {
-            customMetricsModel.couplingCheckboxValue = String.valueOf(couplingCheckbox.isSelected());
         });
         sizeDropdown = new ComboBox<>();
         sizeCheckbox = new JCheckBox();
@@ -73,8 +66,6 @@ public class CustomMetricsMenu extends DialogWrapper {
                 scanner.nextLine();
                 customMetricsModel.keywordsDropdownValue = scanner.nextLine();
                 customMetricsModel.keywordsCheckboxValue = scanner.nextLine();
-                customMetricsModel.couplingDropdownValue = scanner.nextLine();
-                customMetricsModel.couplingCheckboxValue = scanner.nextLine();
                 customMetricsModel.sizeDropdownValue = scanner.nextLine();
                 customMetricsModel.sizeCheckboxValue = scanner.nextLine();
                 customMetricsModel.complexityDropdownValue = scanner.nextLine();
@@ -90,14 +81,6 @@ public class CustomMetricsMenu extends DialogWrapper {
         keywordsDropdown.addItem("High");
         keywordsDropdown.addActionListener(e -> {
             customMetricsModel.keywordsDropdownValue = (String) keywordsDropdown.getSelectedItem();
-        });
-
-        couplingDropdown.addItem("Off");
-        couplingDropdown.addItem("Low");
-        couplingDropdown.addItem("Medium");
-        couplingDropdown.addItem("High");
-        couplingDropdown.addActionListener(e -> {
-            customMetricsModel.couplingDropdownValue = (String) couplingDropdown.getSelectedItem();
         });
 
         sizeDropdown.addItem("Off");
@@ -130,12 +113,6 @@ public class CustomMetricsMenu extends DialogWrapper {
                         Boolean.parseBoolean(customMetricsModel.keywordsCheckboxValue)
                 );
             }
-            if (customMetricsModel.couplingDropdownValue != null) {
-                couplingDropdown.setSelectedItem(customMetricsModel.couplingDropdownValue);
-                couplingCheckbox.setSelected(
-                        Boolean.parseBoolean(customMetricsModel.couplingCheckboxValue)
-                );
-            }
             if (customMetricsModel.sizeDropdownValue != null) {
                 sizeDropdown.setSelectedItem(customMetricsModel.sizeDropdownValue);
                 sizeCheckbox.setSelected(
@@ -160,14 +137,6 @@ public class CustomMetricsMenu extends DialogWrapper {
 
     public Boolean getKeywordsCheckboxValue() {
         return keywordsCheckbox.isSelected();
-    }
-
-    public String getCouplingDropdownValue() {
-        return couplingDropdown.getSelectedItem().toString();
-    }
-
-    public Boolean getCouplingCheckboxValue() {
-        return couplingCheckbox.isSelected();
     }
 
     public String getSizeDropdownValue() {
@@ -197,11 +166,6 @@ public class CustomMetricsMenu extends DialogWrapper {
         JLabel keywordsCheckboxLabel = new JLabel("Keywords Required:");
         panel.add(keywordsCheckboxLabel);
         panel.add(keywordsCheckbox);
-        //Coupling Inputs
-        panel.add(new JLabel("Coupling Sensitivity:"));
-        panel.add(couplingDropdown);
-        panel.add(new JLabel("Coupling Required:"));
-        panel.add(couplingCheckbox);
         //Size Inputs
         panel.add(new JLabel("Size Sensitivity:"));
         panel.add(sizeDropdown);
