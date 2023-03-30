@@ -17,20 +17,14 @@ public class CustomMetricsMenuAction extends AnAction {
         if (dialog.showAndGet()) {
             // user clicked "OK", retrieve the selected values from the dropdowns
             String keywordsDropdownValue = dialog.getKeywordsDropdownValue();
-            Boolean keywordsCheckboxValue = dialog.getKeywordsCheckboxValue();
             String sizeDropdownValue = dialog.getSizeDropdownValue();
-            Boolean sizeCheckboxValue = dialog.getSizeCheckboxValue();
             String complexityDropdownValue = dialog.getComplexityDropdownValue();
-            Boolean complexityCheckboxValue = dialog.getComplexityCheckboxValue();
 
             // create new customMetricsModel object to return to the backend
             CustomMetricsModel customMetricsModel = new CustomMetricsModel();
             customMetricsModel.keywordsDropdownValue = keywordsDropdownValue;
-            customMetricsModel.keywordsCheckboxValue = String.valueOf(keywordsCheckboxValue);
             customMetricsModel.sizeDropdownValue = sizeDropdownValue;
-            customMetricsModel.sizeCheckboxValue = String.valueOf(sizeCheckboxValue);
             customMetricsModel.complexityDropdownValue = complexityDropdownValue;
-            customMetricsModel.complexityCheckboxValue = String.valueOf(complexityCheckboxValue);
 
             // initialize file to write values to
             Project p = ProjectManager.getInstance().getOpenProjects()[0];
@@ -41,15 +35,12 @@ public class CustomMetricsMenuAction extends AnAction {
 
                 //write keywords values
                 fr.write(customMetricsModel.keywordsDropdownValue + "\n");
-                fr.write(customMetricsModel.keywordsCheckboxValue + "\n");
 
                 //write size values
                 fr.write(customMetricsModel.sizeDropdownValue + "\n");
-                fr.write(customMetricsModel.sizeCheckboxValue + "\n");
 
                 //write complexity values
                 fr.write(customMetricsModel.complexityDropdownValue + "\n");
-                fr.write(customMetricsModel.complexityCheckboxValue + "\n");
 
             }catch(IOException ioe){
 

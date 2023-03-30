@@ -25,33 +25,21 @@ public class CustomMetricsMenu extends DialogWrapper {
             .getBasePath() + "/.idea/custom_metrics.txt";
 
     private ComboBox<String> keywordsDropdown;
-    private JCheckBox keywordsCheckbox;
     private ComboBox<String> sizeDropdown;
-    private JCheckBox sizeCheckbox;
     private ComboBox<String> complexityDropdown;
-    private JCheckBox complexityCheckbox;
 
 
     public CustomMetricsMenu() {
         super(true); // true means the dialog is modal
         setTitle("Custom Metrics Model");
 
-        // initialize the dropdown and checkbox components
+        // initialize the dropdown components
         keywordsDropdown = new ComboBox<>();
-        keywordsCheckbox = new JCheckBox();
-        keywordsCheckbox.addActionListener(e -> {
-            customMetricsModel.keywordsCheckboxValue = String.valueOf(keywordsCheckbox.isSelected());
-        });
+
         sizeDropdown = new ComboBox<>();
-        sizeCheckbox = new JCheckBox();
-        sizeCheckbox.addActionListener(e -> {
-            customMetricsModel.sizeCheckboxValue = String.valueOf(sizeCheckbox.isSelected());
-        });
+
         complexityDropdown = new ComboBox<>();
-        complexityCheckbox = new JCheckBox();
-        complexityCheckbox.addActionListener(e -> {
-            customMetricsModel.complexityCheckboxValue = String.valueOf(complexityCheckbox.isSelected());
-        });
+
 
         // initialize the customMetricsModel
         this.customMetricsModel = new CustomMetricsModel();
@@ -65,11 +53,8 @@ public class CustomMetricsMenu extends DialogWrapper {
                 //throw away first line
                 scanner.nextLine();
                 customMetricsModel.keywordsDropdownValue = scanner.nextLine();
-                customMetricsModel.keywordsCheckboxValue = scanner.nextLine();
                 customMetricsModel.sizeDropdownValue = scanner.nextLine();
-                customMetricsModel.sizeCheckboxValue = scanner.nextLine();
                 customMetricsModel.complexityDropdownValue = scanner.nextLine();
-                customMetricsModel.complexityCheckboxValue = scanner.nextLine();
             } catch (FileNotFoundException ex) {
                 // Handle file not found exception
             }
@@ -109,21 +94,12 @@ public class CustomMetricsMenu extends DialogWrapper {
         if (!firstTime) {
             if (customMetricsModel.keywordsDropdownValue != null) {
                 keywordsDropdown.setSelectedItem(customMetricsModel.keywordsDropdownValue);
-                keywordsCheckbox.setSelected(
-                        Boolean.parseBoolean(customMetricsModel.keywordsCheckboxValue)
-                );
             }
             if (customMetricsModel.sizeDropdownValue != null) {
                 sizeDropdown.setSelectedItem(customMetricsModel.sizeDropdownValue);
-                sizeCheckbox.setSelected(
-                        Boolean.parseBoolean(customMetricsModel.sizeCheckboxValue)
-                );
             }
             if (customMetricsModel.complexityDropdownValue != null) {
                 complexityDropdown.setSelectedItem(customMetricsModel.complexityDropdownValue);
-                complexityCheckbox.setSelected(
-                        Boolean.parseBoolean(customMetricsModel.complexityCheckboxValue)
-                );
             }
         }
 
@@ -135,24 +111,12 @@ public class CustomMetricsMenu extends DialogWrapper {
         return keywordsDropdown.getSelectedItem().toString();
     }
 
-    public Boolean getKeywordsCheckboxValue() {
-        return keywordsCheckbox.isSelected();
-    }
-
     public String getSizeDropdownValue() {
         return sizeDropdown.getSelectedItem().toString();
     }
 
-    public Boolean getSizeCheckboxValue() {
-        return sizeCheckbox.isSelected();
-    }
-
     public String getComplexityDropdownValue() {
         return complexityDropdown.getSelectedItem().toString();
-    }
-
-    public Boolean getComplexityCheckboxValue() {
-        return complexityCheckbox.isSelected();
     }
 
     @Override
@@ -163,19 +127,12 @@ public class CustomMetricsMenu extends DialogWrapper {
         keywordsDropdownLabel.setToolTipText("Select the sensitivity of how many keywords should be found before refactoring is suggested");
         panel.add(keywordsDropdownLabel);
         panel.add(keywordsDropdown);
-        JLabel keywordsCheckboxLabel = new JLabel("Keywords Required:");
-        panel.add(keywordsCheckboxLabel);
-        panel.add(keywordsCheckbox);
         //Size Inputs
         panel.add(new JLabel("Size Sensitivity:"));
         panel.add(sizeDropdown);
-        panel.add(new JLabel("Size Required:"));
-        panel.add(sizeCheckbox);
         //Complexity Inputs
         panel.add(new JLabel("Complexity Sensitivity:"));
         panel.add(complexityDropdown);
-        panel.add(new JLabel("Complexity Required:"));
-        panel.add(complexityCheckbox);
         return panel;
     }
 }
